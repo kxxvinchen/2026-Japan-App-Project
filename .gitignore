@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# firebase local cache / logs
+.firebase/
+firebase-debug.log
+*.log
+
+# macOS
+.DS_Store
+
+# editor
+.vscode/
+.idea/
