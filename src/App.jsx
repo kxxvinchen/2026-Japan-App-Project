@@ -14,7 +14,7 @@ import Settings from "./components/Settings.jsx";
 import AddActivity from "./components/AddActivity.jsx";
 import Onboard from "./components/Onboard.jsx";
 import Messages from "./components/Messages.jsx";
-import { setGroups } from "./lib/firebase.js";
+import { setGroups, setFlight } from "./lib/firebase.js";
 
 const SCREENS = {
   overview: Overview, day: Day, cities: Cities, city: City, phrases: Phrases,
@@ -39,6 +39,8 @@ export default function App() {
   useEffect(() => { window.__jtNav = (scr) => dispatch({ type: "nav", screen: scr }); }, [dispatch]);
   // keep the messaging layer's channel access in sync with the chosen groups
   useEffect(() => { setGroups(state.groups); }, [state.groups]);
+  // flight choice drives the departure reminders
+  useEffect(() => { setFlight(state.flight); }, [state.flight]);
 
   const Cur = SCREENS[state.screen];
   return (

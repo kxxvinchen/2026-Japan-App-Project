@@ -3,6 +3,9 @@
    which React subscribes to via useSyncExternalStore. Messaging UI state (active channel,
    unread baselines, compose draft, edit target, menus) lives here, tightly coupled to FB. */
 import { CHANNELS, CH_LABEL } from "./channels.js";
+import { FLIGHTS } from "../data.js";
+import { daySet } from "./groups.js";
+import { fmt12 } from "./activity.js";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyA2uy_QSc0eV9dmED4blU5SwdiYLAcE75U",
@@ -34,7 +37,9 @@ export const FB = {
 };
 
 let userGroups = [];
-export function setGroups(groups) { userGroups = groups || []; subscribeChannels(); syncNotifTopics(); notify(); }
+let userFlight = "";
+export function setGroups(groups) { userGroups = groups || []; subscribeChannels(); syncNotifTopics(); scheduleDepartureReminders(); notify(); }
+export function setFlight(f) { userFlight = f || ""; scheduleDepartureReminders(); }
 
 /* ---- subscription for React (useSyncExternalStore) ---- */
 let ver = 0;
@@ -184,6 +189,7 @@ export async function signIn(emailRaw, pwd) {
   if (!email || !pwd) { FB.error = "Enter your username and password."; notify(); return; }
   if (email.indexOf("@") < 0) email = email.toLowerCase() + LOGIN_DOMAIN;
   FB.error = "";
+  if (!FB.auth) await new Promise((res) => { const t0 = Date.now(); (function chk() { if (FB.auth || Date.now() - t0 > 8000) return res(); setTimeout(chk, 150); })(); });
   if (!FB.auth) { FB.error = "Still connecting — wait a moment and try again."; notify(); return; }
   FB.pendingSignIn = true; FB.signinBusy = true; notify();
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
@@ -293,7 +299,78 @@ export async function enableNotifs() {
     if (!FB.messaging) FB.messaging = firebase.messaging();
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
-    if (token) { FB.webToken = token; await saveWebToken(token); }
+    if (token) { FB.webToken = token; await saveWebToken(token); scheduleDepartureReminders(); }
   } catch (e) {}
 }
 export function notifGranted() { return (typeof Notification !== "undefined" && Notification.permission === "granted") || FB.notifPerm === "granted"; }
+
+/* native iOS/Android shells call window.jtNotifStatus("granted"|"denied") */
+if (typeof window !== "undefined") window.jtNotifStatus = (stat) => { FB.notifPerm = stat; notify(); };
+
+/* ---- reminders (delivered by the sendReminders Cloud Function) ---- */
+const MONIDX = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
+function jstToUtcMs(dm, dd, hhmm) {
+  const mi = MONIDX[dm] || 0, day = +dd, p = String(hhmm || "0:0").split(":");
+  return Date.UTC(2026, mi, day, (+p[0] || 0), (+p[1] || 0)) - 9 * 3600 * 1000; // JST = UTC+9
+}
+function jtDeviceId() {
+  let id = localStorage.getItem("jt_devid");
+  if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("jt_devid", id); }
+  return id;
+}
+/* personal reminder for a custom activity (5/10/15/30/60 min before) */
+export async function saveReminder(d, time, remind, title) {
+  if (!remind || !FB.db) return;
+  const fireAtMs = jstToUtcMs(d.dm, d.dd, time) - remind * 60000;
+  if (fireAtMs <= Date.now()) { toast("Activity added (reminder time already passed)"); return; }
+  const token = await ensureWebToken();
+  if (!token) { toast("Turn on notifications (Group tab) to get reminders"); return; }
+  try {
+    await FB.db.collection("reminders").add({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
+  } catch (e) {}
+}
+/* 1-hour + 15-min reminders before flight departures and daily hotel departures */
+export async function scheduleDepartureReminders() {
+  if (!FB.db) return;
+  const token = await ensureWebToken();
+  if (!token) return;
+  const dev = jtDeviceId();
+  const OFF = [{ m: 60, t: "in 1 hour" }, { m: 15, t: "in 15 minutes" }];
+  const want = {};
+  if (userFlight) {
+    const fl = FLIGHTS.find((f) => f.id === userFlight);
+    if (fl) {
+      const P = (s) => { const m = String(s).match(/(\d{1,2}):(\d{2}).*?(\d{1,2})/); return m ? { h: +m[1], mi: +m[2], day: +m[3] } : null; };
+      const o1 = P(fl.out.legs[0].dep), r1 = P(fl.ret.legs[0].dep);
+      if (o1) { const ms = Date.UTC(2026, 5, o1.day, o1.h, o1.mi) + 7 * 3600000; OFF.forEach((o) => { want[dev + "_fltout_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "✈️ Flight " + userFlight + " departs " + o.t, body: fl.out.legs[0].no + " · " + fl.out.legs[0].from }; }); }
+      if (r1) { const ms = Date.UTC(2026, 5, r1.day, r1.h, r1.mi) - 9 * 3600000; OFF.forEach((o) => { want[dev + "_fltret_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "✈️ Return flight departs " + o.t, body: fl.ret.legs[0].no + " · " + fl.ret.legs[0].from }; }); }
+    }
+  }
+  const AIR = /haneda|narita|airport|san francisco|\bSFO\b|\bLAX\b|\bSEA\b|departure for|truck loading/i;
+  const depT = (lines) => {
+    if (lines.some((l) => AIR.test(l))) return null;
+    for (const ln of lines) {
+      if (/venue|school|return/i.test(ln)) continue;
+      const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i) || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i) || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
+      if (m) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2];
+    }
+    return null;
+  };
+  daySet(userGroups).forEach((d, di) => {
+    (d.logistics || []).forEach((b, bi) => {
+      if (!b.groups || !b.groups.some((g) => userGroups.indexOf(g) > -1)) return;
+      const t = depT(b.lines || []); if (!t) return;
+      const ms = jstToUtcMs(d.dm, d.dd, t);
+      OFF.forEach((o) => { want[dev + "_dep_" + di + "_" + bi + "_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "🚌 Depart hotel " + o.t, body: (d.date.split(",")[0]) + " — leave at " + fmt12(t) }; });
+    });
+  });
+  let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) {}
+  const now = Date.now();
+  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} }
+  const keep = [];
+  for (const id in want) {
+    const w = want[id]; if (w.fireAtMs <= now) continue;
+    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); } catch (e) {}
+  }
+  try { localStorage.setItem("jt_depremids", JSON.stringify(keep)); } catch (e) {}
+}

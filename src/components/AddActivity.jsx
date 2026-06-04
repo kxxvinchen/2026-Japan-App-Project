@@ -3,6 +3,7 @@ import { useStore } from "../store.jsx";
 import { ALL } from "../data.js";
 import { daySet, inGroup } from "../lib/groups.js";
 import { fmt12, blockFor, activityConflict } from "../lib/activity.js";
+import { saveReminder } from "../lib/firebase.js";
 
 export default function AddActivity() {
   const { state, dispatch } = useStore();
@@ -26,6 +27,7 @@ export default function AddActivity() {
     if (addr.trim()) item.loc = { n: addr.trim(), q: addr.trim(), kind: "sight" };
     if (remind > 0) item.remind = remind;
     dispatch({ type: "addCustom", di, item });
+    if (remind > 0) saveReminder(d, time, remind, title.trim());
     dispatch({ type: "nav", screen: "day" });
   };
 
