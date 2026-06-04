@@ -111,7 +111,13 @@ function Compose() {
 export default function Messages() {
   useFB();
   const accessible = FB.configured ? accessibleChannels() : [];
-  if (FB.configured && accessible.indexOf(FB.activeChannel) < 0) FB.activeChannel = accessible[0] || "";
+  const accessibleKey = accessible.join("|");
+
+  useEffect(() => {
+    if (!FB.configured) return;
+    if (accessible.length && accessible.indexOf(FB.activeChannel) < 0) setActiveChannel(accessible[0]);
+  }, [FB.configured, FB.activeChannel, accessibleKey]);
+
   const accCh = CHANNELS.filter((c) => accessible.indexOf(c.id) > -1);
   const isChapTab = (FB.activeChannel || "").slice(-5) === "-chap";
   const list = FB.activeChannel ? channelMessages(FB.activeChannel) : [];
