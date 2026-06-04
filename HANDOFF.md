@@ -26,17 +26,13 @@ The repo is organized around a generated PWA build:
 - `public/` assets — icons and static app files
 - `notifications/functions/index.js` — Firebase Cloud Functions for message
   fan-out and scheduled reminders
-- `notifications/JapanTour2026App.swift` — leftover native iOS push-enabled
-  Swift file from the migration history, kept as a reference artifact
 
 ## Build flow
 
 `build.mjs` assembles the app by stitching the source files into the HTML
 shell and writing these generated outputs:
 
-- `JapanTour2026_TravelCompanion.html`
-- `public/index.html`
-- `JapanTour2026-iOS/JapanTour2026/index.html` if that legacy target path is present
+- `public/index.html` if that legacy target path is present
 
 It also keeps the service worker cache version in sync with `APP_VERSION`.
 
@@ -80,25 +76,6 @@ Relevant files:
 - `firebase.json`
 - `notifications/functions/package.json`
 - `notifications/functions/index.js`
-
-## Migration leftovers from native apps
-
-The project used to have native iOS and Android wrappers. In the current repo,
-those platforms are mostly gone. The main leftover native artifact is:
-
-- `notifications/JapanTour2026App.swift` — iOS Swift source from the old
-  wrapper-based app
-
-I did not find active Android source files such as `AndroidManifest.xml`,
-`build.gradle`, `.java`, or `.kt` files in the current workspace.
-
-Several docs still mention the older native-app path and should be treated as
-historical unless you plan to keep them updated:
-
-- `BUILD_APPS.md`
-- `NOTIFICATIONS_SETUP.md`
-- `SETUP_CHECKLIST.md`
-- parts of `HANDOFF.md` itself before this rewrite
 
 ## What is worth keeping in sync
 
