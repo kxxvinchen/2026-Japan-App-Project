@@ -17,7 +17,7 @@ try {
 } catch (e) { /* offline / SDK unavailable — caching still works */ }
 
 /* --- Offline app shell cache --- */
-const CACHE = "jt-v118";
+const CACHE = "jt-v200";
 const ASSETS = ["./", "index.html", "manifest.json",
   "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 

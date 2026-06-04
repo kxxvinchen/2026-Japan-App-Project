@@ -1,15 +1,11 @@
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// Relative base so the built files work from the Firebase Hosting root and from
-// file:// contexts (native wrappers). Static assets in public/ (sw.js, manifest,
-// icons) are copied to dist/ verbatim. Build output goes to dist/, which Firebase
-// Hosting serves (see firebase.json "public": "dist").
+// Relative base so the build works from the Firebase Hosting root and file:// contexts.
+// Static assets in public/ (sw.js, manifest, icons) are copied to dist/ verbatim.
 export default defineConfig({
   base: "./",
+  plugins: [react()],
   publicDir: "public",
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
-    target: "es2018",
-  },
+  build: { outDir: "dist", emptyOutDir: true, target: "es2018" },
 });
