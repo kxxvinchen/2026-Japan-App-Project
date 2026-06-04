@@ -34,7 +34,7 @@ const html = template
 // keep the service-worker cache name in lockstep with APP_VERSION (defined in src/data.js)
 const ver = (app.match(/APP_VERSION="(v\d+)"/) || [])[1];
 
-const targets = ["JapanTour2026_TravelCompanion.html", "public/index.html"];
+const targets = ["public/index.html"];
 for (const t of targets) writeFileSync(join(root, t), html);
 
 if (ver) {
