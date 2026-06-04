@@ -1,188 +1,115 @@
 # Japan Tour 2026 — Project Handoff
 
-A complete record of the Japan Tour 2026 Travel Companion app — what it is,
-what was built, what's deployed where, and what's open. Anyone picking this
-up on another computer should be able to start from here.
+This repo is now a **PWA-first travel companion** for the 2026 Japan
+Performance & Cultural Exchange Tour. It is built from a small `src/` source
+set into a web app, then served from `public/` and optionally deployed with
+Firebase Hosting and Firebase Functions.
 
-## What this is
+## What this app is
 
-A self-contained travel companion for the 2026 Japan Performance & Cultural
-Exchange Tour (Saratoga HS & Lynbrook HS, June 9–23, 2026). The app shows
-the day-by-day itinerary, group-aware schedule, city guides, and lets each
-user pick their group, skip activities, and add personal notes. It runs
-entirely on-device — no server, no account, fully offline.
+The app shows the tour itinerary, group-aware schedules, hotels, emergency
+info, announcements, reminders, and lightweight personalization. It is meant
+to run as a standalone web app that can be installed to a phone home screen
+and work offline through a service worker.
 
-The same app exists in three forms, all built from a single `index.html`:
+## Current architecture
 
-1. **Plain HTML** — `JapanTour2026_TravelCompanion.html`. Open in any browser.
-2. **Android APK** — `JapanTour2026.apk`. Native WebView wrapper.
-3. **iOS Xcode project** — `JapanTour2026-iOS/`. SwiftUI + WKWebView wrapper.
+The repo is organized around a generated PWA build:
 
-Everything else (Excel itinerary, build script) is supporting material.
+- `src/index.template.html` — HTML shell
+- `src/styles.css` — all styling
+- `src/data.js` — tour data, groups, hotels, emergency info, version string
+- `src/logic.js` — app behavior, rendering, state, Firebase integration
+- `public/index.html` — generated production HTML
+- `public/manifest.json` — PWA manifest
+- `public/sw.js` — service worker for offline caching and push support
+- `public/` assets — icons and static app files
+- `notifications/functions/index.js` — Firebase Cloud Functions for message
+  fan-out and scheduled reminders
+- `notifications/JapanTour2026App.swift` — leftover native iOS push-enabled
+  Swift file from the migration history, kept as a reference artifact
 
-## What's where
+## Build flow
 
-| Artifact | Location |
-|---|---|
-| Source HTML | `JapanTour2026_TravelCompanion.html` |
-| iOS Xcode project | `JapanTour2026-iOS/JapanTour2026.xcodeproj` |
-| Built Android APK (v1.0) | `JapanTour2026.apk` |
-| Excel itinerary | `Japan_Tour_Itinerary_2026.xlsx` |
-| Build script for the xlsx | `build_itinerary.py` |
-| Public GitHub repo | `https://github.com/jianchen-007/japan-tour-2026` |
-| Public APK download | `https://github.com/jianchen-007/japan-tour-2026/releases/download/v1.0/JapanTour2026.apk` |
+`build.mjs` assembles the app by stitching the source files into the HTML
+shell and writing these generated outputs:
 
-## How the app is structured
+- `JapanTour2026_TravelCompanion.html`
+- `public/index.html`
+- `JapanTour2026-iOS/JapanTour2026/index.html` if that legacy target path is present
 
-The whole app is a single self-contained HTML file. CSS, JavaScript, and the
-itinerary data all live inside `index.html`. State (group choice, skipped
-items, custom activities, notes) persists in `localStorage` under keys
-prefixed `jt_`. There are no external dependencies, no network calls except
-opening Google Maps links in the system browser.
+It also keeps the service worker cache version in sync with `APP_VERSION`.
 
-The Android and iOS wrappers do nothing more than load that one HTML file
-in a system WebView and forward `http(s)://` link taps to the OS browser.
+The build inputs are:
 
-### To edit the app
+- `src/index.template.html`
+- `src/styles.css`
+- `src/data.js`
+- `src/logic.js`
 
-Edit `JapanTour2026_TravelCompanion.html` in any text editor, then rebuild
-the wrappers from it (next section). Most edits will be to the JavaScript
-data arrays at the top of the `<script>` block — the `DAYS` array (per-day
-schedule, hotels, items) and the `CITIES` array (city guides).
+## App behavior
 
-### To rebuild the Android APK
+- The app uses `localStorage` for user-specific state such as selected group,
+  skips, notes, and theme preferences.
+- The service worker caches the app shell for offline use.
+- Firebase Cloud Messaging is present for background push notifications.
+- Firebase Functions provide channel message fan-out and scheduled reminders.
 
-The APK was built manually (no Gradle) using the Android command-line
-SDK tools. Required: JDK 11+, Android build-tools (aapt2, d8, zipalign,
-apksigner), and an `android.jar`. Sketch:
+## How to work on the app
 
-```
-sed 's/ target="_blank"//g' index.html > proj/assets/index.html
-aapt2 compile --dir proj/res -o res.zip
-aapt2 link -o base.apk -I android.jar --manifest proj/AndroidManifest.xml \
-    -A proj/assets --java gen --min-sdk-version 21 --target-sdk-version 33 \
-    --version-code 1 --version-name 1.0 res.zip
-javac (or ecj) -source 1.8 -target 1.8 -bootclasspath android.jar -d classes \
-    proj/java/com/jianchen/japantour/MainActivity.java \
-    gen/com/jianchen/japantour/R.java
-d8 --release --min-api 21 --lib android.jar --output dex classes/com/.../*.class
-( cd dex && zip -j ../base.apk classes.dex )
-zipalign -f -p 4 base.apk aligned.apk
-keytool -genkeypair -keystore debug.keystore ...
-apksigner sign --ks debug.keystore --ks-pass pass:android --out JapanTour2026.apk aligned.apk
-```
+Edit the `src/` files, not the generated files under `public/` or the root
+HTML copy.
 
-The Android project sources (Manifest, MainActivity.java, res/, etc.) used
-to build this were generated alongside the build but only the final APK is
-preserved. Easier modern path on another machine: open Android Studio,
-create a new Empty Views Activity project, paste in the same
-`MainActivity` source, drop `index.html` into `assets/`, build.
+Recommended edit flow:
 
-### To rebuild the iOS app
+1. Update content or logic in `src/data.js` or `src/logic.js`.
+2. Run `node build.mjs`.
+3. Verify the generated `public/index.html` and `public/sw.js`.
+4. Deploy the web app and functions if needed.
 
-`JapanTour2026-iOS/` is a complete Xcode project. On another Mac with
-Xcode:
+## Deployment targets
 
-1. Open `JapanTour2026.xcodeproj`.
-2. Select the **JapanTour2026** target → **Signing & Capabilities** →
-   pick your Apple ID under Team. Change the bundle identifier
-   (`com.jianchen.JapanTour2026`) to something under the new account if
-   it conflicts.
-3. Connect an iPhone, select it as the run destination, press Run.
-4. On the iPhone, first run shows "Untrusted Developer". Trust it under
-   Settings → General → VPN & Device Management.
+The repo includes Firebase setup files and docs, so the intended deployment
+path is:
 
-Free Apple ID signing lasts 7 days. Paid Apple Developer Program ($99/yr)
-extends to 1 year and unlocks TestFlight for wider distribution.
+- **Firebase Hosting** for the PWA
+- **Firebase Functions** for notifications and reminders
 
-## What's deployed and where
+Relevant files:
 
-| Channel | Status | Notes |
-|---|---|---|
-| GitHub Release v1.0 (Android) | Live | Public download link, see Releases section above |
-| Android (Pixel 4 "John C") | Installed | Manually pushed via `adb` / Device Explorer |
-| iOS (iPhone XR "John C") | Installed | Built and run from Xcode, free-signed, expires 7 days |
-| iOS distribution to others | Not done | Would need TestFlight (paid Apple Dev) or PWA route |
-| PWA / hosted | Not done | Discussed; not deployed. See "Open decisions". |
-| Backend (chat / sync) | Not done | Discussed; not built. See "Open decisions". |
+- `firebase.json`
+- `notifications/functions/package.json`
+- `notifications/functions/index.js`
 
-## Open decisions — discussed but not built
+## Migration leftovers from native apps
 
-These came up in the build conversation and are deliberately left open.
-Whoever picks this up should know they're on the table.
+The project used to have native iOS and Android wrappers. In the current repo,
+those platforms are mostly gone. The main leftover native artifact is:
 
-### iOS distribution beyond one device
+- `notifications/JapanTour2026App.swift` — iOS Swift source from the old
+  wrapper-based app
 
-The Xcode flow above works for one tester at a time. For broader rollout
-two realistic paths:
+I did not find active Android source files such as `AndroidManifest.xml`,
+`build.gradle`, `.java`, or `.kt` files in the current workspace.
 
-- **Apple Developer Program** ($99/yr) → upload to **TestFlight** → invite
-  up to 10,000 testers via a public link. The app then installs from
-  Apple's servers, lasts 90 days per build. The "right" answer for a real
-  tour group.
-- **Hosted PWA** — host the existing HTML behind a real URL with a service
-  worker for offline caching; iOS users add to Home Screen and get a
-  pseudo-native app. No App Store, no expiry, works on Android too. Trade-off
-  is that the page must be on the public web.
+Several docs still mention the older native-app path and should be treated as
+historical unless you plan to keep them updated:
 
-### Group chat / messaging
+- `BUILD_APPS.md`
+- `NOTIFICATIONS_SETUP.md`
+- `SETUP_CHECKLIST.md`
+- parts of `HANDOFF.md` itself before this rewrite
 
-Several backends were sized for a 500-person tour:
+## What is worth keeping in sync
 
-- **Firebase** (Blaze plan, ~$50–$200 total for 14 days, hard budget cap)
-- **Supabase Pro** ($25/mo flat, predictable)
-- **Cloudflare Workers + Durable Objects** (~$10–$30 total, more code)
-- **Stream Chat** (free Maker plan caps at 100 MAU — wouldn't fit)
-- **Telegram Bot** (free, official API, can two-way mirror an actual chat —
-  the only path that delivers the "messages appear in both app and group"
-  experience that was originally asked of WhatsApp; WhatsApp itself does
-  not allow this for personal accounts.)
+- `APP_VERSION` in `src/data.js`
+- service worker cache version in `public/sw.js`
+- generated output from `build.mjs`
+- Firebase functions and any notification channel names used by the app
 
-Nothing was wired up; the app today has no chat or shared feed.
+## Quick mental model for a new maintainer
 
-### Multi-platform single distribution
+If you only remember one thing, remember this:
 
-The cleanest "one URL for everyone" answer is a **hosted PWA** with a
-service worker. It would unify Android and iOS distribution into one
-add-to-Home-Screen link. The trade-off is that the itinerary content
-becomes reachable on the open web (random URL helps but isn't private).
-
-## Identifiers / accounts to know
-
-| Item | Value |
-|---|---|
-| Bundle ID (iOS & Android) | `com.jianchen.JapanTour2026` (iOS) / `com.jianchen.japantour` (Android) |
-| Apple ID used for iOS signing | `jian_chen_007@yahoo.com` |
-| iOS development team | Personal Team (`2R9FTBNM4H`) |
-| GitHub account | `jianchen-007` |
-| GitHub repo | `jianchen-007/japan-tour-2026` |
-| Connected iPhone | "John C", iPhone XR, iOS 18.7.6 |
-| Connected Android | Google Pixel 4 |
-
-## Picking up on another computer
-
-Two reasonable handoff paths:
-
-**A. Via GitHub (recommended).** Push this whole folder to the GitHub repo
-that's already created. Anyone with access does `git clone` and has
-everything. Steps from a Mac:
-
-```sh
-cd /path/to/handoff-bundle
-git init
-git remote add origin https://github.com/jianchen-007/japan-tour-2026.git
-git fetch
-git checkout main
-# copy in the source files alongside the existing README
-cp -R JapanTour2026-iOS JapanTour2026_TravelCompanion.html build_itinerary.py Japan_Tour_Itinerary_2026.xlsx HANDOFF.md .
-git add . && git commit -m "Add full source and handoff doc"
-git push
-```
-
-The new computer then needs: Xcode (for iOS), Android Studio (optional, for
-Android), a text editor (for the HTML). And to do iOS signing, the user's
-own Apple ID — not necessarily the same one used originally.
-
-**B. Direct transfer.** Zip this folder, drop in Drive/Dropbox/iCloud, share
-the link, the other computer downloads and unzips. No version control going
-forward, but immediately usable.
+**Source lives in `src/`; build generates the PWA; `public/` is what gets
+served; Firebase adds notifications and reminders.**
