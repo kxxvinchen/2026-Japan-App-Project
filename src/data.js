@@ -7,7 +7,7 @@ const TRIP = {
   blurb:"13 nights in Japan · Including the Mt. Fuji Music Festival · Arranged by BMC Tours",
   route:["San Francisco","Tokyo","Fuji Lake Kawaguchi","Kyoto","Kobe","Hiroshima","Tokyo"]
 };
-const APP_VERSION="v118";   /* keep in sync with the service-worker cache version */
+const APP_VERSION="v200";   /* keep in sync with the service-worker cache version */
 
 /* ===== Emergency info & procedures (from the official itinerary, v5.31.26) ===== */
 const EMERGENCY = {
@@ -1302,3 +1302,10 @@ const BUSES=[
   desc:"Choir coach. Boards with the Choir group (Buses 1–2) each day."}
 ];
 
+
+/* ---- exports for the React app ---- */
+export {
+  TRIP, APP_VERSION, EMERGENCY, GROUPS, ALL, PERF, BO, CH,
+  ATTIRE, DAYS, SHG, SBO, SCH, SHADOW_DAYS, SHADOW_ATTIRE,
+  CITIES, FLIGHTS, BUSES
+};

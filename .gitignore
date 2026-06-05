@@ -13,3 +13,7 @@ firebase-debug.log
 # editor
 .vscode/
 .idea/
+
+# vite build output
+dist/
+dist_verify/
