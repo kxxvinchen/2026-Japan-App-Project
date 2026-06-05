@@ -17,3 +17,4 @@ firebase-debug.log
 # vite build output
 dist/
 dist_verify/
+dist*/
