@@ -395,8 +395,11 @@
     position:fixed;bottom:84px;left:50%;transform:translateX(-50%);
     background:var(--ink);color:#fff;font-size:12.5px;padding:9px 16px;border-radius:20px;
     opacity:0;transition:opacity .25s;z-index:99;pointer-events:none;
+    border:none;outline:none;font:inherit;cursor:pointer;text-align:center;
   }
-  .toast.show{opacity:.95;}
+  .toast.show{opacity:.95;pointer-events:auto;}
+  .toast:hover{background:#2b3543;}
+  body.dark .toast:hover{background:#423c4e;}
   /* Flight banner & details */
   .flight-dot,.bus-dot{width:auto;height:auto;background:none;font-size:13px;line-height:1;}
   .flight-banner{margin-top:8px;}

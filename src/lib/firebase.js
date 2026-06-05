@@ -33,7 +33,7 @@ export const FB = {
   activeChannel: "", lastRead: loadRead(), draft: "", editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
-  toastMsg: "",
+  toastMsg: "", currentScreen: "",
 };
 
 let userGroups = [];
@@ -49,10 +49,26 @@ export function getSnapshot() { return ver; }
 function notify() { ver++; subs.forEach((f) => f()); }
 
 let _toastT = null;
-export function toast(msg) {
-  FB.toastMsg = msg; notify();
+export function toast(msg, toPage, toChannel) {
+  FB.toastMsg = msg;
+  FB.toastNav = toPage || "";
+  FB.toastChannel = toChannel || "";
+  notify();
   clearTimeout(_toastT);
-  _toastT = setTimeout(() => { FB.toastMsg = ""; notify(); }, 1700);
+  _toastT = setTimeout(() => {
+    FB.toastMsg = "";
+    FB.toastNav = "";
+    FB.toastChannel = "";
+    notify();
+  }, 4000);
+}
+
+export function clearToast() {
+  clearTimeout(_toastT);
+  FB.toastMsg = "";
+  FB.toastNav = "";
+  FB.toastChannel = "";
+  notify();
 }
 
 /* ---- channels ---- */
