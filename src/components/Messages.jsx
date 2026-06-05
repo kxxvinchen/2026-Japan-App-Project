@@ -4,6 +4,7 @@ import {
   FB, CHANNELS, CH_LABEL, accessibleChannels, channelMessages, unreadCount, relTime,
   canPostHere, localName, saveName, sendMessage, deleteMessage, startEdit, cancelEdit,
   setActiveChannel, setMsgMenu, askDelete, closeMenu, toggleChanMenu, toggleExpanded, setNameEdit,
+  getDraft, saveDraft,
 } from "../lib/firebase.js";
 
 const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
@@ -76,9 +77,10 @@ function Compose() {
   const chap = !FB.isDirector && !FB.isAdmin;
   const editing = FB.editing && FB.editing.channel === FB.activeChannel;
   const chLabel = CH_LABEL[FB.activeChannel] || "channel";
-  const [draft, setDraft] = useState(editing ? FB.editing.text : "");
+  const [draft, setDraft] = useState(editing ? FB.editing.text : getDraft(FB.activeChannel));
   const [name, setName] = useState(localName());
-  useEffect(() => { setDraft(editing ? FB.editing.text : ""); }, [editing ? FB.editing.id : "", FB.activeChannel]);
+  useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
+  const onDraft = (v) => { setDraft(v); if (!editing) saveDraft(FB.activeChannel, v); };
 
   if (chap && (!localName() || FB.nameEdit)) {
     return (
@@ -92,7 +94,7 @@ function Compose() {
       </div>
     );
   }
-  const send = () => { sendMessage(draft); setDraft(""); };
+  const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); if (!wasEditing) saveDraft(ch, ""); };
   return (
     <div className="ann-compose">
       {editing ? <div className="ann-compose-editing"><span>Editing announcement</span><button onClick={cancelEdit}>Cancel</button></div> : null}
@@ -101,7 +103,7 @@ function Compose() {
       <div className="ann-compose-row">
         <textarea className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
           placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
-          value={draft} onChange={(e) => setDraft(e.target.value)} />
+          value={draft} onChange={(e) => onDraft(e.target.value)} />
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
       </div>
     </div>

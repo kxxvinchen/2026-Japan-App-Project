@@ -30,7 +30,7 @@ export const FB = {
   msgsByChannel: loadMsgCache(),
   pending: [],
   // UI state
-  activeChannel: "", lastRead: loadRead(), draft: "", editing: null,
+  activeChannel: "", lastRead: loadRead(), draft: "", drafts: {}, editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
   toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
@@ -250,6 +250,9 @@ export function canPostHere() {
   return ch.slice(-5) === "-chap" && (FB.chapChannels || []).indexOf(ch) > -1;
 }
 export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
+// Per-channel compose drafts so switching channels never wipes a half-typed message.
+export const getDraft = (ch) => (ch && FB.drafts[ch]) || "";
+export function saveDraft(ch, v) { if (ch) FB.drafts[ch] = v || ""; }
 export function setMsgMenu(id) { FB.msgMenu = (FB.msgMenu === id ? "" : id); FB.msgDel = ""; notify(); }
 export function askDelete(id) { FB.msgDel = id; notify(); }
 export function closeMenu() { FB.msgMenu = ""; FB.msgDel = ""; notify(); }
@@ -277,7 +280,7 @@ export async function sendMessage(text) {
     : (localName() || FB.authorName || "Chaperone");
   const role = FB.isDirector ? "director" : "";
   const pend = { ch: chan, text, author, role, ts: Date.now() };
-  FB.pending.push(pend); markChannelRead(chan); notify();
+  FB.pending.push(pend); FB.drafts[chan] = ""; markChannelRead(chan); notify();
   try {
     await FB.db.collection("channels").doc(chan).collection("messages").add({ text, author, role, ts: firebase.firestore.FieldValue.serverTimestamp() });
     toast("Sent to " + (CH_LABEL[chan] || chan));
