@@ -33,7 +33,7 @@ export const FB = {
   activeChannel: "", lastRead: loadRead(), draft: "", editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
-  toastMsg: "",
+  toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
 };
 
 let userGroups = [];
@@ -49,10 +49,26 @@ export function getSnapshot() { return ver; }
 function notify() { ver++; subs.forEach((f) => f()); }
 
 let _toastT = null;
-export function toast(msg) {
-  FB.toastMsg = msg; notify();
+export function toast(msg, toPage, toChannel) {
+  FB.toastMsg = msg;
+  FB.toastNav = toPage || "";
+  FB.toastChannel = toChannel || "";
+  notify();
   clearTimeout(_toastT);
-  _toastT = setTimeout(() => { FB.toastMsg = ""; notify(); }, 1700);
+  _toastT = setTimeout(() => {
+    FB.toastMsg = "";
+    FB.toastNav = "";
+    FB.toastChannel = "";
+    notify();
+  }, 4000);
+}
+
+export function clearToast() {
+  clearTimeout(_toastT);
+  FB.toastMsg = "";
+  FB.toastNav = "";
+  FB.toastChannel = "";
+  notify();
 }
 
 /* ---- channels ---- */
@@ -101,8 +117,8 @@ export function relTime(ms) {
 }
 
 /* ---- unread ---- */
-function saveMsgCache() { try { const out = {}; Object.keys(FB.msgsByChannel).forEach((ch) => { out[ch] = (FB.msgsByChannel[ch] || []).slice(0, 2000); }); localStorage.setItem("jt_msgs", JSON.stringify(out)); } catch (e) {} }
-function saveRead() { try { localStorage.setItem("jt_read", JSON.stringify(FB.lastRead)); } catch (e) {} }
+function saveMsgCache() { try { const out = {}; Object.keys(FB.msgsByChannel).forEach((ch) => { out[ch] = (FB.msgsByChannel[ch] || []).slice(0, 2000); }); localStorage.setItem("jt_msgs", JSON.stringify(out)); } catch (e) { } }
+function saveRead() { try { localStorage.setItem("jt_read", JSON.stringify(FB.lastRead)); } catch (e) { } }
 function latestTs(ch) { const l = FB.msgsByChannel[ch] || []; return l.length ? l[0].ts : 0; }
 export function unreadCount(ch) {
   const lr = FB.lastRead[ch]; if (lr == null) return 0;
@@ -125,19 +141,36 @@ export function channelMessages(ch) {
 function subscribeChannels() {
   if (!FB.db) return;
   const want = accessibleChannels();
-  Object.keys(FB.listeners).forEach((ch) => { if (want.indexOf(ch) < 0) { try { FB.listeners[ch](); } catch (e) {} delete FB.listeners[ch]; } });
+  Object.keys(FB.listeners).forEach((ch) => { if (want.indexOf(ch) < 0) { try { FB.listeners[ch](); } catch (e) { } delete FB.listeners[ch]; } });
   want.forEach((ch) => {
     if (FB.listeners[ch]) return;
+    let isInitial = true;
     FB.listeners[ch] = FB.db.collection("channels").doc(ch).collection("messages").orderBy("ts", "desc").limit(2000)
       .onSnapshot((snap) => {
         const arr = snap.docs.map((d) => { const x = d.data(); return { id: d.id, channel: ch, title: x.title || "", text: x.text || "", author: x.author || "Director", role: x.role || "", ts: (x.ts && x.ts.toMillis) ? x.ts.toMillis() : Date.now() }; });
         arr.sort((a, b) => b.ts - a.ts);
+        if (!isInitial) {
+          const myName = (FB.isDirector || FB.isAdmin)
+            ? (FB.authorName || (FB.user && (FB.user.displayName || FB.user.email)) || (FB.isAdmin ? "Admin" : "Director"))
+            : (localName() || FB.authorName || "Chaperone");
+          snap.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              const msg = change.doc.data() || {};
+              const author = msg.author || "Director";
+              const viewingThisChannel = FB.currentScreen === "messages" && ch === FB.activeChannel;
+              if (author !== myName && !viewingThisChannel) {
+                toast(`New Announcement in ${CH_LABEL[ch] || ch} by ${author}`, "messages", ch);
+              }
+            }
+          });
+        }
+        isInitial = false;
         FB.msgsByChannel[ch] = arr;
         if (FB.pending && FB.pending.length) FB.pending = FB.pending.filter((p) => !(p.ch === ch && arr.some((m) => m.text === p.text && (m.author || "") === (p.author || ""))));
         if (FB.lastRead[ch] == null) { FB.lastRead[ch] = arr.length ? arr[0].ts : 0; saveRead(); }
         else if (ch === FB.activeChannel) markChannelRead(ch);
         saveMsgCache(); FB.ready = true; notify();
-      }, () => {});
+      }, () => { });
   });
 }
 
@@ -171,13 +204,13 @@ export async function startMessaging() {
       FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.authorName = "";
       let dirOk = false, chapOk = false, adminOk = false;
       if (u && u.email) {
-        try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) {}
-        try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) {}
-        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) {}
+        try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
+        try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
+        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
       }
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
-        if (u && !dirOk && !chapOk && !adminOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) {} return; }
+        if (u && !dirOk && !chapOk && !adminOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) { } return; }
         if (u) {
           FB.error = ""; FB.showSignIn = false;
           const acc = accessibleChannels();
@@ -203,11 +236,11 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) {} FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
 export const localName = () => { try { return (localStorage.getItem("jt_chapname") || "").trim(); } catch (e) { return ""; } };
-export function saveName(v) { v = (v || "").trim(); if (!v) { toast("Enter a name"); return false; } try { localStorage.setItem("jt_chapname", v); } catch (e) {} FB.authorName = v; FB.nameEdit = false; toast("Saved — your messages will show as " + v); notify(); return true; }
+export function saveName(v) { v = (v || "").trim(); if (!v) { toast("Enter a name"); return false; } try { localStorage.setItem("jt_chapname", v); } catch (e) { } FB.authorName = v; FB.nameEdit = false; toast("Saved — your messages will show as " + v); notify(); return true; }
 export function setShowSignIn(v) { FB.showSignIn = v; if (!v) FB.error = ""; notify(); }
 export function setNameEdit(v) { FB.nameEdit = v; notify(); }
 export function canPostHere() {
@@ -281,16 +314,16 @@ async function saveWebToken(token) {
     const id = localStorage.getItem("jt_webdoc");
     if (id) await FB.db.collection("webTokens").doc(id).set({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() });
     else { const ref = await FB.db.collection("webTokens").add({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() }); localStorage.setItem("jt_webdoc", ref.id); }
-  } catch (e) {}
+  } catch (e) { }
 }
 async function syncWebChannels() {
   const token = await ensureWebToken(); if (!token) return;
   const id = localStorage.getItem("jt_webdoc"); if (!id) return;
-  try { await FB.db.collection("webTokens").doc(id).set({ token, channels: channelsForUser(), ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (e) {}
+  try { await FB.db.collection("webTokens").doc(id).set({ token, channels: channelsForUser(), ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (e) { }
 }
 function notifBridge() {
-  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jtNotify) return { post: (m) => { try { window.webkit.messageHandlers.jtNotify.postMessage(m); } catch (e) {} } };
-  if (window.JTNotify && window.JTNotify.handle) return { post: (m) => { try { window.JTNotify.handle(JSON.stringify(m)); } catch (e) {} } };
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jtNotify) return { post: (m) => { try { window.webkit.messageHandlers.jtNotify.postMessage(m); } catch (e) { } } };
+  if (window.JTNotify && window.JTNotify.handle) return { post: (m) => { try { window.JTNotify.handle(JSON.stringify(m)); } catch (e) { } } };
   return null;
 }
 function syncNotifTopics() { const br = notifBridge(); if (br) { br.post({ action: "setTopics", subscribe: channelsForUser(), all: NOTIF_TOPICS }); return; } syncWebChannels(); }
@@ -308,7 +341,7 @@ export async function enableNotifs() {
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
     if (token) { FB.webToken = token; await saveWebToken(token); scheduleDepartureReminders(); }
-  } catch (e) {}
+  } catch (e) { }
 }
 export function notifGranted() { return (typeof Notification !== "undefined" && Notification.permission === "granted") || FB.notifPerm === "granted"; }
 
@@ -335,7 +368,7 @@ export async function saveReminder(d, time, remind, title) {
   if (!token) { toast("Turn on notifications (Group tab) to get reminders"); return; }
   try {
     await FB.db.collection("reminders").add({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
-  } catch (e) {}
+  } catch (e) { }
 }
 /* 1-hour + 15-min reminders before flight departures and daily hotel departures */
 export async function scheduleDepartureReminders() {
@@ -372,13 +405,13 @@ export async function scheduleDepartureReminders() {
       OFF.forEach((o) => { want[dev + "_dep_" + di + "_" + bi + "_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "🚌 Depart hotel " + o.t, body: (d.date.split(",")[0]) + " — leave at " + fmt12(t) }; });
     });
   });
-  let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) {}
+  let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) { }
   const now = Date.now();
-  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} }
+  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) { } }
   const keep = [];
   for (const id in want) {
     const w = want[id]; if (w.fireAtMs <= now) continue;
-    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); } catch (e) {}
+    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); } catch (e) { }
   }
-  try { localStorage.setItem("jt_depremids", JSON.stringify(keep)); } catch (e) {}
+  try { localStorage.setItem("jt_depremids", JSON.stringify(keep)); } catch (e) { }
 }

@@ -14,7 +14,7 @@ import Settings from "./components/Settings.jsx";
 import AddActivity from "./components/AddActivity.jsx";
 import Onboard from "./components/Onboard.jsx";
 import Messages from "./components/Messages.jsx";
-import { setGroups, setFlight } from "./lib/firebase.js";
+import { setGroups, setFlight, FB } from "./lib/firebase.js";
 
 const SCREENS = {
   overview: Overview, day: Day, cities: Cities, city: City, phrases: Phrases,
@@ -41,6 +41,8 @@ export default function App() {
   useEffect(() => { setGroups(state.groups); }, [state.groups]);
   // flight choice drives the departure reminders
   useEffect(() => { setFlight(state.flight); }, [state.flight]);
+  // sync the current screen state to the FB layer so we know when to show toasts
+  useEffect(() => { FB.currentScreen = state.screen; }, [state.screen]);
 
   const Cur = SCREENS[state.screen];
   return (
