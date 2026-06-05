@@ -33,7 +33,7 @@ export const FB = {
   activeChannel: "", lastRead: loadRead(), draft: "", editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
-  toastMsg: "", currentScreen: "",
+  toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
 };
 
 let userGroups = [];
