@@ -156,9 +156,17 @@ export async function startMessaging() {
     }
     firebase.initializeApp(FIREBASE_CONFIG);
     FB.db = firebase.firestore();
-    try { FB.db.settings({ experimentalForceLongPolling: true, ignoreUndefinedProperties: true }); } catch (e) {}
-    try { await FB.db.enablePersistence({ synchronizeTabs: true }); } catch (e) {}
+    try { FB.db.settings({ experimentalForceLongPolling: true, ignoreUndefinedProperties: true }); } catch (e) { }
+    if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+      FB.db.useEmulator("127.0.0.1", 8080);
+      console.log("Connected to Firestore Emulator");
+    }
+    try { await FB.db.enablePersistence({ synchronizeTabs: true }); } catch (e) { }
     FB.auth = firebase.auth();
+    if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+      FB.auth.useEmulator("http://127.0.0.1:9099");
+      console.log("Connected to Auth Emulator");
+    }
     FB.auth.onAuthStateChanged(async (u) => {
       FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.authorName = "";
       let dirOk = false, chapOk = false, adminOk = false;
