@@ -30,7 +30,7 @@ export const FB = {
   msgsByChannel: loadMsgCache(),
   pending: [],
   // UI state
-  activeChannel: "", lastRead: loadRead(), draft: "", drafts: {}, editing: null,
+  activeChannel: "", lastRead: loadRead(), drafts: {}, editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
   toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
