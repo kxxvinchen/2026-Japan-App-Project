@@ -168,7 +168,7 @@ populateCache('firebase-admin/messaging', mockAdminMessaging);
 populateCache('firebase-admin/firestore', mockAdminFirestore);
 
 // Load functions logic after setting up cache
-require('../notifications/functions/index.js');
+require('../index.js');
 
 // 2. Define the Test Suite
 describe('Notification System Unit Tests', () => {

@@ -23,8 +23,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
+      - name: Install functions dependencies
+        run: npm ci --prefix notifications/functions
+
       - name: Run unit tests
-        run: npm test
+        run: npm test --prefix notifications/functions
