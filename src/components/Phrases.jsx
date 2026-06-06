@@ -24,7 +24,7 @@ export default function Phrases() {
     <div className="screen">
       <div className="hdr">
         <div className="hdr-row">
-          <button className="back" onClick={() => dispatch({ type: "nav", screen: "cities" })}>‹</button>
+          <button className="back" onClick={() => dispatch({ type: "nav", screen: "utilities" })}>‹</button>
           <div className="htxt"><h1>Translation Guide</h1><div className="sub">Common phrases · tap to hear it</div></div>
         </div>
       </div>
