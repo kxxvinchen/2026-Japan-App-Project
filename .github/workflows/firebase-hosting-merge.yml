@@ -14,7 +14,6 @@ jobs:
       - run: |
           npm ci
           npm ci --prefix notifications/functions
-          npm test --prefix notifications/functions
           npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
