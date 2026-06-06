@@ -711,3 +711,13 @@
   .nb-tx span{font-size:11.5px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .nb-cta{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--indigo);background:#fff;
     padding:7px 13px;border-radius:20px;}
+  /* ===== @-mention chips in the compose box ===== */
+  .ann-mentions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 8px;}
+  .ann-mentions-hint{font-size:11px;color:var(--muted);font-weight:600;margin-right:2px;}
+  .ann-mention-chip{font-size:12px;font-weight:700;color:var(--indigo);background:#eef2fb;border:1px solid #dbe4f7;
+    border-radius:14px;padding:4px 10px;cursor:pointer;line-height:1;}
+  .ann-mention-chip:active{transform:scale(.96);}
+  body.dark .ann-mention-chip{background:var(--card2);border-color:var(--line);color:#7aa0e0;}
+  /* highlight @mentions inside posted messages */
+  .ann-at{color:var(--indigo);font-weight:700;}
+  body.dark .ann-at{color:#7aa0e0;}

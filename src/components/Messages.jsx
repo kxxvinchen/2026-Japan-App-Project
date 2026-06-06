@@ -6,6 +6,7 @@ import {
   setActiveChannel, setMsgMenu, askDelete, closeMenu, toggleChanMenu, toggleExpanded, setNameEdit,
   getDraft, saveDraft,
 } from "../lib/firebase.js";
+import { CH_MENTIONS } from "../lib/channels.js";
 
 const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
@@ -95,11 +96,20 @@ function Compose() {
     );
   }
   const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); if (!wasEditing) saveDraft(ch, ""); };
+  const insertMention = (tag) => {
+    const next = (draft && !/\s$/.test(draft) ? draft + " " : draft) + "@" + tag + " ";
+    onDraft(next);
+  };
+  const mentions = ["everyone"].concat(CH_MENTIONS[FB.activeChannel] || []);
   return (
     <div className="ann-compose">
       {editing ? <div className="ann-compose-editing"><span>Editing announcement</span><button onClick={cancelEdit}>Cancel</button></div> : null}
       <div className="ann-compose-label">{chap ? "Message " + chLabel : "New announcement"}</div>
       {chap ? <div className="ann-compose-who">Posting as <b>{localName()}</b> · <button onClick={() => { setName(localName()); setNameEdit(true); }}>Change</button></div> : null}
+      <div className="ann-mentions">
+        <span className="ann-mentions-hint">Mention to notify:</span>
+        {mentions.map((t) => <button key={t} type="button" className="ann-mention-chip" onClick={() => insertMention(t)}>@{t}</button>)}
+      </div>
       <div className="ann-compose-row">
         <textarea className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
           placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
