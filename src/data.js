@@ -237,11 +237,11 @@ const DAYS=[
    desc:"While your ensemble rehearses, free time in Tokyo. Dinner on your own near the hotel until curfew."}
  ],
  logistics:[
-  {label:"Band (Bus 1–4)",groups:["band","sband"],
-   lines:["08:55 — Board coach on 1F","09:10 — Depart hotel","10:00–12:00 — Tokyo Skytree (Bus 1–2: 10:00 entry · Bus 3–4: 10:15 entry)","12:30–14:30 — Asakusa, shopping & lunch on own"]},
+  {label:"Band (Bus 4–7)",groups:["band","sband"],
+   lines:["08:55 — Board coach on 1F","09:10 — Depart hotel","10:00–12:00 — Tokyo Skytree (Bus 4–5: 10:00 entry · Bus 6–7: 10:15 entry)","12:30–14:30 — Asakusa, shopping & lunch on own"]},
   {label:"Orchestra (Bus 1–3)",groups:["orch","sband"],
    lines:["09:10 — Board coach on 1F","09:20 — Depart hotel","10:00–12:00 — Asakusa, shopping & lunch on own","12:30–14:30 — Tokyo Skytree"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["10:00 — Board coach on 1F","10:15 — Depart hotel","11:00–13:00 — Asakusa","13:20–15:20 — Tokyo Skytree"]},
   {label:"Band & Orchestra — afternoon / evening",groups:["band","orch"],
    lines:["15:00–18:00 — Rehearsal at Nishi-Arai Cultural Hall","15:30–16:30 — Band rehearsal (cellos & basses warm up in rehearsal room and Green Room 1)","16:45–17:45 — Orchestra rehearsal","16:00–18:00 — Saratoga Percussion rehearsal & performance at Iwakura HS","18:30 — Depart venue (Band equipment loads first, then Orchestra)","19:10 — Return to hotel, dinner on own"]},
@@ -290,9 +290,9 @@ const DAYS=[
  logistics:[
   {label:"Orchestra (Bus 1–3)",groups:["orch","sband"],
    lines:["08:30 — Board coach on 1F","08:45 — Depart hotel","10:00–11:00 — Meiji Shrine","11:30–13:30 — Harajuku, shopping & lunch on own","14:30 — Arrive Ichikawa Gakuen HS, unload & warm up","15:30–17:30 — Musical Exchange (Students Only)","18:00 — Depart school","19:30–20:30 — Dinner: Mo-Mo-Paradise Shibuya Center-Gai","21:00 — Return to hotel"]},
-  {label:"Band (Bus 1–4)",groups:["band","sband"],
+  {label:"Band (Bus 4–7)",groups:["band","sband"],
    lines:["08:45 — Board coach on 1F","09:00 — Depart hotel","10:00–12:00 — Harajuku, shopping & lunch on own","12:30–13:30 — Meiji Shrine","14:30 — Arrive Ichikawa Gakuen HS, unload & warm up","15:30–17:30 — Musical Exchange (Students Only)","18:00 — Depart school","19:30–20:30 — Dinner: Mo-Mo-Paradise Kabukicho Main Store","21:00 — Return to hotel"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["09:15 — Board coach on 1F","09:30 — Depart hotel","10:00–11:00 — Meiji Shrine","11:30–13:30 — Harajuku, shopping & lunch on own","14:30 — Arrive Toko Gakuen HS, change & warm up","15:30 — Combined rehearsal: 'Ruri Iro No Chikyu (Blue Mother Earth)'","16:00–17:15 — Friendship Concert at Toko Hall (Student & Shadow only)","17:15–18:00 — Post-concert social & group photo","18:00 — Depart school","19:30–20:30 — Dinner: Mo-Mo-Paradise Shinjuku Sanchome","21:30 — Return to hotel"]},
   {label:"Hotel — Grand Nikko Tokyo Daiba",groups:ALL,
    lines:["2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · Tel +81-3-5500-6711 · Laundry available"]}
@@ -331,13 +331,13 @@ const DAYS=[
    desc:"Return to the hotel; dinner on your own in small groups. Prepare a small overnight bag and concert clothes for tomorrow's one-night stay at Fuji Lake Kawaguchi. Curfew announced by the directors."}
  ],
  logistics:[
-  {label:"Band (Bus 1–4)",groups:["band","sband"],
+  {label:"Band (Bus 4–7)",groups:["band","sband"],
    lines:["09:15 — Board coach on 1F","09:30 — Depart hotel in concert attire"]},
   {label:"Orchestra (Bus 1–3)",groups:["orch","sband"],
    lines:["09:30 — Board coach on 1F","09:45 — Depart hotel in concert attire","10:15 — Arrive Beethoven Hall (Saratoga Green Room: Brahms Hall)"]},
   {label:"Band & Orchestra — concert",groups:["band","orch","sband"],
    lines:["11:30–12:10 — Band rehearsal (Orchestra bento lunch)","12:20–13:00 — Orchestra rehearsal (Band bento lunch)","13:00 — Combined rehearsal (Orchestra & Iwakura HS): 'Galaxy Express 999'","13:30 — Doors open","13:40–13:50 — Pre-concert: Saratoga Percussion Studio 'Shared Space'","14:00–16:00 — Friendship Concert with Iwakura HS (open to public)","16:30–17:30 — Pack-up (Band first, then Orchestra) & social","19:00 — Return to hotel, dinner on own"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["09:45 — Board coach on 1F (bring concert clothes)","10:00 — Depart hotel","11:30–13:30 — Kawagoe ('Little Edo'), sightseeing, shopping & lunch on own","14:00 — Depart for Ikebukuro","15:00–17:00 — Free time & early dinner on own in Ikebukuro","17:00–18:00 — Stage rehearsal","18:00–18:45 — Performance at Ikebukuro Global Ring Theatre (open to public)","19:30 — Return to hotel"]},
   {label:"Hotel — Grand Nikko Tokyo Daiba",groups:ALL,
    lines:["2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · Tel +81-3-5500-6711 · Laundry available"]}
@@ -382,10 +382,10 @@ const DAYS=[
  ],
  logistics:[
   {label:"Band & Orchestra — morning",groups:["band","orch","sband"],
-   lines:["05:30 — Load suitcases onto truck","05:45–07:00 — Breakfast in Palais Royal banquet room (BF1)","Orchestra (Bus 1–3): 07:00 board / 07:15 depart","Band (Bus 1–4): 07:15 board / 07:30 depart (concert attire, ~2-hr non-stop drive)","09:30 — Arrive Kawaguchiko Stellar Theater"]},
+   lines:["05:30 — Load suitcases onto truck","05:45–07:00 — Breakfast in Palais Royal banquet room (BF1)","Orchestra (Bus 1–3): 07:00 board / 07:15 depart","Band (Bus 4–7): 07:15 board / 07:30 depart (concert attire, ~2-hr non-stop drive)","09:30 — Arrive Kawaguchiko Stellar Theater"]},
   {label:"Mt. Fuji Music Festival — timing",groups:["band","orch","sband"],
    lines:["10:05–10:30 — Orchestra rehearsal","10:35–11:00 — Band rehearsal","11:00–11:10 — Combined (Band & local groups): 'Takarajima' & 'The Stars and Stripes Forever'","11:30 — Doors open","13:30–13:55 — Orchestra performance","15:40–16:05 — Band performance","16:10–16:20 — Combined finale","16:30–17:30 — Pack up, social & group photo"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["07:00 — Breakfast at hotel restaurant","07:45 — Load luggage onto truck","08:45 — Board coach (bring concert clothes)","09:00 — Depart hotel (~2.5-hr non-stop drive)","11:30–13:30 — Oshino Hakkai, sightseeing & early lunch","14:00 — Arrive Kawaguchiko Music Forest Museum, free time","15:30–16:00 — Rehearsal","16:10–16:40 — Performance in Organ Hall (open to public)","17:30 — Check in at Hotel Mount Fuji"]},
   {label:"Hotels & dinner",groups:ALL,
    lines:["Band & Choir: Hotel Mount Fuji — 1360-83 Yamanaka, Yamanakako-mura, Yamanashi 401-0501 · +81-555-62-2111 (~20 min from venue)","Orchestra: Highland Resort Hotel & Spa — 5-6-1 Shin-Nishihara, Fujiyoshida, Yamanashi 403-0017 · +81-555-22-1000 (~10 min from venue)","Dinner: Band 18:30 Concerto · Choir 18:30 Garden Café · Orchestra Fujiyama Terrace 18:30 / 19:45"]}
@@ -417,7 +417,7 @@ const DAYS=[
  ],
  logistics:[
   {label:"Breakfast & departure",groups:ALL,
-   lines:["Band & Choir: Garden Café · Orchestra: Fujiyama Terrace","Seatings: 07:00 / 07:45 / 08:30","Orchestra (Bus 1–3) from Highland Resort: 10:15 board / 10:30 depart","Band (Bus 1–4) & Choir (Bus 1–2) from Hotel Mount Fuji: 10:15 board / 10:30 depart","11:30–12:15 — Mt. Fuji 5th Station","12:15–13:30 — Group lunch at Gogoen Rest House"]},
+   lines:["Band & Choir: Garden Café · Orchestra: Fujiyama Terrace","Seatings: 07:00 / 07:45 / 08:30","Orchestra (Bus 1–3) from Highland Resort: 10:15 board / 10:30 depart","Band (Bus 4–7) & Choir (Bus 8–9) from Hotel Mount Fuji: 10:15 board / 10:30 depart","11:30–12:15 — Mt. Fuji 5th Station","12:15–13:30 — Group lunch at Gogoen Rest House"]},
   {label:"Choir — afternoon",groups:["choir","schoir"],
    lines:["13:45 — Depart for Mishima Station","14:45 — Arrive Mishima Station","15:46 — Depart by Shinkansen Hikari 717 (~2-hr ride)","17:37 — Arrive Kyoto Station","18:00 — Walk to hotel & check in, evening free"]},
   {label:"Band & Orchestra — afternoon",groups:["band","orch","sband"],
@@ -450,7 +450,7 @@ const DAYS=[
   {label:"Morning",groups:ALL,
    lines:["07:00 — Breakfast at hotel restaurant","Free half-day in Kyoto in small groups","Suggested: Kinkaku-ji, Kiyomizu-dera, Nijō Castle, Sanjūsangen-dō, Gion district"]},
   {label:"Afternoon / evening",groups:ALL,
-   lines:["Departures to Arashiyama: Choir (Bus 1–2) 14:00 · Band (Bus 1–4) 14:15 · Orchestra (Bus 1–3) 14:30","15:00–17:00 — Arashiyama (Bamboo Forest), lunch on own","17:30–19:00 — Group dinner","19:30 — Return to hotel"]},
+   lines:["Departures to Arashiyama: Choir (Bus 8–9) 14:00 · Band (Bus 4–7) 14:15 · Orchestra (Bus 1–3) 14:30","15:00–17:00 — Arashiyama (Bamboo Forest), lunch on own","17:30–19:00 — Group dinner","19:30 — Return to hotel"]},
   {label:"Hotel — Miyako Hotel Kyoto Hachijo",groups:ALL,
    lines:["17 Nishikujo-Inmachi, Minami-ku, Kyoto 601-8412 · Tel +81-75-661-7111 · Laundry available"]}
  ]
@@ -488,13 +488,13 @@ const DAYS=[
    desc:"Band & Orchestra: depart Akashi ~21:30 for the Kobe Bay Sheraton (evening snack provided), check in ~22:00 and retrieve luggage from 3F storage. Choir: depart ~21:00 and check in at the Kobe Plaza Hotel (evening snack provided)."}
  ],
  logistics:[
-  {label:"Band (Bus 1–4)",groups:["band","sband"],
+  {label:"Band (Bus 4–7)",groups:["band","sband"],
    lines:["11:00 — Board coach","11:15 — Depart hotel","12:00–13:30 — Lunch at Takarazuka Kita Service Area","14:45 — Arrive Akashi Civic Hall, change to concert attire","15:30–16:10 — Band rehearsal","~17:10 — Box dinner & change"]},
   {label:"Orchestra (Bus 1–3)",groups:["orch","sband"],
    lines:["11:15 — Board coach","11:30 — Depart hotel","12:30–14:00 — Lunch at Suita Service Area","15:00 — Arrive Akashi Civic Hall, change to concert attire","16:20–17:05 — Orchestra rehearsal","17:05–17:30 — Combined rehearsal (Orchestra & Takigawa Daini) 'Takarajima'","17:30 — Doors open"]},
   {label:"Band & Orchestra — concert & transfer",groups:["band","orch","sband"],
    lines:["18:00–20:30 — Friendship Concert with Takigawa Daini HS","21:30 — Depart venue for Kobe Bay Sheraton (evening snack)","22:00 — Hotel check-in, retrieve luggage from 3F storage"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["11:30 — Board coach","11:45 — Depart hotel","12:00–13:30 — Lunch at Tsuchiyama Service Area","14:00–16:00 — Kobe Chinatown (Nankinmachi), early dinner on own","17:00 — Arrive Akashi Civic Hall to observe the concert","21:00 — Depart venue, check in at Kobe Plaza Hotel (evening snack)"]},
   {label:"Hotels",groups:ALL,
    lines:["Band & Orchestra: Kobe Bay Sheraton Hotel & Towers — 2-13 Koyocho-naka, Higashinada-ku, Kobe 658-0032 · +81-78-857-7000","Choir: Kobe Plaza Hotel — 1-13-12 Motomachi-dori, Chuo-ku, Kobe 650-0022 · +81-78-332-1141","Both hotels: laundry available"]}
@@ -533,8 +533,8 @@ const DAYS=[
  ],
  logistics:[
   {label:"Band & Orchestra",groups:["band","orch","sband"],
-   lines:["08:00–09:30 — Breakfast in Rokko Banquet Room (3F)","Orchestra (Bus 1–3): 11:15 board / 11:30 depart","Band (Bus 1–4): 11:30 board / 11:45 depart","12:00–14:00 — Kobe Chinatown (Nankinmachi), lunch on own","14:30–18:30 — Free time in Harborland, Meriken Park & New Port (Port Tower, Kawasaki Good Times World, átoa, TOTTEI PARK, umie)","19:00 — Return to hotel"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+   lines:["08:00–09:30 — Breakfast in Rokko Banquet Room (3F)","Orchestra (Bus 1–3): 11:15 board / 11:30 depart","Band (Bus 4–7): 11:30 board / 11:45 depart","12:00–14:00 — Kobe Chinatown (Nankinmachi), lunch on own","14:30–18:30 — Free time in Harborland, Meriken Park & New Port (Port Tower, Kawasaki Good Times World, átoa, TOTTEI PARK, umie)","19:00 — Return to hotel"]},
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["07:00 — Breakfast at hotel restaurant","09:15 — Board coach","09:30 — Depart hotel","10:00–13:00 — Free time in Harborland / Meriken Park / New Port","13:30 — Arrive Kobe High School, campus tour & visit","16:30 — Friendship Concert with Kobe HS (Student & Shadow only)","19:00 — Depart school","19:30 — Return to hotel, dinner near hotel on own"]},
   {label:"Hotels",groups:ALL,
    lines:["Band & Orchestra: Kobe Bay Sheraton Hotel & Towers — 2-13 Koyocho-naka, Higashinada-ku, Kobe 658-0032 · +81-78-857-7000","Choir: Kobe Plaza Hotel — 1-13-12 Motomachi-dori, Chuo-ku, Kobe 650-0022 · +81-78-332-1141","Both hotels: laundry available"]}
@@ -568,8 +568,8 @@ const DAYS=[
  ],
  logistics:[
   {label:"Band & Orchestra",groups:["band","orch","sband"],
-   lines:["06:30–08:00 — Breakfast in Rokko Banquet Room (3F)","08:00 — Load truck & check out","Orchestra (Bus 1–3): 08:30 board / 08:45 depart → Nozomi 9, Shin-Kobe→Hiroshima 09:54–11:02","Band (Bus 1–4): 09:00 board / 09:15 depart → Nozomi 13, 10:30–11:38"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+   lines:["06:30–08:00 — Breakfast in Rokko Banquet Room (3F)","08:00 — Load truck & check out","Orchestra (Bus 1–3): 08:30 board / 08:45 depart → Nozomi 9, Shin-Kobe→Hiroshima 09:54–11:02","Band (Bus 4–7): 09:00 board / 09:15 depart → Nozomi 13, 10:30–11:38"]},
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["07:00 — Breakfast at hotel restaurant","08:45 — Board coach","09:00 — Depart hotel → Nozomi 11, Shin-Kobe→Hiroshima 10:15–11:28"]},
   {label:"All groups — afternoon",groups:ALL,
    lines:["11:30–13:00 — Lunch on own near Hiroshima Station","13:30–16:00 — Hiroshima Peace Memorial Park (Choir short performance at the Sadako Statue)","16:30 — Hotel check-in","18:00 — Group dinner in Banquet Room Setouchi"]},
@@ -612,8 +612,8 @@ const DAYS=[
  ],
  logistics:[
   {label:"Band & Orchestra",groups:["band","orch","sband"],
-   lines:["07:30–09:00 — Breakfast in Setouchi Banquet Room (2F)","Orchestra (Bus 1–3): 09:15 board / 09:30 depart (concert attire)","Band (Bus 1–4): 09:30 board / 09:45 depart","10:00 — Arrive concert venue","11:00–11:40 — Orchestra rehearsal (Band bento lunch)","11:50–12:30 — Band rehearsal (Orchestra bento lunch)","12:30–13:00 — Combined (Band & Hijiyama) 'Takarajima' & 'Let's Go Carp!'","13:00 — Doors open","13:10–13:20 — Pre-concert Saratoga Percussion 'José / beFORe John 5'","13:30–15:45 — Friendship Concert with Hijiyama HS at Hiroshima Phoenix Hall","16:45–17:30 — Social","17:30–19:00 — Dinner on own around Hondori","19:30 — Return to hotel"]},
-  {label:"Choir (Bus 1–2)",groups:["choir","schoir"],
+   lines:["07:30–09:00 — Breakfast in Setouchi Banquet Room (2F)","Orchestra (Bus 1–3): 09:15 board / 09:30 depart (concert attire)","Band (Bus 4–7): 09:30 board / 09:45 depart","10:00 — Arrive concert venue","11:00–11:40 — Orchestra rehearsal (Band bento lunch)","11:50–12:30 — Band rehearsal (Orchestra bento lunch)","12:30–13:00 — Combined (Band & Hijiyama) 'Takarajima' & 'Let's Go Carp!'","13:00 — Doors open","13:10–13:20 — Pre-concert Saratoga Percussion 'José / beFORe John 5'","13:30–15:45 — Friendship Concert with Hijiyama HS at Hiroshima Phoenix Hall","16:45–17:30 — Social","17:30–19:00 — Dinner on own around Hondori","19:30 — Return to hotel"]},
+  {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["09:00 — Board coach (bring concert clothes)","09:15 — Depart hotel","10:00 — Arrive Hiroshima Jogakuin HS (green room 'Chapel')","10:30–11:15 — Peace Study Class (6 classes)","~12:30 — Walk to Shukkeien Garden","~14:00 — Lunch, change & rehearsal in chapel","14:00–14:15 — Sound check","14:15–14:30 — Combined rehearsal","14:30 — Doors open","15:00–16:30 — Friendship Concert (open to public)","~17:30 — Social","18:50 — Depart school","19:00–20:30 — Dinner on own around Hondori","21:00 — Return to hotel"]},
   {label:"Hotel — Grand Prince Hotel Hiroshima",groups:ALL,
    lines:["1-3 Ujina-Kaigan, Minami-ku, Hiroshima 734-8543 · Tel +81-82-256-1111 · Laundry available"]}
@@ -648,7 +648,7 @@ const DAYS=[
  ],
  logistics:[
   {label:"Morning",groups:ALL,
-   lines:["06:30–08:00 — Breakfast in Setouchi Banquet Room (2F)","Orchestra (Bus 1–3) & Choir (Bus 1–2): 08:00 board / 08:15 depart","Band (Bus 1–4): 08:15 board / 08:30 depart","09:00–10:45 — Hijiyama HS cultural exchange (Students Only)"]},
+   lines:["06:30–08:00 — Breakfast in Setouchi Banquet Room (2F)","Orchestra (Bus 1–3) & Choir (Bus 8–9): 08:00 board / 08:15 depart","Band (Bus 4–7): 08:15 board / 08:30 depart","09:00–10:45 — Hijiyama HS cultural exchange (Students Only)"]},
   {label:"Miyajima ferries (charter, ~30 min)",groups:ALL,
    lines:["To Miyajima: Orchestra & Choir 11:35 · Band 12:35","Return to hotel port: Orchestra & Choir 15:30 · Band 16:35"]},
   {label:"Evening",groups:ALL,
@@ -1278,9 +1278,8 @@ const FLIGHTS=[
 /* ============================ BUSES ============================ */
 /* Touring coaches are numbered 1–9 and stay with an ensemble for the whole
    tour: Buses 1–3 Orchestra, 4–7 Band, 8–9 Choir. Separate from ensemble
-   selection and from the airport-transfer buses on arrival/return days. */
-/* Buses are numbered within each ensemble (Band 1–4, Orchestra 1–3, Choir 1–2).
-   "id" is a stable internal value; "num" is the ensemble-relative number shown to users. */
+   selection and from the airport-transfer buses on arrival/return days.
+   "id" is a stable internal value; "num" is the global number shown to users. */
 const BUSES=[
  {id:"1", num:"1", grp:"orch", ensemble:"Orchestra (Symphony Orchestra)",
   desc:"Orchestra coach. Boards with the Orchestra group (Buses 1–3) each day. At the Narita arrival, jump seats on Buses 1–3 are also used."},
@@ -1288,18 +1287,18 @@ const BUSES=[
   desc:"Orchestra coach. Boards with the Orchestra group (Buses 1–3) each day."},
  {id:"3", num:"3", grp:"orch", ensemble:"Orchestra (Symphony Orchestra)",
   desc:"Orchestra coach. Boards with the Orchestra group (Buses 1–3) each day."},
- {id:"4", num:"1", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
-  desc:"Band coach. Boards with the Band group (Buses 1–4). On Day 3, Buses 1–2 take the 10:00 Tokyo Skytree entry."},
- {id:"5", num:"2", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
-  desc:"Band coach. Boards with the Band group (Buses 1–4). On Day 3, Buses 1–2 take the 10:00 Tokyo Skytree entry."},
- {id:"6", num:"3", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
-  desc:"Band coach. Boards with the Band group (Buses 1–4). On Day 3, Buses 3–4 take the 10:15 Tokyo Skytree entry."},
- {id:"7", num:"4", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
-  desc:"Band coach. Boards with the Band group (Buses 1–4). On Day 3, Buses 3–4 take the 10:15 Tokyo Skytree entry."},
- {id:"8", num:"1", grp:"choir", ensemble:"Choir (SHS & LHS Combined Choir)",
-  desc:"Choir coach. Boards with the Choir group (Buses 1–2) each day."},
- {id:"9", num:"2", grp:"choir", ensemble:"Choir (SHS & LHS Combined Choir)",
-  desc:"Choir coach. Boards with the Choir group (Buses 1–2) each day."}
+ {id:"4", num:"4", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
+  desc:"Band coach. Boards with the Band group (Buses 4–7). On Day 3, Buses 4–5 take the 10:00 Tokyo Skytree entry."},
+ {id:"5", num:"5", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
+  desc:"Band coach. Boards with the Band group (Buses 4–7). On Day 3, Buses 4–5 take the 10:00 Tokyo Skytree entry."},
+ {id:"6", num:"6", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
+  desc:"Band coach. Boards with the Band group (Buses 4–7). On Day 3, Buses 6–7 take the 10:15 Tokyo Skytree entry."},
+ {id:"7", num:"7", grp:"band", ensemble:"Band (Symphonic Wind Ensemble)",
+  desc:"Band coach. Boards with the Band group (Buses 4–7). On Day 3, Buses 6–7 take the 10:15 Tokyo Skytree entry."},
+ {id:"8", num:"8", grp:"choir", ensemble:"Choir (SHS & LHS Combined Choir)",
+  desc:"Choir coach. Boards with the Choir group (Buses 8–9) each day."},
+ {id:"9", num:"9", grp:"choir", ensemble:"Choir (SHS & LHS Combined Choir)",
+  desc:"Choir coach. Boards with the Choir group (Buses 8–9) each day."}
 ];
 
 
