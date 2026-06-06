@@ -41,7 +41,7 @@ function ItemCard({ di, it, g, dir }) {
           {it.loc ? <a className="mini-btn map" target="_blank" rel="noopener" href={mapsUrl(it.loc.q)}>📍 {it.loc.n}</a> : null}
           <button className="mini-btn ex" onClick={() => dispatch({ type: "toggleExcl", key: nk })}>{ex ? "↺ Restore" : "✕ Skip this"}</button>
           <button className="mini-btn" onClick={() => setNoteOpen((o) => !o)}>✎ Note{noteVal ? " •" : ""}</button>
-          {it._custom ? <button className="mini-btn ex" onClick={() => dispatch({ type: "delCustom", di, ci: it._ci })}>Delete</button> : null}
+          {it._custom ? <button className="mini-btn ex" onClick={() => dispatch({ type: "delCustom", di, id: it.id })}>Delete</button> : null}
         </div>
         {noteOpen ? (
           <div className="note-box" style={{ display: "block" }}>
@@ -63,7 +63,7 @@ export default function Day() {
   const [logOpen, setLogOpen] = useState(false);
 
   const base = (d.items || []).map((it, idx) => ({ ...it, _idx: idx, _custom: false })).filter((it) => inGroup(it, g, dir));
-  const cust = (state.custom[di] || []).map((it, ci) => ({ ...it, _idx: "c" + ci, _ci: ci, _custom: true }));
+  const cust = (state.custom[di] || []).map((it) => ({ ...it, _idx: "c" + it.id, _custom: true }));
   const items = base.concat(cust);
 
   const hotels = (d.hotels || []).filter((h) => egroups(g, dir).some((x) => (h.groups || []).indexOf(x) > -1));

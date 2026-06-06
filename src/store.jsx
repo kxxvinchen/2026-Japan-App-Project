@@ -10,16 +10,41 @@ function load(k, def) {
   catch (e) { return def; }
 }
 
+// Stable, collision-resistant id for a custom activity (so its notes/skip survive
+// the deletion of any other custom activity on the same day).
+let _idSeq = 0;
+const newCustomId = () => "k" + Date.now().toString(36) + (_idSeq++).toString(36) + Math.random().toString(36).slice(2, 5);
+
+/* One-time migration: older custom activities were keyed by array index, so notes
+   and skip-states (jt_notes / jt_excluded) used keys like "3_c0". Give every custom
+   activity a permanent id and rewrite those index-based keys to id-based ones, so a
+   deletion can never shift them onto the wrong activity again. */
+function migrateCustom(custom, notes, excluded) {
+  Object.keys(custom).forEach((di) => {
+    (custom[di] || []).forEach((it, ci) => {
+      if (it.id) return;                       // already migrated
+      it.id = newCustomId();
+      const oldK = di + "_c" + ci, newK = di + "_c" + it.id;
+      if (notes[oldK] != null) { notes[newK] = notes[oldK]; delete notes[oldK]; }
+      if (excluded[oldK] != null) { excluded[newK] = excluded[oldK]; delete excluded[oldK]; }
+    });
+  });
+}
+
 function initial() {
   const groups = load(LS.group, []);
+  const custom = load(LS.custom, {});
+  const notes = load(LS.notes, {});
+  const excluded = load(LS.excl, {});
+  migrateCustom(custom, notes, excluded);
   return {
     screen: groups.length ? "overview" : "onboard",
     groups,
     flight: load(LS.flight, ""),
     bus: load(LS.bus, ""),
-    excluded: load(LS.excl, {}),
-    custom: load(LS.custom, {}),
-    notes: load(LS.notes, {}),
+    excluded,
+    custom,
+    notes,
     dark: (() => { try { return localStorage.getItem(LS.theme) === "dark"; } catch (e) { return false; } })(),
     dayIdx: 0,
     cityIdx: 0,
@@ -43,13 +68,19 @@ function reducer(s, a) {
       const n = { ...s.notes }; n[a.key] = a.val; return { ...s, notes: n };
     }
     case "delCustom": {
+      // delete by stable id (never by index) and drop that activity's note/skip
+      const arr = s.custom[a.di] || [];
+      const removed = arr.find((x) => x.id === a.id);
       const c = { ...s.custom };
-      c[a.di] = (c[a.di] || []).filter((_, i) => i !== a.ci);
-      return { ...s, custom: c };
+      c[a.di] = arr.filter((x) => x.id !== a.id);
+      const notes = { ...s.notes }, excluded = { ...s.excluded };
+      if (removed && removed.id) { const k = a.di + "_c" + removed.id; delete notes[k]; delete excluded[k]; }
+      return { ...s, custom: c, notes, excluded };
     }
     case "addCustom": {
       const c = { ...s.custom };
-      c[a.di] = (c[a.di] || []).concat([a.item]);
+      const item = { ...a.item, id: a.item.id || newCustomId() };
+      c[a.di] = (c[a.di] || []).concat([item]);
       return { ...s, custom: c };
     }
     case "set": return { ...s, ...a.patch };
