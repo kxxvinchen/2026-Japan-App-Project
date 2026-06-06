@@ -391,21 +391,55 @@ export async function scheduleDepartureReminders() {
     }
   }
   const AIR = /haneda|narita|airport|san francisco|\bSFO\b|\bLAX\b|\bSEA\b|departure for|truck loading/i;
-  const depT = (lines) => {
+  const ENS = { band: "Band", sband: "Band", orch: "Orchestra", choir: "Choir", schoir: "Choir" };
+  // pull "HH:MM" out of a single line, if it's a hotel-departure line
+  const lineDep = (ln) => {
+    if (/venue|school|return/i.test(ln)) return null;
+    const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i)
+      || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i)
+      || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
+    return m ? (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2] : null;
+  };
+  // Some days list every ensemble's departure on ONE dot-separated line, e.g.
+  // "Departures to Arashiyama: Choir (Bus 8–9) 14:00 · Band (Bus 4–7) 14:15 · Orchestra (Bus 1–3) 14:30"
+  // → read the time from the segment that names this ensemble.
+  const ensTimeOnLine = (ln, ensKw) => {
+    const seg = ln.split("·").find((s) => new RegExp("\\b" + ensKw + "\\b").test(s));
+    const m = seg && seg.match(/(\d{1,2}):(\d{2})/);
+    return m ? (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2] : null;
+  };
+  // Departure time for ONE ensemble. On joint days a shared block lists several
+  // ensembles' departures (e.g. Orchestra 08:45 then Band 09:15); we must read the
+  // line that names this ensemble, never just the first match.
+  const depT = (lines, ensKw) => {
     if (lines.some((l) => AIR.test(l))) return null;
-    for (const ln of lines) {
-      if (/venue|school|return/i.test(ln)) continue;
-      const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i) || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i) || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
-      if (m) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2];
+    const ensDepLines = lines.filter((l) => /\b(Band|Orchestra|Choir)\b/.test(l) && /depart/i.test(l));
+    if (ensDepLines.length) {
+      if (!ensKw) return null;
+      const re = new RegExp("\\b" + ensKw + "\\b");
+      for (const ln of ensDepLines) if (re.test(ln)) {
+        const t = lineDep(ln) || (ln.includes("·") ? ensTimeOnLine(ln, ensKw) : null);
+        if (t) return t;
+      }
+      return null;                       // block is split by ensemble, but none is mine
     }
+    for (const ln of lines) { const t = lineDep(ln); if (t) return t; }   // generic single-group block
     return null;
   };
+  const myEns = [...new Set((userGroups || []).map((g) => ENS[g]).filter(Boolean))];
+  const isSplit = (lines) => lines.some((l) => /\b(Band|Orchestra|Choir)\b/.test(l) && /depart/i.test(l));
   daySet(userGroups).forEach((d, di) => {
     (d.logistics || []).forEach((b, bi) => {
       if (!b.groups || !b.groups.some((g) => userGroups.indexOf(g) > -1)) return;
-      const t = depT(b.lines || []); if (!t) return;
-      const ms = jstToUtcMs(d.dm, d.dd, t);
-      OFF.forEach((o) => { want[dev + "_dep_" + di + "_" + bi + "_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "🚌 Depart hotel " + o.t, body: (d.date.split(",")[0]) + " — leave at " + fmt12(t) }; });
+      const lines = b.lines || [];
+      // ensemble-split block → one reminder per ensemble I'm in; generic block → just one
+      const ensList = isSplit(lines) ? myEns : [null];
+      ensList.forEach((ens) => {
+        const t = depT(lines, ens); if (!t) return;
+        const ms = jstToUtcMs(d.dm, d.dd, t);
+        const ek = ens || "all";
+        OFF.forEach((o) => { want[dev + "_dep_" + di + "_" + bi + "_" + ek + "_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "🚌 Depart hotel " + o.t, body: (d.date.split(",")[0]) + " — leave at " + fmt12(t) }; });
+      });
     });
   });
   let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) { }
