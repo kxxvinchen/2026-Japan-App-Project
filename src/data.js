@@ -210,8 +210,8 @@ const DAYS=[
  meals:["Breakfast"],
  hotels:[{n:"Grand Nikko Tokyo Daiba",q:"Grand Nikko Tokyo Daiba",groups:ALL}],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast at hotel",
-   desc:"Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."},
+  {t:"Morning",hr:"6:30 AM",type:"meal",groups:ALL,title:"Breakfast at hotel",
+   desc:"Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."},
   {t:"Morning",hr:"9:10 AM",type:"sightseeing",groups:["band","orch","sband"],
    title:"Tokyo Skytree & Asakusa",
    desc:"Visit Tokyo Skytree, Japan's tallest structure (634 m) with sweeping observation decks, and historic Asakusa with Sensō-ji Temple and Nakamise shopping street. Lunch on your own. Band and Orchestra visit in opposite order — see Full logistics for exact times.",
@@ -257,8 +257,8 @@ const DAYS=[
  meals:["Breakfast","Dinner"],
  hotels:[{n:"Grand Nikko Tokyo Daiba",q:"Grand Nikko Tokyo Daiba",groups:ALL}],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast at hotel",
-   desc:"Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."},
+  {t:"Morning",hr:"6:30 AM",type:"meal",groups:ALL,title:"Breakfast at hotel",
+   desc:"Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."},
   {t:"Morning",hr:"8:45 AM",type:"sightseeing",groups:["band","orch","sband"],
    title:"Meiji Shrine & Harajuku",
    desc:"Visit the forested calm of Meiji Shrine and the youthful buzz of Harajuku's Takeshita Street. Lunch on your own. Band and Orchestra visit in opposite order — see Full logistics.",
@@ -304,8 +304,8 @@ const DAYS=[
  meals:["Breakfast","Lunch (Band & Orchestra)"],
  hotels:[{n:"Grand Nikko Tokyo Daiba",q:"Grand Nikko Tokyo Daiba",groups:ALL}],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast at hotel",
-   desc:"Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."},
+  {t:"Morning",hr:"6:30 AM",type:"meal",groups:ALL,title:"Breakfast at hotel",
+   desc:"Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."},
   {t:"Afternoon",hr:"2:00 PM",type:"performance",groups:["band","orch"],
    title:"PERFORMANCE — Friendship Concert, Beethoven Hall",
    desc:"Band & Orchestra perform a Friendship Concert with Iwakura High School at Beethoven Hall, Musashino Academia Musicae (14:00–16:00, open to the public). Includes a combined 'Galaxy Express 999' with Iwakura and a pre-concert Saratoga Percussion Studio set, 'Shared Space'. Bento box lunches provided.",
@@ -397,7 +397,7 @@ const DAYS=[
  meals:["Breakfast","Lunch"],
  hotels:[{n:"Miyako Hotel Kyoto Hachijo",q:"Miyako Hotel Kyoto Hachijo",groups:ALL}],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast in groups & check out",
+  {t:"Morning",hr:"7:00 AM",type:"meal",groups:ALL,title:"Breakfast in groups & check out",
    desc:"Breakfast in timed groups (Band & Choir: Garden Café · Orchestra: Fujiyama Terrace; seatings 07:00 / 07:45 / 08:30), then check out. Depart around 10:30."},
   {t:"Morning",hr:"11:30 AM",type:"sightseeing",groups:ALL,
    title:"Mt. Fuji 5th Station",
@@ -509,8 +509,8 @@ const DAYS=[
   {n:"Kobe Plaza Hotel (Choir)",q:"Kobe Plaza Hotel",groups:["choir","schoir"]}
  ],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast at hotel",
-   desc:"Band & Orchestra: breakfast 08:00–09:30 in the Rokko Banquet Room (3F). Choir: breakfast 07:00 at the hotel restaurant."},
+  {t:"Morning",hr:"7:00 AM",type:"meal",groups:ALL,title:"Breakfast at hotel",
+   desc:"Choir: breakfast from 07:00 at the hotel restaurant. Band & Orchestra: breakfast 08:00–09:30 in the Rokko Banquet Room (3F)."},
   {t:"Afternoon",hr:"12:00 PM",type:"sightseeing",groups:["band","orch","sband"],
    title:"Kobe Chinatown & Harborland",
    desc:"Visit Nankinmachi Chinatown (12:00–14:00, lunch on your own), then free time and afternoon activities (14:30–18:30) in Harborland, Meriken Park and the New Port area — Kobe Port Tower, Kawasaki Good Times World, AQUARIUM × ART átoa, TOTTEI PARK and umie. Return ~19:00.",
@@ -625,7 +625,7 @@ const DAYS=[
  meals:["Breakfast","Dinner"],
  hotels:[{n:"Grand Prince Hotel Hiroshima",q:"Grand Prince Hotel Hiroshima",groups:ALL}],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast at hotel",
+  {t:"Morning",hr:"6:30 AM",type:"meal",groups:ALL,title:"Breakfast at hotel",
    desc:"Breakfast 06:30–08:00 in the Setouchi Banquet Room (2F)."},
   {t:"Morning",hr:"9:00 AM",type:"exchange",groups:PERF,gnote:"Students only",
    title:"Cultural exchange — Hijiyama High School",
@@ -690,8 +690,8 @@ const DAYS=[
  meals:["Breakfast"],
  hotels:[],
  items:[
-  {t:"Morning",hr:"breakfast",type:"meal",groups:ALL,title:"Breakfast & free morning",
-   desc:"Breakfast at the hotel; multiple choices available. Free morning on your own in small groups. Check out before 13:00, load luggage onto the truck, and depart for the airport on your flight group's schedule. If your departure is after 13:00, bring luggage to the 1F lobby to load or store until departure."},
+  {t:"Morning",hr:"7:00 AM",type:"meal",groups:ALL,title:"Breakfast & free morning",
+   desc:"Breakfast served 7:00–10:00am at the hotel; multiple choices available. Free morning on your own in small groups. Check out before 13:00, load luggage onto the truck, and depart for the airport on your flight group's schedule. If your departure is after 13:00, bring luggage to the 1F lobby to load or store until departure."},
   {t:"Afternoon",hr:"see logistics",type:"travel",groups:ALL,
    title:"Depart Haneda / Narita for home",
    desc:"Transfer to Haneda (T3) or Narita (T1) and fly home — most groups to San Francisco, some connecting via Los Angeles. Tap Full logistics below for your flight group's exact departure and flights.",
@@ -856,9 +856,12 @@ const SHADOW_DAYS=[
     title:"Friendship Concert — Toko Hall",
     desc:"Choir Shadow: attend the Friendship Concert at Toko Hall with the Toko Gakuen High School Choir (around 4:00pm).",
     loc:{n:"Toko Gakuen — Toko Hall",q:"Toko Gakuen Tokyo",kind:"venue"}},
-   {t:"Evening",hr:"6:00 PM",type:"meal",groups:SHG,
+   {t:"Evening",hr:"6:00 PM",type:"meal",groups:SBO,
     title:"Group dinner — Ocean Club Buffet",
-    desc:"Group dinner at the Ocean Club Buffet, then return to the hotel (arrive ~8:15pm)."}
+    desc:"Band & Orchestra Shadow: group dinner at the Ocean Club Buffet (6:00pm), then return to the hotel (~8:15pm)."},
+   {t:"Evening",hr:"6:30 PM",type:"meal",groups:SCH,
+    title:"Group dinner — Ocean Club Buffet",
+    desc:"Choir Shadow: join the group for dinner at the Ocean Club Buffet (6:30pm), then return to the hotel (~8:15pm)."}
   ],
   logistics:[{label:"Attire",groups:SHG,lines:["Casual sightseeing attire","Choir Shadow: semi-formal concert-attendee attire for the afternoon"]}]
 },
