@@ -324,20 +324,33 @@ function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
   return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
+// Stable Firestore doc id derived from the FCM token itself, so the same device/token
+// always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or
+// incognito. (FCM tokens can contain "/" and are long, so we hash to a safe fixed id.)
+async function tokenDocId(token) {
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) {}
+  let h = 5381; for (let i = 0; i < token.length; i++) h = ((h << 5) + h + token.charCodeAt(i)) >>> 0;
+  return "t" + h.toString(16) + "_" + token.length;   // fallback (crypto.subtle is present over HTTPS)
+}
 async function saveWebToken(token) {
   try {
-    const id = localStorage.getItem("jt_webdoc");
-    if (id) await FB.db.collection("webTokens").doc(id).set(tokenData(token));
-    else { const ref = await FB.db.collection("webTokens").add(tokenData(token)); localStorage.setItem("jt_webdoc", ref.id); }
+    const id = await tokenDocId(token);
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token));
   } catch (e) {
     console.error("saveWebToken failed:", e);
   }
 }
 async function syncWebChannels() {
   const token = await ensureWebToken(); if (!token) return;
-  const id = localStorage.getItem("jt_webdoc"); if (!id) return;
-  try { await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true }); }
-  catch (e) {
+  try {
+    const id = await tokenDocId(token);
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true });
+  } catch (e) {
     console.error("syncWebChannels failed:", e);
   }
 }
