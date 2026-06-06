@@ -322,7 +322,10 @@ export async function ensureWebToken() {
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
     if (token) { FB.webToken = token; await saveWebToken(token); }
     return FB.webToken;
-  } catch (e) { return ""; }
+  } catch (e) {
+    console.error("ensureWebToken failed:", e);
+    return "";
+  }
 }
 function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
@@ -333,12 +336,17 @@ async function saveWebToken(token) {
     const id = localStorage.getItem("jt_webdoc");
     if (id) await FB.db.collection("webTokens").doc(id).set(tokenData(token));
     else { const ref = await FB.db.collection("webTokens").add(tokenData(token)); localStorage.setItem("jt_webdoc", ref.id); }
-  } catch (e) { }
+  } catch (e) {
+    console.error("saveWebToken failed:", e);
+  }
 }
 async function syncWebChannels() {
   const token = await ensureWebToken(); if (!token) return;
   const id = localStorage.getItem("jt_webdoc"); if (!id) return;
-  try { await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true }); } catch (e) { }
+  try { await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true }); }
+  catch (e) {
+    console.error("syncWebChannels failed:", e);
+  }
 }
 function notifBridge() {
   if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jtNotify) return { post: (m) => { try { window.webkit.messageHandlers.jtNotify.postMessage(m); } catch (e) { } } };
@@ -354,13 +362,24 @@ export async function enableNotifs() {
   if (typeof firebase === "undefined" || !firebase.messaging) { toast("Still connecting — try again in a moment"); return; }
   let perm; try { perm = await Notification.requestPermission(); } catch (e) { toast("Couldn't request permission"); return; }
   if (perm !== "granted") { FB.notifPerm = "denied"; notify(); toast("Notifications not allowed"); return; }
-  FB.notifPerm = "granted"; notify(); toast("Notifications enabled");
   try {
     if (!FB.messaging) FB.messaging = firebase.messaging();
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
-    if (token) { FB.webToken = token; await saveWebToken(token); scheduleDepartureReminders(); }
-  } catch (e) { }
+    if (token) {
+      FB.webToken = token;
+      await saveWebToken(token);
+      scheduleDepartureReminders();
+      FB.notifPerm = "granted";
+      notify();
+      toast("Notifications enabled");
+    } else {
+      throw new Error("FCM returned an empty token.");
+    }
+  } catch (e) {
+    console.error("enableNotifs failed:", e);
+    toast("Notifications allowed, but token registration failed: " + (e.message || e));
+  }
 }
 export function notifGranted() { return (typeof Notification !== "undefined" && Notification.permission === "granted") || FB.notifPerm === "granted"; }
 
@@ -387,7 +406,9 @@ export async function saveReminder(d, time, remind, title) {
   if (!token) { toast("Turn on notifications (Group tab) to get reminders"); return; }
   try {
     await FB.db.collection("reminders").add({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
-  } catch (e) { }
+  } catch (e) {
+    console.error("saveReminder failed:", e);
+  }
 }
 /* 1-hour + 15-min reminders before flight departures and daily hotel departures */
 export async function scheduleDepartureReminders() {
@@ -426,11 +447,12 @@ export async function scheduleDepartureReminders() {
   });
   let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) { }
   const now = Date.now();
-  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) { } }
+  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) { console.error("Failed to delete stale reminder:", id, e); } }
   const keep = [];
   for (const id in want) {
     const w = want[id]; if (w.fireAtMs <= now) continue;
-    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); } catch (e) { }
+    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); }
+    catch (e) { console.error("Failed to save departure reminder:", id, e); }
   }
   try { localStorage.setItem("jt_depremids", JSON.stringify(keep)); } catch (e) { }
 }
