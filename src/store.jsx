@@ -20,7 +20,16 @@ function initial() {
     excluded: load(LS.excl, {}),
     custom: load(LS.custom, {}),
     notes: load(LS.notes, {}),
-    dark: (() => { try { return localStorage.getItem(LS.theme) === "dark"; } catch (e) { return false; } })(),
+    // First install (no saved theme): follow the browser/OS color scheme once.
+    // After that the value is persisted, so the user's manual toggle always wins.
+    dark: (() => {
+      try {
+        const v = localStorage.getItem(LS.theme);
+        if (v === "dark") return true;
+        if (v === "light") return false;
+        return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      } catch (e) { return false; }
+    })(),
     dayIdx: 0,
     cityIdx: 0,
     isDirector: false, // set later by the Firebase layer
