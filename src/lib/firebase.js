@@ -382,6 +382,12 @@ export async function enableNotifs() {
   }
 }
 export function notifGranted() { return (typeof Notification !== "undefined" && Notification.permission === "granted") || FB.notifPerm === "granted"; }
+// True when notifications aren't on yet but this platform can turn them on (drives the top banner).
+export function notifBannerNeeded() {
+  if (notifGranted()) return false;
+  if (notifBridge()) return true;                                   // native iOS/Android shell
+  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+}
 
 /* native iOS/Android shells call window.jtNotifStatus("granted"|"denied") */
 if (typeof window !== "undefined") window.jtNotifStatus = (stat) => { FB.notifPerm = stat; notify(); };
