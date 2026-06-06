@@ -16,6 +16,7 @@ import Onboard from "./components/Onboard.jsx";
 import Messages from "./components/Messages.jsx";
 import Utilities from "./components/Utilities.jsx";
 import Handbooks from "./components/Handbooks.jsx";
+import NotifBanner from "./components/NotifBanner.jsx";
 import { setGroups, setFlight, FB } from "./lib/firebase.js";
 
 const SCREENS = {
@@ -52,6 +53,7 @@ export default function App() {
       <div id="app">{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
       <Nav />
       <Toast />
+      <NotifBanner />
     </>
   );
 }

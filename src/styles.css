@@ -689,3 +689,25 @@
   body.dark .conv-flip{border-color:var(--card);}
   body.dark .conv-rate-main b{color:#7aa0e0;}
   body.dark .conv-refresh{background:var(--card2);color:#7aa0e0;}
+
+  /* ===== Notifications nudge banner (slides down from top, then slides up) ===== */
+  .notif-banner{
+    position:fixed;top:0;left:50%;width:100%;max-width:480px;z-index:200;cursor:pointer;
+    transform:translateX(-50%);
+    display:flex;align-items:center;gap:12px;
+    padding:calc(env(safe-area-inset-top) + 11px) 14px 11px;
+    background:linear-gradient(135deg,var(--indigo) 0%,var(--indigo2) 100%);color:#fff;
+    border-radius:0 0 16px 16px;box-shadow:0 8px 22px rgba(10,18,38,.28);
+    animation:nb-in .38s cubic-bezier(.18,.89,.32,1.1) both;
+  }
+  .notif-banner.leaving{animation:nb-out .34s cubic-bezier(.4,0,.85,.3) both;}
+  @keyframes nb-in{from{transform:translateX(-50%) translateY(-115%);}to{transform:translateX(-50%) translateY(0);}}
+  @keyframes nb-out{from{transform:translateX(-50%) translateY(0);}to{transform:translateX(-50%) translateY(-115%);}}
+  .nb-ic{flex:0 0 auto;width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.18);
+    display:flex;align-items:center;justify-content:center;}
+  .nb-ic svg{width:20px;height:20px;}
+  .nb-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25;}
+  .nb-tx b{font-size:14px;font-weight:800;letter-spacing:.1px;}
+  .nb-tx span{font-size:11.5px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nb-cta{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--indigo);background:#fff;
+    padding:7px 13px;border-radius:20px;}
