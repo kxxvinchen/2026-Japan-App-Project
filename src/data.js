@@ -240,7 +240,7 @@ const DAYS=[
   {label:"Band (Bus 4–7)",groups:["band","sband"],
    lines:["08:55 — Board coach on 1F","09:10 — Depart hotel","10:00–12:00 — Tokyo Skytree (Bus 4–5: 10:00 entry · Bus 6–7: 10:15 entry)","12:30–14:30 — Asakusa, shopping & lunch on own"]},
   {label:"Orchestra (Bus 1–3)",groups:["orch","sband"],
-   lines:["09:10 — Board coach on 1F","09:20 — Depart hotel","10:00–12:00 — Asakusa, shopping & lunch on own","12:30–14:30 — Tokyo Skytree"]},
+   lines:["09:10 — Board coach on 1F","09:25 — Depart hotel","10:00–12:00 — Asakusa, shopping & lunch on own","12:30–14:30 — Tokyo Skytree"]},
   {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
    lines:["10:00 — Board coach on 1F","10:15 — Depart hotel","11:00–13:00 — Asakusa","13:20–15:20 — Tokyo Skytree"]},
   {label:"Band & Orchestra — afternoon / evening",groups:["band","orch"],
@@ -338,7 +338,7 @@ const DAYS=[
   {label:"Band & Orchestra — concert",groups:["band","orch","sband"],
    lines:["11:30–12:10 — Band rehearsal (Orchestra bento lunch)","12:20–13:00 — Orchestra rehearsal (Band bento lunch)","13:00 — Combined rehearsal (Orchestra & Iwakura HS): 'Galaxy Express 999'","13:30 — Doors open","13:40–13:50 — Pre-concert: Saratoga Percussion Studio 'Shared Space'","14:00–16:00 — Friendship Concert with Iwakura HS (open to public)","16:30–17:30 — Pack-up (Band first, then Orchestra) & social","19:00 — Return to hotel, dinner on own"]},
   {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
-   lines:["09:45 — Board coach on 1F (bring concert clothes)","10:00 — Depart hotel","11:30–13:30 — Kawagoe ('Little Edo'), sightseeing, shopping & lunch on own","14:00 — Depart for Ikebukuro","15:00–17:00 — Free time & early dinner on own in Ikebukuro","17:00–18:00 — Stage rehearsal","18:00–18:45 — Performance at Ikebukuro Global Ring Theatre (open to public)","19:30 — Return to hotel"]},
+   lines:["11:15 — Board coach on 1F (bring concert clothes)","11:30 — Depart hotel","13:00–15:00 — Kawagoe ('Little Edo'), sightseeing, shopping & lunch on own","15:00 — Depart for Ikebukuro","16:15 — Arrive Ikebukuro; soundcheck 17:00–17:45","18:00 — Performance at Ikebukuro Global Ring Theatre (open to public)","20:30 — Depart for hotel (~21:15 arrive)"]},
   {label:"Hotel — Grand Nikko Tokyo Daiba",groups:ALL,
    lines:["2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · Tel +81-3-5500-6711 · Laundry available"]}
  ]
@@ -495,7 +495,7 @@ const DAYS=[
   {label:"Band & Orchestra — concert & transfer",groups:["band","orch","sband"],
    lines:["18:00–20:30 — Friendship Concert with Takigawa Daini HS","21:30 — Depart venue for Kobe Bay Sheraton (evening snack)","22:00 — Hotel check-in, retrieve luggage from 3F storage"]},
   {label:"Choir (Bus 8–9)",groups:["choir","schoir"],
-   lines:["11:30 — Board coach","11:45 — Depart hotel","12:00–13:30 — Lunch at Tsuchiyama Service Area","14:00–16:00 — Kobe Chinatown (Nankinmachi), early dinner on own","17:00 — Arrive Akashi Civic Hall to observe the concert","21:00 — Depart venue, check in at Kobe Plaza Hotel (evening snack)"]},
+   lines:["11:15 — Board coach","11:30 — Depart hotel","12:45 — Kobe Chinatown (Nankinmachi), lunch on own","14:30 — AEON Shopping Center, early dinner on own","17:00 — Arrive Akashi Civic Hall to observe the concert","21:00 — Depart venue, check in at Kobe Plaza Hotel (evening snack)"]},
   {label:"Hotels",groups:ALL,
    lines:["Band & Orchestra: Kobe Bay Sheraton Hotel & Towers — 2-13 Koyocho-naka, Higashinada-ku, Kobe 658-0032 · +81-78-857-7000","Choir: Kobe Plaza Hotel — 1-13-12 Motomachi-dori, Chuo-ku, Kobe 650-0022 · +81-78-332-1141","Both hotels: laundry available"]}
  ]
@@ -830,7 +830,9 @@ const SHADOW_DAYS=[
     desc:"Return to the hotel and enjoy dinner on your own in the lively Ikebukuro area."}
   ],
   note:"Day 10 (June 18) Awaji optional activities: review the info sheet and book + pay via QR code by Sunday, June 14 at 6pm (first-come, first-served; non-refundable).",
-  logistics:[{label:"Buses 1–2 / Buses 3–4",groups:SHG,lines:["Bus 1–2 meet 9:00am; Bus 3–4 meet 9:30am at hotel 1F","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["09:00 — Depart hotel for Tokyo sightseeing (Bus 1–2; Bus 3 by 09:30)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["09:30 — Depart hotel for Tokyo sightseeing (Bus 4)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]}]
 },
 { d:4, dow:"Fri", dd:"12", dm:"JUN", date:"Friday, June 12, 2026",
   city:"Tokyo", headline:"Asakusa, Tokyo Skytree & Kappabashi; Choir Shadow concert at Toko Hall.",
@@ -860,7 +862,10 @@ const SHADOW_DAYS=[
     title:"Group dinner — Ocean Club Buffet",
     desc:"Group dinner at the Ocean Club Buffet, then return to the hotel (arrive ~8:15pm)."}
   ],
-  logistics:[{label:"Attire",groups:SHG,lines:["Casual sightseeing attire","Choir Shadow: semi-formal concert-attendee attire for the afternoon"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["10:50 — Depart hotel for Asakusa (Bus 1–2; Bus 3 by 11:00)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["10:00 — Depart hotel for Asakusa (Bus 4)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]},
+   {label:"Attire",groups:SHG,lines:["Casual sightseeing attire","Choir Shadow: semi-formal concert-attendee attire for the afternoon"]}]
 },
 { d:5, dow:"Sat", dd:"13", dm:"JUN", date:"Saturday, June 13, 2026",
   city:"Tokyo", headline:"Kawagoe “Little Edo”; Band/Orch Shadow concert at Beethoven Hall.",
@@ -888,7 +893,10 @@ const SHADOW_DAYS=[
     loc:{n:"Ikebukuro Global Ring",q:"Ikebukuro Global Ring Theater",kind:"venue"}}
   ],
   note:"Pack a small overnight bag for tomorrow's one-night stay at Lake Ashi — your large luggage is loaded in the morning and won't be accessible again until Kyoto.",
-  logistics:[{label:"Attire",groups:SHG,lines:["Casual sightseeing attire","Band/Orch Shadow: semi-formal concert-attendee attire"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["09:10 — Depart hotel for Kawagoe (Bus 1–2; Bus 3 by 09:20)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["10:30 — Depart hotel for Kawagoe (Bus 4)","Breakfast from 6:30am at Restaurant Cross Dine (1F)"]},
+   {label:"Attire",groups:SHG,lines:["Casual sightseeing attire","Band/Orch Shadow: semi-formal concert-attendee attire"]}]
 },
 { d:6, dow:"Sun", dd:"14", dm:"JUN", date:"Sunday, June 14, 2026",
   city:"Tokyo → Lake Ashi", headline:"Mt. Fuji area, then overnight at The Prince Hakone Lake Ashi.",
@@ -919,7 +927,10 @@ const SHADOW_DAYS=[
     loc:{n:"The Prince Hakone Lake Ashinoko",q:"The Prince Hakone Lake Ashinoko",kind:"hotel"}}
   ],
   note:"Today (June 14) at 6pm is the deadline to book + pay for a Day 10 Awaji optional activity.",
-  logistics:[{label:"Overnight at Lake Ashi",groups:SHG,lines:["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111","Pack a small overnight bag; large luggage goes ahead to Kyoto"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["08:15 — Depart hotel for Mt. Fuji (Bus 1–2; Bus 3 by 08:30)","Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["09:30 — Depart hotel for Mt. Fuji (Bus 4)","Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"]},
+   {label:"Overnight at Lake Ashi",groups:SHG,lines:["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111","Pack a small overnight bag; large luggage goes ahead to Kyoto"]}]
 },
 { d:7, dow:"Mon", dd:"15", dm:"JUN", date:"Monday, June 15, 2026",
   city:"Lake Ashi → Kyoto", headline:"Free morning at Hakone-En, then Shinkansen to Kyoto.",
@@ -942,7 +953,9 @@ const SHADOW_DAYS=[
     desc:"Check in at the Hotel Nikko Princess Kyoto and settle in for the night.",
     loc:{n:"Hotel Nikko Princess Kyoto",q:"Hotel Nikko Princess Kyoto",kind:"hotel"}}
   ],
-  logistics:[{label:"Train",groups:SHG,lines:["Shinkansen Hikari 719 — Atami → Kyoto, board 4:40pm (~2 hours), arrive ~6:37pm"]}]
+  logistics:[
+   {label:"Departure (all Shadow, Bus 1–4)",groups:SHG,lines:["15:00 — Depart hotel for Atami Station (check out by 11:00am; meet 14:30 to retrieve bags)"]},
+   {label:"Train",groups:SHG,lines:["Shinkansen Hikari 719 — Atami → Kyoto, board 4:40pm (~2 hours), arrive ~6:37pm"]}]
 },
 { d:8, dow:"Tue", dd:"16", dm:"JUN", date:"Tuesday, June 16, 2026",
   city:"Kyoto", headline:"Free day in Kyoto — temples, gardens and the Gion district.",
@@ -986,7 +999,10 @@ const SHADOW_DAYS=[
     desc:"Arrive at the Grand Nikko Awaji (~9:00pm), unload, check in and settle in for the night on Awaji Island.",
     loc:{n:"Grand Nikko Awaji",q:"Grand Nikko Awaji",kind:"hotel"}}
   ],
-  logistics:[{label:"Attire",groups:SHG,lines:["Casual travel attire; semi-formal concert-attendee attire for the evening"]},
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["09:00 — Depart hotel for Fushimi Inari (Bus 1–2; Bus 3 by 09:15)","Luggage to truck & check out by 08:00; breakfast from 7:00am"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["09:15 — Depart hotel for Fushimi Inari (Bus 4)","Luggage to truck & check out by 08:00; breakfast from 7:00am"]},
+   {label:"Attire",groups:SHG,lines:["Casual travel attire; semi-formal concert-attendee attire for the evening"]},
    {label:"Train / hotel",groups:SHG,lines:["Grand Nikko Awaji — 2 Yumebutai, Awaji, Hyogo 656-2306 · +81-799-74-1111"]}]
 },
 { d:10, dow:"Thu", dd:"18", dm:"JUN", date:"Thursday, June 18, 2026",
@@ -1009,7 +1025,9 @@ const SHADOW_DAYS=[
     loc:{n:"Kobe High School",q:"Kobe High School",kind:"venue"}}
   ],
   note:"Choir Shadow members who chose an Awaji optional experience will miss the afternoon Kobe High School choir concert.",
-  logistics:[{label:"Optional activity schedules",groups:SBO,lines:["NIJIGEN NO MORI: depart 9:50am, return ~4:20pm","Zenbo Seinei (18+): depart 11:30am, return ~3:20pm","Hello Kitty Apple Land: depart 10:30am, return ~2:30pm","Breakfast at Coccolare (2F) from 7:00am"]}]
+  logistics:[
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["12:15 — Depart hotel for downtown Kobe (Nankinmachi)","Breakfast at Coccolare (2F) from 7:00am"]},
+   {label:"Band & Orchestra Shadow — optional excursions",groups:SBO,lines:["NIJIGEN NO MORI: depart 9:50am, return ~4:20pm","Zenbo Seinei (18+): depart 11:30am, return ~3:20pm","Hello Kitty Apple Land: depart 10:30am, return ~2:30pm","Breakfast at Coccolare (2F) from 7:00am"]}]
 },
 { d:11, dow:"Fri", dd:"19", dm:"JUN", date:"Friday, June 19, 2026",
   city:"Kobe → Hiroshima", headline:"Kobe Harborland, then Shinkansen to Hiroshima.",
@@ -1031,7 +1049,10 @@ const SHADOW_DAYS=[
     desc:"Check in at the RIHGA Royal Hotel Hiroshima, beside Peace Memorial Park and walking distance to downtown. Evening on your own.",
     loc:{n:"RIHGA Royal Hotel Hiroshima",q:"RIHGA Royal Hotel Hiroshima",kind:"hotel"}}
   ],
-  logistics:[{label:"Train / hotel",groups:SHG,lines:["Shinkansen Nozomi 25 — Shin-Kobe → Hiroshima, board 1:15pm (~1h10m)","RIHGA Royal Hotel Hiroshima — 6-78 Motomachi, Naka-ku, Hiroshima 730-0011 · +81-82-502-1121"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["09:45 — Depart hotel for Kobe Harborland (Bus 1–2; Bus 3 by 10:00)","Luggage to truck & check out by 08:00; breakfast from 7:00am"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["10:00 — Depart hotel for Kobe Harborland (Bus 4)","Luggage to truck & check out by 08:00; breakfast from 7:00am"]},
+   {label:"Train / hotel",groups:SHG,lines:["Shinkansen Nozomi 25 — Shin-Kobe → Hiroshima, board 1:15pm (~1h10m)","RIHGA Royal Hotel Hiroshima — 6-78 Motomachi, Naka-ku, Hiroshima 730-0011 · +81-82-502-1121"]}]
 },
 { d:12, dow:"Sat", dd:"20", dm:"JUN", date:"Saturday, June 20, 2026",
   city:"Hiroshima", headline:"Peace Memorial Park; Band/Orch at Phoenix Hall, Choir at Gaine's Hall.",
@@ -1055,7 +1076,10 @@ const SHADOW_DAYS=[
     loc:{n:"Hiroshima Jogakuin High School",q:"Hiroshima Jogakuin High School",kind:"venue"}}
   ],
   note:"Tomorrow (June 21) all Shadow Tour families move to the student hotel, the Grand Prince Hotel Hiroshima.",
-  logistics:[{label:"Attire",groups:SHG,lines:["Casual sightseeing attire; semi-formal concert-attendee attire for the afternoon","Breakfast at Dining Luore (1F) from 7:00am"]}]
+  logistics:[
+   {label:"Band & Orchestra Shadow (Bus 1–3)",groups:SBO,lines:["09:15 — Depart hotel for Peace Memorial Park","Breakfast at Dining Luore (1F) from 7:00am"]},
+   {label:"Choir Shadow (Bus 4)",groups:SCH,lines:["08:45 — Depart hotel for Peace Memorial Park","13:45 — Depart hotel for the afternoon concert at Gaine's Hall","Breakfast at Dining Luore (1F) from 7:00am"]},
+   {label:"Attire",groups:SHG,lines:["Casual sightseeing attire; semi-formal concert-attendee attire for the afternoon"]}]
 },
 { d:13, dow:"Sun", dd:"21", dm:"JUN", date:"Sunday, June 21, 2026",
   city:"Hiroshima", headline:"Miyajima Island, then the Farewell Dinner & Dance Party.",
@@ -1077,7 +1101,9 @@ const SHADOW_DAYS=[
     desc:"Gather in the Setouchi Banquet Room (2F, doors 5:30pm) at 6:00pm to celebrate the tour with food and dancing. Final announcements at 8:10pm; load luggage to the truck by 10:00pm (next access in Tokyo)."}
   ],
   note:"Dress to impress for the Farewell Dinner & Dance Party.",
-  logistics:[{label:"Farewell party & luggage",groups:SHG,lines:["Setouchi Banquet Room (2F) — doors 5:30pm, party 6:00pm","Pack and load large luggage by 10:00pm; next access is in Tokyo","Grand Prince Hotel Hiroshima — 23-1 Motoujinamachi, Minami-ku, Hiroshima 734-8543 · +81-82-256-1111"]}]
+  logistics:[
+   {label:"Departure (all Shadow, Bus 1–4)",groups:SHG,lines:["08:30 — Depart hotel for the Miyajima ferry","Luggage to truck & check out by 08:00; breakfast from 7:00am"]},
+   {label:"Farewell party & luggage",groups:SHG,lines:["Setouchi Banquet Room (2F) — doors 5:30pm, party 6:00pm","Pack and load large luggage by 10:00pm; next access is in Tokyo","Grand Prince Hotel Hiroshima — 23-1 Motoujinamachi, Minami-ku, Hiroshima 734-8543 · +81-82-256-1111"]}]
 },
 { d:14, dow:"Mon", dd:"22", dm:"JUN", date:"Monday, June 22, 2026",
   city:"Hiroshima → Tokyo", headline:"Shinkansen back to Tokyo; final night at the Grand Nikko Daiba.",
@@ -1095,7 +1121,9 @@ const SHADOW_DAYS=[
     desc:"Transfer from Tokyo Station to the Grand Nikko Tokyo Daiba, check in, and enjoy a free final evening for last-minute souvenirs.",
     loc:{n:"Grand Nikko Tokyo Daiba",q:"Grand Nikko Tokyo Daiba",kind:"hotel"}}
   ],
-  logistics:[{label:"Train / hotel",groups:SHG,lines:["Shinkansen Nozomi 24 — Hiroshima → Tokyo, board 12:18pm (~4 hours)","Grand Nikko Tokyo Daiba — 2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · +81-3-5500-6711"]}]
+  logistics:[
+   {label:"Departure (all Shadow, Bus 1–4)",groups:SHG,lines:["09:20 — Depart hotel for Hiroshima Station","Breakfast in Setouchi Banquet Room (2F) 7:00–9:00am; return room keys before boarding"]},
+   {label:"Train / hotel",groups:SHG,lines:["Shinkansen Nozomi 24 — Hiroshima → Tokyo, board 12:18pm (~4 hours)","Grand Nikko Tokyo Daiba — 2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · +81-3-5500-6711"]}]
 },
 { d:15, dow:"Tue", dd:"23", dm:"JUN", date:"Tuesday, June 23, 2026",
   city:"Tokyo → San Francisco", headline:"Free morning, then fly home.",
