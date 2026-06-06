@@ -628,6 +628,25 @@
   .util-tx .t{font-size:20px;font-weight:800;line-height:1.15;letter-spacing:.1px;}
   .util-tx .s{font-size:12.5px;opacity:.9;margin-top:5px;line-height:1.3;}
   .util-tile .chev2{flex:0 0 auto;color:#fff;font-size:27px;font-weight:700;opacity:.9;line-height:1;}
+  .util-ic svg{width:30px;height:30px;}
+  /* Handbooks tile — teal accent, same size as the Translation Guide tile */
+  .util-tile.books{background:linear-gradient(135deg,#0e7c66 0%,#13a085 100%);
+    box-shadow:0 12px 28px rgba(15,118,110,.30);}
+  .util-tile.books:active{box-shadow:0 6px 18px rgba(15,118,110,.28);}
+
+  /* Handbooks sub-screen */
+  .hb-card{display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer;
+    background:var(--card);border-radius:16px;padding:18px 16px;margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(20,30,45,.08),0 1px 2px rgba(20,30,45,.04);transition:transform .12s ease;}
+  .hb-card:active{transform:scale(.99);}
+  .hb-ic{flex:0 0 auto;width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#0e7c66,#13a085);color:#fff;box-shadow:0 3px 8px rgba(15,118,110,.32);}
+  .hb-ic svg{width:26px;height:26px;}
+  .hb-tx{flex:1;min-width:0;}
+  .hb-tx .t{font-size:16.5px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .hb-tx .s{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35;}
+  .hb-open{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--indigo);}
+  body.dark .hb-open{color:#7aa0e0;}
 
   /* Currency converter — large and roomy so the tab feels full */
   .conv-card{padding:20px;}

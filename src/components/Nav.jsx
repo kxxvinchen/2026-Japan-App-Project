@@ -7,7 +7,7 @@ import { FB, totalUnread } from "../lib/firebase.js";
 const NAV_FOR = {
   overview: "trip", day: "trip", addact: "trip", emergency: "trip",
   cities: "cities", city: "cities",
-  utilities: "utilities", phrases: "utilities",
+  utilities: "utilities", phrases: "utilities", handbooks: "utilities",
   flight: "group", bus: "group", settings: "group",
   messages: "messages",
 };
