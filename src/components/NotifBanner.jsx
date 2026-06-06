@@ -9,7 +9,7 @@ const Bell = () => (
   </svg>
 );
 
-const VISIBLE_MS = 2600;     // time fully on-screen before it slides up
+const VISIBLE_MS = 5000;     // time fully on-screen before it slides up
 const ANIM_MS = 380;         // slide duration
 const COOLDOWN_MS = 3 * 60 * 1000;
 
