@@ -127,21 +127,25 @@ exports.sendReminders = onSchedule(
     }
 
     // Personal reminders (activity + flight/departure) that are now due.
-    // Send in parallel batches and delete in batched writes so a few hundred
-    // due at the same minute go out in seconds, not one-by-one.
+    // Claim-then-send: capture each chunk's data, DELETE it first, then send.
+    // Because a reminder is removed before it's broadcast, a network hang, rate
+    // limit, or the 300s timeout during sending can never leave it in the queue
+    // to be re-fetched and re-sent on the next run — so no duplicate notifications.
     const due = await db.collection("reminders").where("fireAtMs", "<=", now).get();
     const docs = due.docs;
     for (let i = 0; i < docs.length; i += 100) {
-      await Promise.all(docs.slice(i, i + 100).map((d) => {
-        const r = d.data() || {};
-        return r.token ?
-          sendToToken(msg, r.token, r.title || "Reminder", r.body || "") :
-          Promise.resolve();
-      }));
-    }
-    for (let i = 0; i < docs.length; i += 450) {
+      const payloads = docs.slice(i, i + 100).map((d) => ({ref: d.ref, ...(d.data() || {})}));
+      // 1) claim — remove this chunk before sending
       const batch = db.batch();
-      docs.slice(i, i + 450).forEach((d) => batch.delete(d.ref));
-      await batch.commit().catch(() => {});
+      payloads.forEach((p) => batch.delete(p.ref));
+      let claimed = true;
+      await batch.commit().catch((e) => {
+        claimed = false;
+        console.error("reminder cleanup failed; skipping send to avoid duplicates:", e);
+      });
+      if (!claimed) continue;   // couldn't remove them — don't send, so they're never sent twice
+      // 2) send (already removed, so a partial/timed-out run can't duplicate them)
+      await Promise.all(payloads.map((p) =>
+        p.token ? sendToToken(msg, p.token, p.title || "Reminder", p.body || "") : Promise.resolve()));
     }
   });
