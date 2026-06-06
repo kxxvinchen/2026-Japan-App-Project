@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useStore } from "../store.jsx";
-import { TRIP, APP_VERSION } from "../data.js";
+import { TRIP } from "../data.js";
 import GroupPicker from "./GroupPicker.jsx";
 import FlightSelect from "./FlightSelect.jsx";
 import BusSelect from "./BusSelect.jsx";
@@ -56,7 +56,6 @@ export default function Settings() {
           <h3 style={{ marginBottom: 10 }}>About</h3>
           <b>{TRIP.title}</b><br />{TRIP.org}<br />{TRIP.dates}<br />Arranged by BMC Tours (Brain Co. Ltd.).<br /><br />
           Built from the official itinerary. Each day's “Full logistics” section holds the exact bus, train and flight times. Always confirm details with your directors and Tour Managers.
-          <div style={{ marginTop: 12, color: "var(--muted)", fontSize: 11.5 }}>Version {APP_VERSION}</div>
         </div>
       </div>
     </div>
