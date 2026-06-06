@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useStore } from "../store.jsx";
 import { TRIP } from "../data.js";
 import GroupPicker from "./GroupPicker.jsx";
+import SignInCard from "./SignInCard.jsx";
 
 export default function Onboard() {
   const { state, dispatch } = useStore();
@@ -24,7 +25,11 @@ export default function Onboard() {
           venues. You can change this anytime.
         </p>
         <GroupPicker value={pend} onToggle={toggle} />
+
         <button className="btn" disabled={!pend.length} onClick={start}>Start exploring</button>
+        <div style={{ marginTop: "14px", marginBottom: "8px" }}>
+          <SignInCard />
+        </div>
       </div>
     </div>
   );
