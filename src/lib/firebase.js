@@ -2,7 +2,7 @@
    Mirrors the original imperative logic, but instead of calling render() it calls notify(),
    which React subscribes to via useSyncExternalStore. Messaging UI state (active channel,
    unread baselines, compose draft, edit target, menus) lives here, tightly coupled to FB. */
-import { CHANNELS, CH_LABEL } from "./channels.js";
+import { CHANNELS, CH_LABEL, GROUP_TAGS } from "./channels.js";
 import { FLIGHTS } from "../data.js";
 import { daySet } from "./groups.js";
 import { fmt12 } from "./activity.js";
@@ -25,7 +25,7 @@ const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, chapChannels: [], authorName: "",
+  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], authorName: "",
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
@@ -76,33 +76,43 @@ export { CHANNELS, CH_LABEL };
 function ensembleChannels() {
   const set = {};
   userGroups.forEach((g) => {
-    if (g === "band" || g === "orch") set.swesso = 1;
-    else if (g === "choir") set.choir = 1;
-    else if (g === "sband") set["swesso-shadow"] = 1;
-    else if (g === "schoir") set["choir-shadow"] = 1;
+    if (g === "band" || g === "orch" || g === "choir") set.performers = 1;
+    else if (g === "sband" || g === "schoir") set.shadow = 1;
   });
   return Object.keys(set);
 }
 export function accessibleChannels() {
-  if (FB.isDirector) return CHANNELS.map((c) => c.id);
+  if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all 5
   if (FB.isAdmin) return CHANNELS.map((c) => c.id).filter((id) => id !== "directors");
-  const set = {};
+  const set = { flights: 1 };                                                        // Flights is for everyone
   ensembleChannels().forEach((c) => { set[c] = 1; });
-  (FB.chapChannels || []).forEach((ch) => {
-    set[ch] = 1;
-    const base = ch.replace("-chap", "");
-    if (["swesso", "choir", "swesso-shadow", "choir-shadow"].indexOf(base) > -1) set[base] = 1;
-  });
-  return Object.keys(set);
+  if ((FB.chapChannels || []).length) set.chaperones = 1;
+  return CHANNELS.map((c) => c.id).filter((id) => set[id]);                          // keep dropdown order
+}
+// Mention tags the current user belongs to (so @swe/@sso/@choir target only them).
+function userTags() {
+  if (FB.chapChannels && FB.chapChannels.length) return FB.chapTags || [];
+  const t = {};
+  userGroups.forEach((g) => (GROUP_TAGS[g] || []).forEach((x) => { t[x] = 1; }));
+  return Object.keys(t);
 }
 const channelsForUser = () => accessibleChannels();
 
+// Any chaperone assignment now means membership in the single "Chaperones" channel.
 function normalizeChapChannels(arr) {
-  const map = { "band-chap": "swesso-chap", "orch-chap": "swesso-chap", "choir-chap": "choir-chap", "swesso-chap": "swesso-chap", "swe/sso-chap": "swesso-chap" };
-  const valid = CHANNELS.filter((c) => c.chap).map((c) => c.id);
-  let raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
-  let ch = raw.map((x) => map[String(x).trim().toLowerCase()] || String(x).trim()).filter((x) => valid.indexOf(x) > -1);
-  return ch.filter((x, i) => ch.indexOf(x) === i);
+  const raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
+  return raw.length ? ["chaperones"] : [];
+}
+// Which ensemble(s) a chaperone covers → their mention tags (from the old channel assignment).
+function chapTagsFrom(arr) {
+  const raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
+  const t = {};
+  raw.forEach((x) => {
+    const s = String(x).toLowerCase();
+    if (/swesso|swe|sso|band|orch/.test(s)) { t.swe = 1; t.sso = 1; }
+    if (/choir/.test(s)) t.choir = 1;
+  });
+  return Object.keys(t);
 }
 
 /* ---- time helpers ---- */
@@ -201,12 +211,12 @@ export async function startMessaging() {
       console.log("Connected to Auth Emulator");
     }
     FB.auth.onAuthStateChanged(async (u) => {
-      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.authorName = "";
+      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.authorName = "";
       let dirOk = false, chapOk = false, adminOk = false;
       if (u && u.email) {
         try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
         try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
-        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
+        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); FB.chapTags = chapTagsFrom(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
       }
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
@@ -236,7 +246,7 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
 export const localName = () => { try { return (localStorage.getItem("jt_chapname") || "").trim(); } catch (e) { return ""; } };
@@ -245,9 +255,12 @@ export function setShowSignIn(v) { FB.showSignIn = v; if (!v) FB.error = ""; not
 export function setNameEdit(v) { FB.nameEdit = v; notify(); }
 export function canPostHere() {
   const ch = FB.activeChannel || "";
-  if (FB.isDirector) return !!ch;
-  if (FB.isAdmin) return !!ch && ch !== "directors";
-  return ch.slice(-5) === "-chap" && (FB.chapChannels || []).indexOf(ch) > -1;
+  if (!ch) return false;
+  if (ch === "flights") return !!FB.isDirector;                 // Flights: directors only
+  if (ch === "directors") return !!FB.isDirector;
+  if (ch === "chaperones") return !!(FB.isDirector || FB.isAdmin || (FB.chapChannels || []).length);
+  if (ch === "performers" || ch === "shadow") return !!(FB.isDirector || FB.isAdmin);  // announcement channels
+  return false;
 }
 export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
 // Per-channel compose drafts so switching channels never wipes a half-typed message.
@@ -311,18 +324,21 @@ export async function ensureWebToken() {
     return FB.webToken;
   } catch (e) { return ""; }
 }
+function tokenData(token) {
+  // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
+}
 async function saveWebToken(token) {
-  const channels = channelsForUser();
   try {
     const id = localStorage.getItem("jt_webdoc");
-    if (id) await FB.db.collection("webTokens").doc(id).set({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() });
-    else { const ref = await FB.db.collection("webTokens").add({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() }); localStorage.setItem("jt_webdoc", ref.id); }
+    if (id) await FB.db.collection("webTokens").doc(id).set(tokenData(token));
+    else { const ref = await FB.db.collection("webTokens").add(tokenData(token)); localStorage.setItem("jt_webdoc", ref.id); }
   } catch (e) { }
 }
 async function syncWebChannels() {
   const token = await ensureWebToken(); if (!token) return;
   const id = localStorage.getItem("jt_webdoc"); if (!id) return;
-  try { await FB.db.collection("webTokens").doc(id).set({ token, channels: channelsForUser(), ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (e) { }
+  try { await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true }); } catch (e) { }
 }
 function notifBridge() {
   if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jtNotify) return { post: (m) => { try { window.webkit.messageHandlers.jtNotify.postMessage(m); } catch (e) { } } };
