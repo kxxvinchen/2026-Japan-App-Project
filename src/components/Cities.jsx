@@ -9,14 +9,6 @@ export default function Cities() {
       <div className="hdr">
         <h1>City Guides</h1>
         <div className="sub">Highlights, attractions and food for every stop</div>
-        <div className="transl-banner" onClick={() => dispatch({ type: "nav", screen: "phrases" })}>
-          <div className="transl-ic">あ</div>
-          <div className="transl-tx">
-            <div className="t">Translation Guide</div>
-            <div className="s">Key Japanese phrases — tap any to hear it</div>
-          </div>
-          <span className="chev2">›</span>
-        </div>
       </div>
       <div className="wrap">
         <div className="sec-title">Five cities on the tour</div>
