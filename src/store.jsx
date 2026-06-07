@@ -10,8 +10,18 @@ function load(k, def) {
   catch (e) { return def; }
 }
 
+function sanitizeGroups(groups) {
+  if (!groups || !groups.length) return [];
+  const hasPerf = groups.some((g) => g === "band" || g === "orch" || g === "choir");
+  const hasShadow = groups.some((g) => g === "sband" || g === "schoir");
+  if (hasPerf && hasShadow) {
+    return groups.filter((g) => g === "band" || g === "orch" || g === "choir");
+  }
+  return groups;
+}
+
 function initial() {
-  const groups = load(LS.group, []);
+  const groups = sanitizeGroups(load(LS.group, []));
   return {
     screen: groups.length ? "overview" : "onboard",
     groups,

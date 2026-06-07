@@ -74,12 +74,11 @@ export function clearToast() {
 /* ---- channels ---- */
 export { CHANNELS, CH_LABEL };
 function ensembleChannels() {
-  const set = {};
-  userGroups.forEach((g) => {
-    if (g === "band" || g === "orch" || g === "choir") set.performers = 1;
-    else if (g === "sband" || g === "schoir") set.shadow = 1;
-  });
-  return Object.keys(set);
+  const hasPerf = userGroups.some((g) => g === "band" || g === "orch" || g === "choir");
+  const hasShadow = userGroups.some((g) => g === "sband" || g === "schoir");
+  if (hasPerf) return ["performers"];
+  if (hasShadow) return ["shadow"];
+  return [];
 }
 export function accessibleChannels() {
   if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all 5

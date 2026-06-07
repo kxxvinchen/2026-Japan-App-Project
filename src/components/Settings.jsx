@@ -13,7 +13,14 @@ export default function Settings() {
   const { state, dispatch } = useStore();
   const [pend, setPend] = useState(state.groups || []);
   const [, force] = useState(0);
-  const toggle = (id) => setPend((p) => (p.indexOf(id) > -1 ? p.filter((x) => x !== id) : p.concat([id])));
+  const toggle = (id) => setPend((p) => {
+    const isPerf = ["band", "orch", "choir"].indexOf(id) > -1;
+    const isShadow = ["schoir", "sband"].indexOf(id) > -1;
+    if (p.indexOf(id) > -1) return p.filter((x) => x !== id);
+    if (isPerf) return p.filter((x) => ["schoir", "sband"].indexOf(x) === -1).concat([id]);
+    if (isShadow) return p.filter((x) => ["band", "orch", "choir"].indexOf(x) === -1).concat([id]);
+    return p.concat([id]);
+  });
   const exCount = Object.keys(state.excluded).filter((k) => state.excluded[k]).length;
   const cuCount = Object.values(state.custom).reduce((s, a) => s + a.length, 0);
   const notif = notifGranted();
