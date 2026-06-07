@@ -106,8 +106,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const msg = getMessaging();
   const label = LABELS[channel] || "Japan Tour 2026";
   const author = (m.author && String(m.author).trim()) ? String(m.author).trim() : "";
-  const multiSender = (channel === "directors") || (channel === "chaperones");
-  const title = multiSender ? (author ? author + " · " + label : label)
+  const title = author ? (author + " to " + label)
     : ((m.title && String(m.title).trim()) ? String(m.title) : label);
   const body = text.slice(0, 180);
 
