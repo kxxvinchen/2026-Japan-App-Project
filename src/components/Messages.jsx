@@ -126,7 +126,9 @@ function Compose() {
     closePop();
     setTimeout(() => { if (el) { el.focus(); const c = pop.at + tag.length + 2; el.setSelectionRange(c, c); } }, 0);
   };
-  const allTags = ["everyone"].concat(CH_MENTIONS[FB.activeChannel] || []);
+  // No @everyone option: a message with no group/flight mention already notifies the
+  // whole channel by default, so @everyone would be redundant.
+  const allTags = CH_MENTIONS[FB.activeChannel] || [];
   const sugg = pop.open ? allTags.filter((t) => t.toLowerCase().indexOf(pop.q) > -1) : [];
 
   const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); closePop(); if (!wasEditing) saveDraft(ch, ""); };
