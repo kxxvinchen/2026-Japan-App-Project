@@ -21,12 +21,16 @@ export default function Settings() {
   const [pend, setPend] = useState(state.groups || []);
   const [, force] = useState(0);
   const toggle = (id) => setPend((p) => {
-    const isPerf = ["band", "orch", "choir"].indexOf(id) > -1;
+    const isPerf = ["band", "orch", "choir", "perc"].indexOf(id) > -1;
     const isShadow = ["schoir", "sband"].indexOf(id) > -1;
     if (p.indexOf(id) > -1) return p.filter((x) => x !== id);
-    if (isPerf) return p.filter((x) => ["schoir", "sband"].indexOf(x) === -1).concat([id]);
-    if (isShadow) return p.filter((x) => ["band", "orch", "choir"].indexOf(x) === -1).concat([id]);
-    return p.concat([id]);
+    let next = p;
+    if (isPerf) next = next.filter((x) => ["schoir", "sband"].indexOf(x) === -1);
+    if (isShadow) next = next.filter((x) => ["band", "orch", "choir", "perc"].indexOf(x) === -1);
+    next = next.concat([id]);
+    // Percussion travels & performs with the Symphonic Wind Ensemble — selecting it also enrolls SWE (Band).
+    if (id === "perc" && next.indexOf("band") < 0) next = next.concat(["band"]);
+    return next;
   });
   const exCount = Object.keys(state.excluded).filter((k) => state.excluded[k]).length;
   const cuCount = Object.values(state.custom).reduce((s, a) => s + a.length, 0);

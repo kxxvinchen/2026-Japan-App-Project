@@ -102,6 +102,10 @@ const GROUPS = [
     desc: "Orchestra players — performs with SWE at most concerts."
   },
   {
+    id: "perc", cat: "Performer", name: "Percussion", short: "Percussion",
+    desc: "Percussion section — travels and performs with the Symphonic Wind Ensemble (SWE)."
+  },
+  {
     id: "choir", cat: "Performer", name: "SHS & LHS Combined Choir", short: "Choir",
     desc: "Combined choir — separate concert schedule from the bands."
   },

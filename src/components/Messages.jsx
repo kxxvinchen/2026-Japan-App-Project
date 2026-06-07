@@ -20,6 +20,7 @@ function mentionClass(tag) {
   if (t.indexOf("swe") === 0) return "m-swe";
   if (t.indexOf("sso") === 0) return "m-sso";
   if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("perc") === 0) return "m-perc";
   if (t.indexOf("flight") === 0) return "m-flight";
   return "m-everyone";
 }
