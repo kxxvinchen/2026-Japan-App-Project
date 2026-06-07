@@ -19,6 +19,7 @@ export function setupKeyboard() {
   if (!vv) return;
 
   let inputFocused = false;
+  let baseHeight = window.innerHeight;
 
   const isTextInput = (el) => el && (
     el.tagName === "TEXTAREA" ||
@@ -26,7 +27,13 @@ export function setupKeyboard() {
   );
 
   const refresh = () => {
-    const kbOpen = inputFocused && window.innerHeight - vv.height > 120;
+    if (!inputFocused) {
+      baseHeight = window.innerHeight;
+    }
+    const kbOpen = inputFocused && (
+      (window.innerHeight - vv.height > 120) || // iOS style (visual viewport shrinks, layout viewport does not)
+      (baseHeight - window.innerHeight > 120)    // Android style (layout viewport shrinks)
+    );
     document.body.classList.toggle("kbd-open", kbOpen);
     if (kbOpen) {
       document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
