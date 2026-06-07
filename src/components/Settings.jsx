@@ -6,7 +6,6 @@ import FlightSelect from "./FlightSelect.jsx";
 import BusSelect from "./BusSelect.jsx";
 import SignInCard from "./SignInCard.jsx";
 import { enableNotifs, notifGranted, clearActivityReminders } from "../lib/firebase.js";
-import { enableNotifs, notifGranted } from "../lib/firebase.js";
 import { useFB } from "../lib/useFB.js";
 
 export default function Settings() {
