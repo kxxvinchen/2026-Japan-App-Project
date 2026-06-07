@@ -59,7 +59,7 @@ export function setupKeyboard() {
           inputFocused = false;
           refresh();
         }
-      }, 60);
+      }, 300);
     }
   });
 
