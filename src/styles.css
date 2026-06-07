@@ -711,13 +711,26 @@
   .nb-tx span{font-size:11.5px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .nb-cta{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--indigo);background:#fff;
     padding:7px 13px;border-radius:20px;}
-  /* ===== @-mention chips in the compose box ===== */
-  .ann-mentions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0 8px;}
-  .ann-mentions-hint{font-size:11px;color:var(--muted);font-weight:600;margin-right:2px;}
-  .ann-mention-chip{font-size:12px;font-weight:700;color:var(--indigo);background:#eef2fb;border:1px solid #dbe4f7;
-    border-radius:14px;padding:4px 10px;cursor:pointer;line-height:1;}
-  .ann-mention-chip:active{transform:scale(.96);}
-  body.dark .ann-mention-chip{background:var(--card2);border-color:var(--line);color:#7aa0e0;}
-  /* highlight @mentions inside posted messages */
-  .ann-at{color:var(--indigo);font-weight:700;}
-  body.dark .ann-at{color:#7aa0e0;}
+  /* ===== @-mention autocomplete popup (appears above the input as you type "@") ===== */
+  .ann-compose{position:relative;}
+  .ann-mention-pop{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;padding:6px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 10px 24px rgba(10,18,38,.20);max-height:190px;overflow:auto;}
+  .ann-mention-pop-h{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--muted);padding:4px 6px 3px;}
+  .ann-mention-opt{display:flex;align-items:center;text-align:left;background:none;border:none;cursor:pointer;
+    padding:7px 8px;border-radius:8px;width:100%;}
+  .ann-mention-opt:hover,.ann-mention-opt:active{background:var(--bg);}
+
+  /* @-mention colors (per group), used for the popup option pills */
+  .ment{border-radius:4px;padding:1px 5px;font-weight:700;font-size:13px;}
+  .m-everyone{color:#475569;background:rgba(71,85,105,.15);}
+  .m-swe{color:#2563eb;background:rgba(37,99,235,.15);}
+  .m-sso{color:#15803d;background:rgba(21,128,61,.15);}
+  .m-choir{color:#9333ea;background:rgba(147,51,234,.15);}
+  .m-flight{color:#ea580c;background:rgba(234,88,12,.15);}
+  body.dark .m-everyone{color:#9aa6b6;background:rgba(154,166,182,.20);}
+  body.dark .m-swe{color:#6ea8fe;background:rgba(110,168,254,.20);}
+  body.dark .m-sso{color:#5fd0a0;background:rgba(95,208,160,.20);}
+  body.dark .m-choir{color:#c79bf5;background:rgba(199,155,245,.20);}
+  body.dark .m-flight{color:#fdba74;background:rgba(253,186,116,.20);}
