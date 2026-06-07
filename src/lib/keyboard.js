@@ -26,6 +26,9 @@ export function setupKeyboard() {
     (el.tagName === "INPUT" && !["checkbox", "radio", "button", "submit", "file"].includes(el.type))
   );
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   const refresh = () => {
     if (!inputFocused) {
       baseHeight = window.innerHeight;
@@ -36,13 +39,17 @@ export function setupKeyboard() {
     );
     document.body.classList.toggle("kbd-open", kbOpen);
     if (kbOpen) {
-      document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      if (isIOS) {
+        document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      }
       // Prevent visual viewport/layout viewport scrolling offset on iOS
       if (window.scrollY !== 0) {
         window.scrollTo(0, 0);
       }
     } else {
-      document.documentElement.style.removeProperty("--vvh");
+      if (isIOS) {
+        document.documentElement.style.removeProperty("--vvh");
+      }
       // Reset scroll position when keyboard is closed to prevent blank space/layout shift on iOS/Android
       if (window.scrollY !== 0) {
         window.scrollTo(0, 0);
