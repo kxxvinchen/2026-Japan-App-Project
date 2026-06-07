@@ -177,7 +177,12 @@ const DAYS = [
       {
         t: "Overnight", hr: "en route", type: "travel", groups: ALL,
         title: "Overnight trans-Pacific flight",
-        desc: "Fly to Tokyo (Haneda or Narita). Overnight en route — in-flight meals served. Some groups connect via Los Angeles or Seattle."
+        desc: "Fly to Tokyo (Haneda or Narita). Overnight en route. Some groups connect via Los Angeles or Seattle."
+      },
+      {
+        t: "Overnight", hr: "during flight", type: "meal", groups: ALL,
+        title: "In-flight meals",
+        desc: "In-flight meals and refreshments served during the trans-Pacific flight."
       }
     ],
     logistics: [
@@ -422,6 +427,11 @@ const DAYS = [
         desc: "Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."
       },
       {
+        t: "Afternoon", hr: "11:30 AM", type: "meal", groups: ["band", "orch"],
+        title: "Bento box lunch",
+        desc: "Bento box lunches provided at Beethoven Hall."
+      },
+      {
         t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Friendship Concert, Beethoven Hall",
         desc: "Band & Orchestra perform a Friendship Concert with Iwakura High School at Beethoven Hall, Musashino Academia Musicae (14:00–16:00, open to the public). Includes a combined 'Galaxy Express 999' with Iwakura and a pre-concert Saratoga Percussion Studio set, 'Shared Space'. Bento box lunches provided.",
@@ -491,9 +501,19 @@ const DAYS = [
     note: "One-night stay — laundry service not available. Main luggage is transferred ahead to Kyoto; pack a small overnight bag. Shadow Tour: overnight at The Prince Hakone Lake Ashinoko.",
     items: [
       {
-        t: "Morning", hr: "early", type: "travel", groups: ALL,
-        title: "Early breakfast, check out & drive to Mt. Fuji",
-        desc: "Band & Orchestra: breakfast 05:45–07:00 in the Palais Royal banquet room (BF1), load suitcases at 05:30, depart ~07:15–07:30 in concert attire (~2-hr drive). Choir: breakfast 07:00, depart 09:00 (~2.5-hr drive). Main luggage goes ahead to Kyoto."
+        t: "Morning", hr: "5:45 AM", type: "meal", groups: ALL,
+        title: "Breakfast at hotel",
+        desc: "Palais Royal banquet room (BF1) for Band & Orchestra (5:45–7:00am). Hotel restaurant for Choir (from 7:00am)."
+      },
+      {
+        t: "Morning", hr: "7:15 AM", type: "travel", groups: ALL,
+        title: "Check out & drive to Mt. Fuji",
+        desc: "Band & Orchestra: load suitcases at 05:30, depart ~07:15–07:30 in concert attire (~2-hr drive). Choir: depart 09:00 (~2.5-hr drive). Main luggage goes ahead to Kyoto."
+      },
+      {
+        t: "Afternoon", hr: "11:30 AM", type: "meal", groups: ALL,
+        title: "Lunch",
+        desc: "Choir & Shadow: lunch at Oshino Hakkai (prepaid card/cash packet). Band & Orchestra: lunch provided at Stellar Theater."
       },
       {
         t: "Afternoon", hr: "12:00 PM", type: "performance", groups: ["band", "orch"],
@@ -510,7 +530,7 @@ const DAYS = [
       {
         t: "Morning", hr: "11:30 AM", type: "sightseeing", groups: ["choir", "schoir"],
         title: "Oshino Hakkai",
-        desc: "Choir visits Oshino Hakkai (11:30–13:30), a village of crystal-clear spring ponds fed by Mt. Fuji's snowmelt, for sightseeing and an early lunch. A prepaid card or cash packet is provided for included meals.",
+        desc: "Choir visits Oshino Hakkai (11:30–13:30), a village of crystal-clear spring ponds fed by Mt. Fuji's snowmelt.",
         loc: { n: "Oshino Hakkai", q: "Oshino Hakkai", kind: "sight" }
       },
       {
@@ -563,8 +583,13 @@ const DAYS = [
       {
         t: "Morning", hr: "11:30 AM", type: "sightseeing", groups: ALL,
         title: "Mt. Fuji 5th Station",
-        desc: "Visit the Mt. Fuji Fifth Station (11:30–12:15), about halfway up the mountain at ~2,300 m, with panoramic views and shrines. Group lunch at the Gogoen Rest House (12:15–13:30).",
+        desc: "Visit the Mt. Fuji Fifth Station (11:30–12:15), about halfway up the mountain at ~2,300 m, with panoramic views and shrines.",
         loc: { n: "Mt. Fuji Fifth Station", q: "Mount Fuji Subaru Line 5th Station", kind: "sight" }
+      },
+      {
+        t: "Afternoon", hr: "12:15 PM", type: "meal", groups: ALL,
+        title: "Group lunch — Gogoen Rest House",
+        desc: "Group lunch at the Gogoen Rest House (12:15–13:30)."
       },
       {
         t: "Afternoon", hr: "2:30 PM", type: "sightseeing", groups: ["band", "orch", "sband"],
@@ -656,20 +681,30 @@ const DAYS = [
     ],
     items: [
       {
-        t: "Morning", hr: "7:00 AM", type: "travel", groups: ALL,
-        title: "Breakfast, check out & transfer to Kobe",
-        desc: "Breakfast at 07:00, load the truck and check out at 10:30. Transfer toward Kobe with a service-area lunch stop en route (Band: Takarazuka Kita SA · Orchestra: Suita SA · Choir: Tsuchiyama SA)."
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: ALL,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 7:00am at the hotel restaurant."
+      },
+      {
+        t: "Morning", hr: "10:30 AM", type: "travel", groups: ALL,
+        title: "Check out & transfer to Kobe",
+        desc: "Load the truck and check out at 10:30. Transfer toward Kobe with a service-area lunch stop en route (Band: Takarazuka Kita SA · Orchestra: Suita SA · Choir: Tsuchiyama SA)."
+      },
+      {
+        t: "Evening", hr: "5:00 PM", type: "meal", groups: ALL,
+        title: "Dinner",
+        desc: "Choir & Shadow: early dinner on your own at Kobe Chinatown (14:00–16:00). Band, Orchestra & Shadow: bento box dinners provided at Akashi Civic Hall."
       },
       {
         t: "Afternoon", hr: "6:00 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Friendship Concert, Akashi Civic Hall",
-        desc: "Band & Orchestra perform a Friendship Concert with Takigawa Daini High School at Akashi Civic Hall (18:00–20:30), including a combined 'Takarajima' with Takigawa Daini. Bento box dinners and rehearsals beforehand.",
+        desc: "Band & Orchestra perform a Friendship Concert with Takigawa Daini High School at Akashi Civic Hall (18:00–20:30), including a combined 'Takarajima' with Takigawa Daini. Rehearsals beforehand.",
         loc: { n: "Akashi Civic Hall", q: "Akashi Civic Hall Hyogo", kind: "venue" }
       },
       {
         t: "Afternoon", hr: "2:00 PM", type: "sightseeing", groups: ["choir", "schoir"],
         title: "Kobe Chinatown (Nankinmachi)",
-        desc: "Choir visits Kobe's Nankinmachi Chinatown (14:00–16:00) for sightseeing and an early dinner on your own in small groups — steamed buns, dumplings, ramen and desserts.",
+        desc: "Choir visits Kobe's Nankinmachi Chinatown (14:00–16:00) for sightseeing and exploring street food in small groups — steamed buns, dumplings, ramen and desserts.",
         loc: { n: "Nankinmachi (Kobe Chinatown)", q: "Nankinmachi Kobe", kind: "sight" }
       },
       {
@@ -778,9 +813,14 @@ const DAYS = [
     hotels: [{ n: "Grand Prince Hotel Hiroshima", q: "Grand Prince Hotel Hiroshima", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "travel", groups: ALL,
-        title: "Breakfast, check out & Shinkansen to Hiroshima",
-        desc: "Breakfast and check-out, then board the Shinkansen from Shin-Kobe to Hiroshima (~1 hr 10 min). Orchestra: Nozomi 9, 09:54→11:02 · Band: Nozomi 13, 10:30→11:38 · Choir: Nozomi 11, 10:15→11:28.",
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: ALL,
+        title: "Breakfast at hotel",
+        desc: "Choir: breakfast from 7:00am at the hotel restaurant. Band & Orchestra: breakfast 6:30–8:00am in the Rokko Banquet Room (3F)."
+      },
+      {
+        t: "Morning", hr: "9:00 AM", type: "travel", groups: ALL,
+        title: "Check out & Shinkansen to Hiroshima",
+        desc: "Board the Shinkansen from Shin-Kobe to Hiroshima (~1 hr 10 min). Orchestra: Nozomi 9, 09:54→11:02 · Band: Nozomi 13, 10:30→11:38 · Choir: Nozomi 11, 10:15→11:28.",
         loc: { n: "Hiroshima Station", q: "Hiroshima Station", kind: "sight" }
       },
       {
@@ -802,9 +842,14 @@ const DAYS = [
         loc: { n: "Children's Peace Monument", q: "Children's Peace Monument Hiroshima", kind: "venue" }
       },
       {
-        t: "Evening", hr: "6:00 PM", type: "hotel", groups: ALL,
-        title: "Hotel check-in & group dinner",
-        desc: "Hotel check-in at 16:30, then a group dinner at 18:00 in the Setouchi Banquet Room. Curfew announced by the directors."
+        t: "Evening", hr: "4:30 PM", type: "hotel", groups: ALL,
+        title: "Hotel check-in",
+        desc: "Check in at the Grand Prince Hotel Hiroshima from 4:30pm."
+      },
+      {
+        t: "Evening", hr: "6:00 PM", type: "meal", groups: ALL,
+        title: "Group dinner",
+        desc: "Group dinner at 18:00 in the Setouchi Banquet Room. Curfew announced by the directors."
       }
     ],
     logistics: [
@@ -835,6 +880,11 @@ const DAYS = [
       {
         t: "Morning", hr: "7:30 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
         desc: "Breakfast 07:30–09:00 in the Setouchi Banquet Room (2F)."
+      },
+      {
+        t: "Afternoon", hr: "11:30 AM", type: "meal", groups: ["band", "orch"],
+        title: "Bento box lunch",
+        desc: "Bento box lunches provided at Hiroshima Phoenix Hall (Orchestra 11:00am, Band 11:50am)."
       },
       {
         t: "Afternoon", hr: "1:30 PM", type: "performance", groups: ["band", "orch"],
@@ -953,9 +1003,14 @@ const DAYS = [
     hotels: [{ n: "Grand Nikko Tokyo Daiba", q: "Grand Nikko Tokyo Daiba", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "travel", groups: ALL,
-        title: "Breakfast & depart for Hiroshima Station",
-        desc: "Breakfast 07:00–09:00 in the Setouchi Banquet Room (2F). Meet on the bus at 09:00, depart 09:20, arrive Hiroshima Station 10:00. Purchase or eat lunch at the station in small groups (~11:30).",
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: ALL,
+        title: "Breakfast at hotel",
+        desc: "Breakfast 07:00–09:00 in the Setouchi Banquet Room (2F)."
+      },
+      {
+        t: "Morning", hr: "9:00 AM", type: "travel", groups: ALL,
+        title: "Depart for Hiroshima Station",
+        desc: "Meet on the bus at 09:00, depart 09:20, arrive Hiroshima Station 10:00. Purchase or eat lunch at the station in small groups (~11:30).",
         loc: { n: "Hiroshima Station", q: "Hiroshima Station", kind: "sight" }
       },
       {
@@ -1150,6 +1205,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [H_IKE],
     items: [
       {
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F)."
+      },
+      {
         t: "Morning", hr: "9:00 AM", type: "sightseeing", groups: SHG,
         title: "Imperial Palace & Marunouchi",
         desc: "Board coaches (around 9:00–9:30am) and photo-stop at Nijubashi Bridge overlooking the Imperial Palace, then drive through the Marunouchi district past Tokyo Station, Hibiya Park, Kabukiza Theatre and the Tsukiji Outer Market.",
@@ -1189,6 +1249,11 @@ const SHADOW_DAYS = [
     city: "Tokyo", headline: "Asakusa, Tokyo Skytree & Kappabashi; Choir Shadow concert at Toko Hall.",
     meals: ["Breakfast", "Dinner"], hotels: [H_IKE],
     items: [
+      {
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F)."
+      },
       {
         t: "Morning", hr: "10:40 AM", type: "sightseeing", groups: SBO,
         title: "Asakusa & Senso-ji Temple",
@@ -1241,6 +1306,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [H_IKE],
     items: [
       {
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F)."
+      },
+      {
         t: "Morning", hr: "9:00 AM", type: "sightseeing", groups: SBO,
         title: "Kawagoe — “Little Edo”",
         desc: "Band/Orch Shadow: depart ~9:00–9:20am for Kawagoe, known as “Little Edo” for its preserved historic streets and kura warehouses. Early lunch on your own.",
@@ -1283,6 +1353,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast", "Dinner"], hotels: [H_HAKONE],
     items: [
       {
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F) before checkout."
+      },
+      {
         t: "Morning", hr: "7:30 AM", type: "travel", groups: SHG,
         title: "Load luggage & depart for Mt. Fuji",
         desc: "Bring large check-in luggage to load onto the truck by 7:30am (next access is in Kyoto). Return room keys, then board coaches with your overnight bag. Band/Orch depart ~8:00–8:30am; Choir departs ~9:30am (~2-hr drive)."
@@ -1314,8 +1389,13 @@ const SHADOW_DAYS = [
       {
         t: "Evening", hr: "6:00 PM", type: "hotel", groups: SHG,
         title: "Check in — The Prince Hakone Lake Ashi",
-        desc: "Arrive at The Prince Hakone Lake Ashi (Band/Orch ~6:00pm, Choir ~6:30pm), check in, then group dinner in the Musashi banquet room (annex 3F) at 7:30pm. Evening free to enjoy the grounds.",
+        desc: "Arrive at The Prince Hakone Lake Ashi (Band/Orch ~6:00pm, Choir ~6:30pm), check in and unpack. Evening free to enjoy the grounds.",
         loc: { n: "The Prince Hakone Lake Ashinoko", q: "The Prince Hakone Lake Ashinoko", kind: "hotel" }
+      },
+      {
+        t: "Evening", hr: "7:30 PM", type: "meal", groups: SHG,
+        title: "Group dinner",
+        desc: "Group dinner in the Musashi banquet room (annex 3F) at 7:30pm."
       }
     ],
     note: "Today (June 14) at 6pm is the deadline to book + pay for a Day 10 Awaji optional activity.",
@@ -1330,9 +1410,14 @@ const SHADOW_DAYS = [
     meals: ["Breakfast", "Dinner"], hotels: [H_KYOTO],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "free", groups: SHG,
+        t: "Morning", hr: "7:30 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast at the hotel restaurant before checking out by 11:00am."
+      },
+      {
+        t: "Morning", hr: "9:00 AM", type: "free", groups: SHG,
         title: "Free time at Hakone-En",
-        desc: "Breakfast at the hotel, then check out by 11:00am (you may leave overnight bags in the lobby). Enjoy Hakone-En on the hotel property — Mt. Fuji views, cruises, gardens, shops, cafes and hot springs. Return room keys at checkout.",
+        desc: "Enjoy Hakone-En on the hotel property — Mt. Fuji views, cruises, gardens, shops, cafes and hot springs. Check out by 11:00am (leave bags in lobby). Return room keys at checkout.",
         loc: { n: "Hakone-En", q: "Hakone-En", kind: "sight" }
       },
       {
@@ -1364,6 +1449,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [H_KYOTO],
     items: [
       {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast served 7:00–10:00am at the hotel restaurant."
+      },
+      {
         t: "Morning", hr: "free day", type: "free", groups: SHG,
         title: "Free day in Kyoto",
         desc: "A relaxed free day. First-timers may want Kinkaku-ji (Golden Pavilion), Kiyomizu-dera, Nijo Castle, Sanjusangen-do (hall of 1,001 statues) and the Gion district for classic streets and teahouses.",
@@ -1382,6 +1472,11 @@ const SHADOW_DAYS = [
     city: "Kyoto → Kobe", headline: "Fushimi Inari & sake district, then concert at Akashi; overnight on Awaji.",
     meals: ["Breakfast"], hotels: [H_AWAJI],
     items: [
+      {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 7:00am at the hotel restaurant."
+      },
       {
         t: "Morning", hr: "8:00 AM", type: "travel", groups: SHG,
         title: "Load luggage & check out",
@@ -1430,6 +1525,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [H_AWAJI],
     items: [
       {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast at Coccolare (2F) from 7:00am."
+      },
+      {
         t: "Morning", hr: "optional", type: "free", groups: SBO,
         title: "Awaji Island optional experiences",
         desc: "Band/Orch Shadow: enjoy your chosen optional experience (booked & paid by June 14) — (A) NIJIGEN NO MORI anime/gaming park, (B) Zen retreat at Zenbo Seinei (18+), (C) Hello Kitty Apple Land, or (D) relax at the resort at your own pace."
@@ -1463,9 +1563,14 @@ const SHADOW_DAYS = [
     meals: ["Breakfast", "Dinner"], hotels: [H_RIHGA],
     items: [
       {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast at Coccolare (2F) from 7:00am."
+      },
+      {
         t: "Morning", hr: "8:00 AM", type: "travel", groups: SHG,
         title: "Load luggage & check out",
-        desc: "Bring luggage to load by 8:00am and check out (return room keys). Buses 1–2 depart ~9:45am; Buses 3–4 ~10:00am."
+        desc: "Bring large luggage to load by 8:00am and check out (return room keys). Buses 1–2 depart ~9:45am; Buses 3–4 ~10:00am."
       },
       {
         t: "Late morning", hr: "11:00 AM", type: "sightseeing", groups: SHG,
@@ -1482,8 +1587,13 @@ const SHADOW_DAYS = [
       {
         t: "Afternoon", hr: "3:30 PM", type: "hotel", groups: SHG,
         title: "Check in — RIHGA Royal Hotel Hiroshima",
-        desc: "Check in at the RIHGA Royal Hotel Hiroshima, beside Peace Memorial Park and walking distance to downtown. Evening on your own.",
+        desc: "Check in at the RIHGA Royal Hotel Hiroshima, beside Peace Memorial Park and walking distance to downtown.",
         loc: { n: "RIHGA Royal Hotel Hiroshima", q: "RIHGA Royal Hotel Hiroshima", kind: "hotel" }
+      },
+      {
+        t: "Evening", hr: "6:00 PM", type: "meal", groups: SHG,
+        title: "Dinner on your own",
+        desc: "Dinner on your own in Hiroshima. Explore local restaurants near the hotel."
       }
     ],
     logistics: [
@@ -1497,6 +1607,11 @@ const SHADOW_DAYS = [
     meals: ["Breakfast", "Lunch"], hotels: [H_RIHGA],
     items: [
       {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 7:00am at Dining Luore (1F)."
+      },
+      {
         t: "Morning", hr: "10:00 AM", type: "sightseeing", groups: SBO,
         title: "Peace Memorial Park & Museum",
         desc: "Band/Orch Shadow: visit the Hiroshima Peace Memorial Park and Museum (from ~10:00am), honoring the victims of August 6, 1945 and its message of peace.",
@@ -1505,14 +1620,19 @@ const SHADOW_DAYS = [
       {
         t: "Afternoon", hr: "1:30 PM", type: "performance", groups: SBO, gnote: "Attending",
         title: "Friendship Concert — Hiroshima Phoenix Hall",
-        desc: "Band/Orch Shadow: lunch on your own at Hondori Shopping Street, then attend the Friendship Concert at Hiroshima Phoenix Hall with the Hijiyama High School Wind Orchestra (1:30pm). Return ~5:00pm.",
+        desc: "Band/Orch Shadow: attend the Friendship Concert at Hiroshima Phoenix Hall with the Hijiyama High School Wind Orchestra (1:30pm). Return ~5:00pm.",
         loc: { n: "Hiroshima Phoenix Hall", q: "Hiroshima Phoenix Hall", kind: "venue" }
       },
       {
         t: "Morning", hr: "9:30 AM", type: "sightseeing", groups: SCH,
         title: "Peace Memorial Park & Museum",
-        desc: "Choir Shadow: visit the Hiroshima Peace Memorial Park and Museum (from ~9:30am). Lunch on your own at Hondori Shopping Street.",
+        desc: "Choir Shadow: visit the Hiroshima Peace Memorial Park and Museum (from ~9:30am).",
         loc: { n: "Hiroshima Peace Memorial Park", q: "Hiroshima Peace Memorial Park", kind: "sight" }
+      },
+      {
+        t: "Afternoon", hr: "12:00 PM", type: "meal", groups: SHG,
+        title: "Lunch on your own",
+        desc: "Lunch on your own around Hondori Shopping Street."
       },
       {
         t: "Afternoon", hr: "3:00 PM", type: "performance", groups: SCH, gnote: "Attending",
@@ -1532,6 +1652,11 @@ const SHADOW_DAYS = [
     city: "Hiroshima", headline: "Miyajima Island, then the Farewell Dinner & Dance Party.",
     meals: ["Breakfast", "Dinner"], hotels: [H_GPH],
     items: [
+      {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast from 7:00am at Dining Luore (1F)."
+      },
       {
         t: "Morning", hr: "8:00 AM", type: "travel", groups: SHG,
         title: "Load luggage, check out & ferry to Miyajima",
@@ -1566,9 +1691,14 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [H_DAIBA],
     items: [
       {
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast served 7:00–9:00am in the Setouchi Banquet Room (2F)."
+      },
+      {
         t: "Morning", hr: "9:30 AM", type: "travel", groups: SHG,
         title: "Depart for Hiroshima Station",
-        desc: "Breakfast in the Setouchi Banquet Room (2F). Board coaches ~9:30am for Hiroshima Station; return room keys before boarding."
+        desc: "Board coaches ~9:30am for Hiroshima Station; return room keys before boarding."
       },
       {
         t: "Afternoon", hr: "12:18 PM", type: "travel", groups: SHG,
@@ -1593,9 +1723,14 @@ const SHADOW_DAYS = [
     meals: ["Breakfast"], hotels: [],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "free", groups: SHG,
-        title: "Breakfast & free morning",
-        desc: "Breakfast 7:00–10:00am. Free morning to explore the area in small groups. Return keys to your flight group chaperone; luggage loads onto the truck. Check-out is 1:00pm (store bags at 1F if your flight is later)."
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: SHG,
+        title: "Breakfast at hotel",
+        desc: "Breakfast served 7:00–10:00am at the hotel."
+      },
+      {
+        t: "Morning", hr: "9:00 AM", type: "free", groups: SHG,
+        title: "Free morning",
+        desc: "Free morning to explore the area in small groups. Return keys to your flight group chaperone; luggage loads onto the truck. Check-out is 1:00pm (store bags at 1F if your flight is later)."
       },
       {
         t: "Afternoon", hr: "see logistics", type: "travel", groups: SHG,
