@@ -43,6 +43,10 @@ export function setupKeyboard() {
       }
     } else {
       document.documentElement.style.removeProperty("--vvh");
+      // Reset scroll position when keyboard is closed to prevent blank space/layout shift on iOS/Android
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
     }
   };
 
