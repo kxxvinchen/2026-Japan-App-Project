@@ -242,6 +242,21 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
+export async function sendPasswordReset(emailRaw) {
+  let email = (emailRaw || "").trim();
+  if (!email) { FB.error = "Enter your username or email first."; notify(); return; }
+  if (email.indexOf("@") < 0) email = email.toLowerCase() + LOGIN_DOMAIN;
+  FB.error = "";
+  if (!FB.auth) await new Promise((res) => { const t0 = Date.now(); (function chk() { if (FB.auth || Date.now() - t0 > 8000) return res(); setTimeout(chk, 150); })(); });
+  if (!FB.auth) { FB.error = "Still connecting — wait a moment and try again."; notify(); return; }
+  try {
+    await FB.auth.sendPasswordResetEmail(email);
+    toast("Password reset email sent!");
+  } catch (e) {
+    FB.error = "Failed to send password reset email. Check username/email.";
+    notify();
+  }
+}
 export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
