@@ -7,8 +7,18 @@ export const isShadowOnly = (g) =>
 export const daySet = (g) => (isShadowOnly(g) ? SHADOW_DAYS : DAYS);
 export const attireSet = (g) => (isShadowOnly(g) ? SHADOW_ATTIRE : ATTIRE);
 
+/* Percussion travels & performs with the Symphonic Wind Ensemble, so for every
+   schedule/hotel/attire/logistics match a Percussion pick also pulls in the
+   Band (SWE) content. The raw selection is kept for labels (see myGroups). */
+const GROUP_ALIASES = { perc: ["band"] };
+export function effGroups(g) {
+  const out = (g || []).slice();
+  (g || []).forEach((x) => (GROUP_ALIASES[x] || []).forEach((y) => { if (out.indexOf(y) < 0) out.push(y); }));
+  return out;
+}
+
 /* Directors see every group's agenda regardless of what they picked. */
-export const egroups = (g, isDirector) => (isDirector ? ALL : g);
+export const egroups = (g, isDirector) => (isDirector ? ALL : effGroups(g));
 
 export const inGroup = (item, g, isDirector) =>
   egroups(g, isDirector).some((x) => (item.groups || []).indexOf(x) > -1);
