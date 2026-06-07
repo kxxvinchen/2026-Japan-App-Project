@@ -19,8 +19,8 @@ export const FLIGHT_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 export const CH_MENTIONS = {
   performers: ["swe", "sso", "choir", "perc"],
   percussion: ["perc"],
-  chaperones: ["swe-chaperones", "sso-chaperones", "choir-chaperones"],
-  shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
+  chaperones: ["swe", "sso", "choir"],
+  shadow:     ["swe", "sso", "choir"],
   directors:  [],
   flights:    FLIGHT_IDS.map((f) => "Flight " + f),
 };
