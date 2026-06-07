@@ -6,6 +6,18 @@ export function fmt12(hhmm) {
   let h = +m[1]; const mm = m[2]; const ap = h < 12 ? "AM" : "PM"; let h12 = h % 12; if (h12 === 0) h12 = 12;
   return h12 + ":" + mm + " " + ap;
 }
+// Convert every 24-hour "HH:MM" inside a free-text string to 12-hour with AM/PM.
+// Times that already carry an am/pm suffix (e.g. "9:00am", "1:15pm") are left alone,
+// and anything without an HH:MM time (phone numbers, addresses, "1F", "Nozomi 9") is untouched.
+export function timesToAmPm(str) {
+  return String(str == null ? "" : str).replace(/\b(\d{1,2}):(\d{2})\b(?!\s*[ap]\.?m\.?)/gi, (full, h, mm) => {
+    h = +h;
+    if (h > 23 || +mm > 59) return full;
+    const ap = h < 12 ? "AM" : "PM";
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    return h12 + ":" + mm + " " + ap;
+  });
+}
 export function blockFor(hhmm) { const h = +String(hhmm).split(":")[0]; return h < 12 ? "Morning" : h < 17 ? "Afternoon" : "Evening"; }
 export function toMin(hhmm) { const pp = String(hhmm).split(":"); return (+pp[0]) * 60 + (+pp[1]); }
 

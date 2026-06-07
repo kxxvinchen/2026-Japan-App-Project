@@ -31,8 +31,18 @@ function migrateCustom(custom, notes, excluded) {
   });
 }
 
+function sanitizeGroups(groups) {
+  if (!groups || !groups.length) return [];
+  const hasPerf = groups.some((g) => g === "band" || g === "orch" || g === "choir");
+  const hasShadow = groups.some((g) => g === "sband" || g === "schoir");
+  if (hasPerf && hasShadow) {
+    return groups.filter((g) => g === "band" || g === "orch" || g === "choir");
+  }
+  return groups;
+}
+
 function initial() {
-  const groups = load(LS.group, []);
+  const groups = sanitizeGroups(load(LS.group, []));
   const custom = load(LS.custom, {});
   const notes = load(LS.notes, {});
   const excluded = load(LS.excl, {});
@@ -42,9 +52,9 @@ function initial() {
     groups,
     flight: load(LS.flight, ""),
     bus: load(LS.bus, ""),
-    excluded: load(LS.excl, {}),
-    custom: load(LS.custom, {}),
-    notes: load(LS.notes, {}),
+    excluded,
+    custom,
+    notes,
     // First install (no saved theme): follow the browser/OS color scheme once.
     // After that the value is persisted, so the user's manual toggle always wins.
     dark: (() => {

@@ -14,6 +14,7 @@ const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onRequest} = require("firebase-functions/v2/https");
 const {setGlobalOptions} = require("firebase-functions/v2");
+const crypto = require("crypto");
 const {initializeApp} = require("firebase-admin/app");
 const {getMessaging} = require("firebase-admin/messaging");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
@@ -21,14 +22,14 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 initializeApp();
 setGlobalOptions({region: "us-central1"});
 
-const CHANNELS = ["performers", "chaperones", "directors", "shadow", "flights"];
-const LABELS = {performers: "Performers", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
+const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights"];
+const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
 
 /* ---- @-mention parsing ---- */
 function parseMentions(text) {
   const t = String(text || "");
   const everyone = /(^|[^\w@])@everyone\b/i.test(t);
-  const groups = ["swe", "sso", "choir"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
+  const groups = ["swe", "sso", "choir", "perc"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
   const flights = [];
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
@@ -105,8 +106,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const msg = getMessaging();
   const label = LABELS[channel] || "Japan Tour 2026";
   const author = (m.author && String(m.author).trim()) ? String(m.author).trim() : "";
-  const multiSender = (channel === "directors") || (channel === "chaperones");
-  const title = multiSender ? (author ? author + " · " + label : label)
+  const title = author ? (author + " to " + label)
     : ((m.title && String(m.title).trim()) ? String(m.title) : label);
   const body = text.slice(0, 180);
 
@@ -224,3 +224,60 @@ exports.sendReminders = onSchedule(
       await batch.commit().catch(() => {});
     }
   });
+
+/* ---- one-time maintenance: collapse duplicate webTokens docs ----
+ * Older clients keyed their webTokens doc by localStorage, so logout / cache-clear /
+ * incognito created multiple docs for the SAME token. This rewrites each token to a
+ * single canonical doc at sha256(token) (matching the client) with the newest channel
+ * list, and deletes the leftovers. Idempotent — safe to run more than once.
+ *
+ * RUN ONCE:  open  https://us-central1-japan-tour-2026.cloudfunctions.net/cleanupWebTokens?confirm=yes
+ * Then DELETE it:  firebase functions:delete cleanupWebTokens
+ */
+const tsMs = (ts) => { try { return ts && ts.toMillis ? ts.toMillis() : 0; } catch (e) { return 0; } };
+exports.cleanupWebTokens = onRequest(async (req, res) => {
+  if (req.query.confirm !== "yes") {
+    res.status(400).send("Add ?confirm=yes to run. This collapses duplicate webTokens docs (one per token).");
+    return;
+  }
+  const db = getFirestore();
+  const snap = await db.collection("webTokens").get();
+  const docsBefore = snap.size;
+
+  // group all docs by their FCM token
+  const byToken = new Map();
+  snap.docs.forEach((d) => {
+    const data = d.data() || {};
+    if (!data.token) return;
+    const arr = byToken.get(data.token) || [];
+    arr.push({id: d.id, ref: d.ref, data});
+    byToken.set(data.token, arr);
+  });
+
+  const ops = [];
+  let uniqueTokens = 0;
+  for (const [token, group] of byToken) {
+    uniqueTokens++;
+    const canonicalId = crypto.createHash("sha256").update(token).digest("hex");
+    const newest = group.slice().sort((a, b) => tsMs(b.data.ts) - tsMs(a.data.ts))[0];
+    const data = {
+      ...newest.data,
+      channels: Array.isArray(newest.data.channels) ? newest.data.channels : [],
+      ts: FieldValue.serverTimestamp()
+    };
+    ops.push({type: "set", ref: db.collection("webTokens").doc(canonicalId), data});
+    group.forEach((x) => { if (x.id !== canonicalId) ops.push({type: "delete", ref: x.ref}); });
+  }
+
+  let duplicatesDeleted = 0;
+  for (let i = 0; i < ops.length; i += 450) {
+    const batch = db.batch();
+    ops.slice(i, i + 450).forEach((op) => (op.type === "set" ? batch.set(op.ref, op.data) : batch.delete(op.ref)));
+    await batch.commit();
+    duplicatesDeleted += ops.slice(i, i + 450).filter((op) => op.type === "delete").length;
+  }
+
+  const summary = {docsBefore, uniqueTokens, canonicalDocsAfter: uniqueTokens, duplicatesDeleted};
+  console.log("cleanupWebTokens:", summary);
+  res.json(summary);
+});

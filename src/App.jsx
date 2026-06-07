@@ -16,7 +16,9 @@ import Onboard from "./components/Onboard.jsx";
 import Messages from "./components/Messages.jsx";
 import Utilities from "./components/Utilities.jsx";
 import Handbooks from "./components/Handbooks.jsx";
+import NotifBanner from "./components/NotifBanner.jsx";
 import { setGroups, setFlight, FB } from "./lib/firebase.js";
+import { useFB } from "./lib/useFB.js";
 
 const SCREENS = {
   overview: Overview, day: Day, cities: Cities, city: City, phrases: Phrases,
@@ -36,6 +38,7 @@ function Stub({ name }) {
 }
 
 export default function App() {
+  const fb = useFB();
   const { state, dispatch } = useStore();
   // let the Firebase layer navigate (e.g. to Announcements after a director signs in)
   useEffect(() => { window.__jtNav = (scr) => dispatch({ type: "nav", screen: scr }); }, [dispatch]);
@@ -46,12 +49,32 @@ export default function App() {
   // sync the current screen state to the FB layer so we know when to show toasts
   useEffect(() => { FB.currentScreen = state.screen; }, [state.screen]);
 
+
+  // Synchronize store groups with director or chaperone status
+  const ALL_GROUPS = ["band", "orch", "choir", "schoir", "sband"];
+  useEffect(() => {
+    if (!fb.ready) return;
+    if (fb.isDirector) {
+      const matches = state.groups.length === ALL_GROUPS.length && state.groups.every((g) => ALL_GROUPS.includes(g));
+      if (!matches) {
+        dispatch({ type: "groups", groups: ALL_GROUPS });
+      }
+    } else if ((fb.chapChannels || []).length > 0) {
+      const chapGroups = (fb.chapGroups && fb.chapGroups.length) ? fb.chapGroups : ALL_GROUPS;
+      const matches = state.groups.length === chapGroups.length && state.groups.every((g) => chapGroups.includes(g));
+      if (!matches) {
+        dispatch({ type: "groups", groups: chapGroups });
+      }
+    }
+  }, [fb.ready, fb.isDirector, fb.chapChannels, fb.chapGroups, state.groups, dispatch]);
+
   const Cur = SCREENS[state.screen];
   return (
     <>
       <div id="app">{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
       <Nav />
       <Toast />
+      <NotifBanner />
     </>
   );
 }

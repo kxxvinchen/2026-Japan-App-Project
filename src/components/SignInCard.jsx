@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useFB } from "../lib/useFB.js";
-import { FB, CH_LABEL, localName, signIn, signOut, setShowSignIn } from "../lib/firebase.js";
+import { FB, CH_LABEL, signIn, signOut, setShowSignIn, sendPasswordReset } from "../lib/firebase.js";
 
 export default function SignInCard() {
   useFB();
@@ -21,10 +21,10 @@ export default function SignInCard() {
   );
   if (FB.chapChannels && FB.chapChannels.length) {
     const names = FB.chapChannels.map((id) => CH_LABEL[id] || id).join(", ");
-    const nm = localName();
+    const nm = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
     return (
       <div className="set-card"><h3>Chaperone</h3>
-        <div className="set-sub">Your channel{FB.chapChannels.length > 1 ? "s" : ""}: <b>{names}</b>.{nm ? <> Posting as <b>{nm}</b>.</> : " You'll set the name shown on your messages in the Announcements tab."}</div>
+        <div className="set-sub">Your channel{FB.chapChannels.length > 1 ? "s" : ""}: <b>{names}</b>. Posting as <b>{nm}</b>.</div>
         <button className="btn ghost" onClick={signOut}>Sign out</button></div>
     );
   }
@@ -38,7 +38,15 @@ export default function SignInCard() {
       {FB.error ? <div className="msg-status err" style={{ margin: "0 0 8px" }}>{FB.error}</div> : null}
       <label className="form-label">Username or email</label>
       <input className="form-in" type="text" autoCapitalize="none" autoCorrect="off" placeholder="your username" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <label className="form-label">Password</label>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <label className="form-label" style={{ margin: "11px 0 5px" }}>Password</label>
+        <span 
+          style={{ fontSize: "11.5px", fontWeight: "700", color: "var(--indigo2)", cursor: "pointer", textDecoration: "underline" }}
+          onClick={() => sendPasswordReset(email)}
+        >
+          Reset Password
+        </span>
+      </div>
       <div className="pw-wrap">
         <input className="form-in" type={show ? "text" : "password"} placeholder="Password" value={pwd} onChange={(e) => setPwd(e.target.value)} />
         <button type="button" className="pw-toggle" onClick={() => setShow((s) => !s)} aria-label="Show password">{show ? "🙈" : "👁"}</button>
