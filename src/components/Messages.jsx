@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { useFB } from "../lib/useFB.js";
 import {
   FB, CHANNELS, CH_LABEL, accessibleChannels, channelMessages, unreadCount, relTime,
-  canPostHere, localName, saveName, sendMessage, deleteMessage, startEdit, cancelEdit,
-  setActiveChannel, setMsgMenu, askDelete, closeMenu, toggleChanMenu, toggleExpanded, setNameEdit,
+  canPostHere, sendMessage, deleteMessage, startEdit, cancelEdit,
+  setActiveChannel, setMsgMenu, askDelete, closeMenu, toggleChanMenu, toggleExpanded,
   getDraft, saveDraft,
 } from "../lib/firebase.js";
 import { CH_MENTIONS } from "../lib/channels.js";
@@ -79,33 +79,21 @@ function Compose() {
   const editing = FB.editing && FB.editing.channel === FB.activeChannel;
   const chLabel = CH_LABEL[FB.activeChannel] || "channel";
   const [draft, setDraft] = useState(editing ? FB.editing.text : getDraft(FB.activeChannel));
-  const [name, setName] = useState(localName());
   useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
   const onDraft = (v) => { setDraft(v); if (!editing) saveDraft(FB.activeChannel, v); };
 
-  if (chap && (!localName() || FB.nameEdit)) {
-    return (
-      <div className="ann-compose">
-        <div className="ann-compose-label">Your name</div>
-        <div className="ann-compose-namehint">Set the name shown on your messages so the group knows who's writing.</div>
-        <div className="ann-compose-row ann-name-row">
-          <input className="ann-compose-input" id="chapName" type="text" autoCapitalize="words" maxLength={40} placeholder="e.g. Jane Kim" value={name} onChange={(e) => setName(e.target.value)} />
-          <button className="ann-compose-btn" onClick={() => saveName(name)}><Check /><span>Save</span></button>
-        </div>
-      </div>
-    );
-  }
   const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); if (!wasEditing) saveDraft(ch, ""); };
   const insertMention = (tag) => {
     const next = (draft && !/\s$/.test(draft) ? draft + " " : draft) + "@" + tag + " ";
     onDraft(next);
   };
   const mentions = ["everyone"].concat(CH_MENTIONS[FB.activeChannel] || []);
+  const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
   return (
     <div className="ann-compose">
       {editing ? <div className="ann-compose-editing"><span>Editing announcement</span><button onClick={cancelEdit}>Cancel</button></div> : null}
       <div className="ann-compose-label">{chap ? "Message " + chLabel : "New announcement"}</div>
-      {chap ? <div className="ann-compose-who">Posting as <b>{localName()}</b> · <button onClick={() => { setName(localName()); setNameEdit(true); }}>Change</button></div> : null}
+      {chap ? <div className="ann-compose-who">Posting as <b>{myName}</b></div> : null}
       <div className="ann-mentions">
         <span className="ann-mentions-hint">Mention to notify:</span>
         {mentions.map((t) => <button key={t} type="button" className="ann-mention-chip" onClick={() => insertMention(t)}>@{t}</button>)}
@@ -142,7 +130,8 @@ export default function Messages() {
     body = <div className="empty">Pick your group in the <b>Group</b> tab to see your announcements — or sign in below as a director or chaperone.</div>;
   } else if (list.length) {
     body = list.map((m) => {
-      const mine = !FB.isDirector && isChapTab && localName() && (m.author || "") === localName() && m.role !== "director";
+      const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
+      const mine = !FB.isDirector && isChapTab && (m.author || "") === myName && m.role !== "director";
       const canEdit = !m._local && (FB.isDirector || FB.isAdmin || mine);
       return <AnnCard key={m.id} m={m} isChapTab={isChapTab} canEdit={canEdit} />;
     });

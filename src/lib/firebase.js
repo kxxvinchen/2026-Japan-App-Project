@@ -25,7 +25,7 @@ const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], authorName: "",
+  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
@@ -74,19 +74,18 @@ export function clearToast() {
 /* ---- channels ---- */
 export { CHANNELS, CH_LABEL };
 function ensembleChannels() {
-  const set = {};
-  userGroups.forEach((g) => {
-    if (g === "band" || g === "orch" || g === "choir") set.performers = 1;
-    else if (g === "sband" || g === "schoir") set.shadow = 1;
-  });
-  return Object.keys(set);
+  const hasPerf = userGroups.some((g) => g === "band" || g === "orch" || g === "choir");
+  const hasShadow = userGroups.some((g) => g === "sband" || g === "schoir");
+  if (hasPerf) return ["performers"];
+  if (hasShadow) return ["shadow"];
+  return [];
 }
 export function accessibleChannels() {
   if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all 5
   if (FB.isAdmin) return CHANNELS.map((c) => c.id).filter((id) => id !== "directors");
+  if ((FB.chapChannels || []).length) return ["performers", "chaperones", "flights"];
   const set = { flights: 1 };                                                        // Flights is for everyone
   ensembleChannels().forEach((c) => { set[c] = 1; });
-  if ((FB.chapChannels || []).length) set.chaperones = 1;
   return CHANNELS.map((c) => c.id).filter((id) => set[id]);                          // keep dropdown order
 }
 // Mention tags the current user belongs to (so @swe/@sso/@choir target only them).
@@ -98,22 +97,7 @@ function userTags() {
 }
 const channelsForUser = () => accessibleChannels();
 
-// Any chaperone assignment now means membership in the single "Chaperones" channel.
-function normalizeChapChannels(arr) {
-  const raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
-  return raw.length ? ["chaperones"] : [];
-}
-// Which ensemble(s) a chaperone covers → their mention tags (from the old channel assignment).
-function chapTagsFrom(arr) {
-  const raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
-  const t = {};
-  raw.forEach((x) => {
-    const s = String(x).toLowerCase();
-    if (/swesso|swe|sso|band|orch/.test(s)) { t.swe = 1; t.sso = 1; }
-    if (/choir/.test(s)) t.choir = 1;
-  });
-  return Object.keys(t);
-}
+
 
 /* ---- time helpers ---- */
 function msgTime(ms) { try { return new Date(ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
@@ -160,9 +144,7 @@ function subscribeChannels() {
         const arr = snap.docs.map((d) => { const x = d.data(); return { id: d.id, channel: ch, title: x.title || "", text: x.text || "", author: x.author || "Director", role: x.role || "", ts: (x.ts && x.ts.toMillis) ? x.ts.toMillis() : Date.now() }; });
         arr.sort((a, b) => b.ts - a.ts);
         if (!isInitial) {
-          const myName = (FB.isDirector || FB.isAdmin)
-            ? (FB.authorName || (FB.user && (FB.user.displayName || FB.user.email)) || (FB.isAdmin ? "Admin" : "Director"))
-            : (localName() || FB.authorName || "Chaperone");
+          const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || (FB.isDirector ? "Director" : FB.isAdmin ? "Admin" : "Chaperone");
           snap.docChanges().forEach((change) => {
             if (change.type === "added") {
               const msg = change.doc.data() || {};
@@ -216,7 +198,21 @@ export async function startMessaging() {
       if (u && u.email) {
         try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
         try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
-        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); FB.chapTags = chapTagsFrom(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
+        try {
+          const c = await FB.db.collection("chaperones").doc(u.email).get();
+          if (c.exists) {
+            chapOk = true;
+            const cd = c.data() || {};
+            FB.chapChannels = ["chaperones"];
+            FB.chapTags = ["swe", "sso", "choir"];
+            FB.chapGroups = cd.groups || ["band", "orch", "choir", "schoir", "sband"];
+            if (!FB.authorName && cd.name) FB.authorName = cd.name;
+          }
+        } catch (e) { }
+        if (!FB.authorName && (dirOk || adminOk || chapOk)) {
+          FB.authorName = u.email.split("@")[0];
+        }
+        try { localStorage.removeItem("jt_chapname"); } catch (e) { }
       }
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
@@ -226,7 +222,7 @@ export async function startMessaging() {
           const acc = accessibleChannels();
           FB.activeChannel = (FB.chapChannels && FB.chapChannels.length) ? FB.chapChannels[0] : (acc[0] || "");
           markChannelRead(FB.activeChannel);
-          if (window.__jtNav) window.__jtNav("messages");
+          if (window.__jtNav) window.__jtNav("overview");
         }
       }
       subscribeChannels(); syncNotifTopics(); notify();
@@ -246,20 +242,20 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
-export const localName = () => { try { return (localStorage.getItem("jt_chapname") || "").trim(); } catch (e) { return ""; } };
-export function saveName(v) { v = (v || "").trim(); if (!v) { toast("Enter a name"); return false; } try { localStorage.setItem("jt_chapname", v); } catch (e) { } FB.authorName = v; FB.nameEdit = false; toast("Saved — your messages will show as " + v); notify(); return true; }
+
 export function setShowSignIn(v) { FB.showSignIn = v; if (!v) FB.error = ""; notify(); }
 export function setNameEdit(v) { FB.nameEdit = v; notify(); }
 export function canPostHere() {
   const ch = FB.activeChannel || "";
   if (!ch) return false;
-  if (ch === "flights") return !!FB.isDirector;                 // Flights: directors only
-  if (ch === "directors") return !!FB.isDirector;
-  if (ch === "chaperones") return !!(FB.isDirector || FB.isAdmin || (FB.chapChannels || []).length);
-  if (ch === "performers" || ch === "shadow") return !!(FB.isDirector || FB.isAdmin);  // announcement channels
+  if (FB.isDirector) return true;
+  if (FB.isAdmin) return ch !== "directors";
+  if ((FB.chapChannels || []).length) {
+    return ch === "performers" || ch === "chaperones" || ch === "flights";
+  }
   return false;
 }
 export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
@@ -279,7 +275,6 @@ export async function sendMessage(text) {
   text = (text || "").trim();
   if (!chan) { toast("Pick a channel first"); return; }
   if (!text) { toast("Type a message first"); return; }
-  if (!FB.isDirector && !FB.isAdmin && !localName()) { toast("Add your name in the Group tab first"); return; }
   if (FB.editing && FB.editing.id) {
     const ed = FB.editing; FB.editing = null;
     (FB.msgsByChannel[ed.channel] || []).forEach((m) => { if (m.id === ed.id) { m.text = text; m.edited = true; } });
@@ -288,9 +283,7 @@ export async function sendMessage(text) {
     catch (e) { toast((e && e.code) === "permission-denied" ? "Edit blocked — publish the updated Firestore rules" : "Couldn't update the message."); }
     return;
   }
-  const author = (FB.isDirector || FB.isAdmin)
-    ? (FB.authorName || (FB.user && (FB.user.displayName || FB.user.email)) || (FB.isAdmin ? "Admin" : "Director"))
-    : (localName() || FB.authorName || "Chaperone");
+  const author = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || (FB.isDirector ? "Director" : FB.isAdmin ? "Admin" : "Chaperone");
   const role = FB.isDirector ? "director" : "";
   const pend = { ch: chan, text, author, role, ts: Date.now() };
   FB.pending.push(pend); FB.drafts[chan] = ""; markChannelRead(chan); notify();
