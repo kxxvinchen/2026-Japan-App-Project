@@ -26,6 +26,9 @@ export function setupKeyboard() {
     (el.tagName === "INPUT" && !["checkbox", "radio", "button", "submit", "file"].includes(el.type))
   );
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   const refresh = () => {
     if (!inputFocused) {
       baseHeight = window.innerHeight;
@@ -36,13 +39,21 @@ export function setupKeyboard() {
     );
     document.body.classList.toggle("kbd-open", kbOpen);
     if (kbOpen) {
-      document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      if (isIOS) {
+        document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      }
       // Prevent visual viewport/layout viewport scrolling offset on iOS
       if (window.scrollY !== 0) {
         window.scrollTo(0, 0);
       }
     } else {
-      document.documentElement.style.removeProperty("--vvh");
+      if (isIOS) {
+        document.documentElement.style.removeProperty("--vvh");
+      }
+      // Reset scroll position when keyboard is closed to prevent blank space/layout shift on iOS/Android
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
     }
   };
 
@@ -50,12 +61,14 @@ export function setupKeyboard() {
     if (isTextInput(e.target)) {
       inputFocused = true;
       refresh();
-      // Scroll the active input into view instantly (no smooth behavior to avoid iOS scroll offsets)
-      setTimeout(() => {
-        try {
-          e.target.scrollIntoView({ block: "nearest" });
-        } catch (_) {}
-      }, 120);
+      // Only scroll compose textareas programmatically (standard inputs in #app are scrolled natively by the browser)
+      if (e.target.id === "msgText" || e.target.id === "chapName") {
+        setTimeout(() => {
+          try {
+            e.target.scrollIntoView({ block: "nearest" });
+          } catch (_) {}
+        }, 120);
+      }
     }
   });
 
@@ -72,4 +85,11 @@ export function setupKeyboard() {
 
   vv.addEventListener("resize", refresh);
   vv.addEventListener("scroll", refresh);
+
+  // Prevent browser-level layout viewport scrolling when the keyboard is open
+  window.addEventListener("scroll", () => {
+    if (document.body.classList.contains("kbd-open") && window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+    }
+  });
 }

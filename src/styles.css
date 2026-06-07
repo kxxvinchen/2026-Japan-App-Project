@@ -99,7 +99,7 @@
   /* While typing in the announcements compose box, shrink the shell to the area above the
      keyboard and hide the bottom nav — so the compose bar sits just above the keyboard and the
      header/channel stay put, instead of the whole screen scrolling up. */
-  body.kbd-open{ height:var(--vvh,100vh); }
+  body.kbd-open{ height:var(--vvh,100%); }
   body.kbd-open #navbar{ display:none !important; }
   .screen{padding:0;}
   .screen.anim{animation:fade .25s ease;}

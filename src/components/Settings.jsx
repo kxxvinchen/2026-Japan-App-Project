@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStore } from "../store.jsx";
 import { TRIP, GROUPS } from "../data.js";
 import GroupPicker from "./GroupPicker.jsx";
 import FlightSelect from "./FlightSelect.jsx";
 import BusSelect from "./BusSelect.jsx";
 import SignInCard from "./SignInCard.jsx";
-import { enableNotifs, notifGranted, clearActivityReminders } from "../lib/firebase.js";
+import { enableNotifs, notifGranted, clearActivityReminders, setShowSignIn } from "../lib/firebase.js";
 import { useFB } from "../lib/useFB.js";
 
 export default function Settings() {
   const fb = useFB();
   const { state, dispatch } = useStore();
+  
+  useEffect(() => {
+    return () => {
+      setShowSignIn(false);
+    };
+  }, []);
+
   const [pend, setPend] = useState(state.groups || []);
   const [, force] = useState(0);
   const toggle = (id) => setPend((p) => {

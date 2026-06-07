@@ -17,7 +17,7 @@ import Messages from "./components/Messages.jsx";
 import Utilities from "./components/Utilities.jsx";
 import Handbooks from "./components/Handbooks.jsx";
 import NotifBanner from "./components/NotifBanner.jsx";
-import { setGroups, setFlight, FB, setShowSignIn } from "./lib/firebase.js";
+import { setGroups, setFlight, FB } from "./lib/firebase.js";
 import { useFB } from "./lib/useFB.js";
 
 const SCREENS = {
@@ -49,10 +49,6 @@ export default function App() {
   // sync the current screen state to the FB layer so we know when to show toasts
   useEffect(() => { FB.currentScreen = state.screen; }, [state.screen]);
 
-  // Reset signin card when screen/page changes
-  useEffect(() => {
-    setShowSignIn(false);
-  }, [state.screen]);
 
   // Synchronize store groups with director or chaperone status
   const ALL_GROUPS = ["band", "orch", "choir", "schoir", "sband"];
