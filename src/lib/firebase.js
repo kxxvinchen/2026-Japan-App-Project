@@ -2,7 +2,7 @@
    Mirrors the original imperative logic, but instead of calling render() it calls notify(),
    which React subscribes to via useSyncExternalStore. Messaging UI state (active channel,
    unread baselines, compose draft, edit target, menus) lives here, tightly coupled to FB. */
-import { CHANNELS, CH_LABEL } from "./channels.js";
+import { CHANNELS, CH_LABEL, GROUP_TAGS } from "./channels.js";
 import { FLIGHTS } from "../data.js";
 import { daySet, effGroups } from "./groups.js";
 import { fmt12 } from "./activity.js";
@@ -25,7 +25,7 @@ const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, chapChannels: [], authorName: "",
+  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
@@ -99,13 +99,7 @@ function userTags() {
 }
 const channelsForUser = () => accessibleChannels();
 
-function normalizeChapChannels(arr) {
-  const map = { "band-chap": "swesso-chap", "orch-chap": "swesso-chap", "choir-chap": "choir-chap", "swesso-chap": "swesso-chap", "swe/sso-chap": "swesso-chap" };
-  const valid = CHANNELS.filter((c) => c.chap).map((c) => c.id);
-  let raw = Array.isArray(arr) ? arr : (typeof arr === "string" && arr ? [arr] : []);
-  let ch = raw.map((x) => map[String(x).trim().toLowerCase()] || String(x).trim()).filter((x) => valid.indexOf(x) > -1);
-  return ch.filter((x, i) => ch.indexOf(x) === i);
-}
+
 
 /* ---- time helpers ---- */
 function msgTime(ms) { try { return new Date(ms).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
@@ -152,9 +146,7 @@ function subscribeChannels() {
         const arr = snap.docs.map((d) => { const x = d.data(); return { id: d.id, channel: ch, title: x.title || "", text: x.text || "", author: x.author || "Director", role: x.role || "", ts: (x.ts && x.ts.toMillis) ? x.ts.toMillis() : Date.now() }; });
         arr.sort((a, b) => b.ts - a.ts);
         if (!isInitial) {
-          const myName = (FB.isDirector || FB.isAdmin)
-            ? (FB.authorName || (FB.user && (FB.user.displayName || FB.user.email)) || (FB.isAdmin ? "Admin" : "Director"))
-            : (localName() || FB.authorName || "Chaperone");
+          const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || (FB.isDirector ? "Director" : FB.isAdmin ? "Admin" : "Chaperone");
           snap.docChanges().forEach((change) => {
             if (change.type === "added") {
               const msg = change.doc.data() || {};
@@ -203,12 +195,26 @@ export async function startMessaging() {
       console.log("Connected to Auth Emulator");
     }
     FB.auth.onAuthStateChanged(async (u) => {
-      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.authorName = "";
+      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.authorName = "";
       let dirOk = false, chapOk = false, adminOk = false;
       if (u && u.email) {
         try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
         try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
-        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = normalizeChapChannels(cd.channels); if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
+        try {
+          const c = await FB.db.collection("chaperones").doc(u.email).get();
+          if (c.exists) {
+            chapOk = true;
+            const cd = c.data() || {};
+            FB.chapChannels = ["chaperones"];
+            FB.chapTags = ["swe", "sso", "choir"];
+            FB.chapGroups = cd.groups || ["band", "orch", "choir", "schoir", "sband"];
+            if (!FB.authorName && cd.name) FB.authorName = cd.name;
+          }
+        } catch (e) { }
+        if (!FB.authorName && (dirOk || adminOk || chapOk)) {
+          FB.authorName = u.email.split("@")[0];
+        }
+        try { localStorage.removeItem("jt_chapname"); } catch (e) { }
       }
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
@@ -218,7 +224,7 @@ export async function startMessaging() {
           const acc = accessibleChannels();
           FB.activeChannel = (FB.chapChannels && FB.chapChannels.length) ? FB.chapChannels[0] : (acc[0] || "");
           markChannelRead(FB.activeChannel);
-          if (window.__jtNav) window.__jtNav("messages");
+          if (window.__jtNav) window.__jtNav("overview");
         }
       }
       subscribeChannels(); syncNotifTopics(); notify();
@@ -238,18 +244,36 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.user = null; subscribeChannels(); notify(); }
+export async function sendPasswordReset(emailRaw) {
+  let email = (emailRaw || "").trim();
+  if (!email) { FB.error = "Enter your username or email first."; notify(); return; }
+  if (email.indexOf("@") < 0) email = email.toLowerCase() + LOGIN_DOMAIN;
+  FB.error = "";
+  if (!FB.auth) await new Promise((res) => { const t0 = Date.now(); (function chk() { if (FB.auth || Date.now() - t0 > 8000) return res(); setTimeout(chk, 150); })(); });
+  if (!FB.auth) { FB.error = "Still connecting — wait a moment and try again."; notify(); return; }
+  try {
+    await FB.auth.sendPasswordResetEmail(email);
+    toast("Password reset email sent!");
+  } catch (e) {
+    FB.error = "Failed to send password reset email. Check username/email.";
+    notify();
+  }
+}
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
-export const localName = () => { try { return (localStorage.getItem("jt_chapname") || "").trim(); } catch (e) { return ""; } };
-export function saveName(v) { v = (v || "").trim(); if (!v) { toast("Enter a name"); return false; } try { localStorage.setItem("jt_chapname", v); } catch (e) { } FB.authorName = v; FB.nameEdit = false; toast("Saved — your messages will show as " + v); notify(); return true; }
+
 export function setShowSignIn(v) { FB.showSignIn = v; if (!v) FB.error = ""; notify(); }
 export function setNameEdit(v) { FB.nameEdit = v; notify(); }
 export function canPostHere() {
   const ch = FB.activeChannel || "";
-  if (FB.isDirector) return !!ch;
-  if (FB.isAdmin) return !!ch && ch !== "directors";
-  return ch.slice(-5) === "-chap" && (FB.chapChannels || []).indexOf(ch) > -1;
+  if (!ch) return false;
+  if (FB.isDirector) return true;
+  if (FB.isAdmin) return ch !== "directors";
+  if ((FB.chapChannels || []).length) {
+    return ch === "performers" || ch === "chaperones" || ch === "flights";
+  }
+  return false;
 }
 export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
 // Per-channel compose drafts so switching channels never wipes a half-typed message.
@@ -268,7 +292,6 @@ export async function sendMessage(text) {
   text = (text || "").trim();
   if (!chan) { toast("Pick a channel first"); return; }
   if (!text) { toast("Type a message first"); return; }
-  if (!FB.isDirector && !FB.isAdmin && !localName()) { toast("Add your name in the Group tab first"); return; }
   if (FB.editing && FB.editing.id) {
     const ed = FB.editing; FB.editing = null;
     (FB.msgsByChannel[ed.channel] || []).forEach((m) => { if (m.id === ed.id) { m.text = text; m.edited = true; } });
@@ -277,9 +300,7 @@ export async function sendMessage(text) {
     catch (e) { toast((e && e.code) === "permission-denied" ? "Edit blocked — publish the updated Firestore rules" : "Couldn't update the message."); }
     return;
   }
-  const author = (FB.isDirector || FB.isAdmin)
-    ? (FB.authorName || (FB.user && (FB.user.displayName || FB.user.email)) || (FB.isAdmin ? "Admin" : "Director"))
-    : (localName() || FB.authorName || "Chaperone");
+  const author = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || (FB.isDirector ? "Director" : FB.isAdmin ? "Admin" : "Chaperone");
   const role = FB.isDirector ? "director" : "";
   const pend = { ch: chan, text, author, role, ts: Date.now() };
   FB.pending.push(pend); FB.drafts[chan] = ""; markChannelRead(chan); notify();
@@ -311,20 +332,44 @@ export async function ensureWebToken() {
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
     if (token) { FB.webToken = token; await saveWebToken(token); }
     return FB.webToken;
-  } catch (e) { return ""; }
+  } catch (e) {
+    console.error("ensureWebToken failed:", e);
+    return "";
+  }
+}
+function tokenData(token) {
+  // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
+}
+// Stable Firestore doc id derived from the FCM token itself, so the same device/token
+// always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or
+// incognito. (FCM tokens can contain "/" and are long, so we hash to a safe fixed id.)
+async function tokenDocId(token) {
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) {}
+  let h = 5381; for (let i = 0; i < token.length; i++) h = ((h << 5) + h + token.charCodeAt(i)) >>> 0;
+  return "t" + h.toString(16) + "_" + token.length;   // fallback (crypto.subtle is present over HTTPS)
 }
 async function saveWebToken(token) {
-  const channels = channelsForUser();
   try {
-    const id = localStorage.getItem("jt_webdoc");
-    if (id) await FB.db.collection("webTokens").doc(id).set({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() });
-    else { const ref = await FB.db.collection("webTokens").add({ token, channels, ts: firebase.firestore.FieldValue.serverTimestamp() }); localStorage.setItem("jt_webdoc", ref.id); }
-  } catch (e) { }
+    const id = await tokenDocId(token);
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token));
+  } catch (e) {
+    console.error("saveWebToken failed:", e);
+  }
 }
 async function syncWebChannels() {
   const token = await ensureWebToken(); if (!token) return;
-  const id = localStorage.getItem("jt_webdoc"); if (!id) return;
-  try { await FB.db.collection("webTokens").doc(id).set({ token, channels: channelsForUser(), ts: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); } catch (e) { }
+  try {
+    const id = await tokenDocId(token);
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true });
+  } catch (e) {
+    console.error("syncWebChannels failed:", e);
+  }
 }
 function notifBridge() {
   if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.jtNotify) return { post: (m) => { try { window.webkit.messageHandlers.jtNotify.postMessage(m); } catch (e) { } } };
@@ -340,15 +385,32 @@ export async function enableNotifs() {
   if (typeof firebase === "undefined" || !firebase.messaging) { toast("Still connecting — try again in a moment"); return; }
   let perm; try { perm = await Notification.requestPermission(); } catch (e) { toast("Couldn't request permission"); return; }
   if (perm !== "granted") { FB.notifPerm = "denied"; notify(); toast("Notifications not allowed"); return; }
-  FB.notifPerm = "granted"; notify(); toast("Notifications enabled");
   try {
     if (!FB.messaging) FB.messaging = firebase.messaging();
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
-    if (token) { FB.webToken = token; await saveWebToken(token); scheduleDepartureReminders(); }
-  } catch (e) { }
+    if (token) {
+      FB.webToken = token;
+      await saveWebToken(token);
+      scheduleDepartureReminders();
+      FB.notifPerm = "granted";
+      notify();
+      toast("Notifications enabled");
+    } else {
+      throw new Error("FCM returned an empty token.");
+    }
+  } catch (e) {
+    console.error("enableNotifs failed:", e);
+    toast("Notifications allowed, but token registration failed: " + (e.message || e));
+  }
 }
 export function notifGranted() { return (typeof Notification !== "undefined" && Notification.permission === "granted") || FB.notifPerm === "granted"; }
+// True when notifications aren't on yet but this platform can turn them on (drives the top banner).
+export function notifBannerNeeded() {
+  if (notifGranted()) return false;
+  if (notifBridge()) return true;                                   // native iOS/Android shell
+  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+}
 
 /* native iOS/Android shells call window.jtNotifStatus("granted"|"denied") */
 if (typeof window !== "undefined") window.jtNotifStatus = (stat) => { FB.notifPerm = stat; notify(); };
@@ -364,16 +426,37 @@ function jtDeviceId() {
   if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("jt_devid", id); }
   return id;
 }
-/* personal reminder for a custom activity (5/10/15/30/60 min before) */
-export async function saveReminder(d, time, remind, title) {
+/* personal reminders for custom activities (5/10/15/30/60 min before).
+   Each reminder uses a client-generated doc id stored on the activity (item.remId) and
+   tracked locally, so it can be deleted from Firestore when the activity is deleted or
+   when the user taps "Reset all" — otherwise the scheduled push would still fire. */
+const ACT_REM_KEY = "jt_actremids";
+const actRemList = () => { try { return JSON.parse(localStorage.getItem(ACT_REM_KEY) || "[]"); } catch (e) { return []; } };
+const actRemSave = (l) => { try { localStorage.setItem(ACT_REM_KEY, JSON.stringify(l)); } catch (e) {} };
+export const newReminderId = () => "act_" + jtDeviceId() + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+export async function saveReminder(d, time, remind, title, remId) {
   if (!remind || !FB.db) return;
   const fireAtMs = jstToUtcMs(d.dm, d.dd, time) - remind * 60000;
   if (fireAtMs <= Date.now()) { toast("Activity added (reminder time already passed)"); return; }
   const token = await ensureWebToken();
   if (!token) { toast("Turn on notifications (Group tab) to get reminders"); return; }
+  const id = remId || newReminderId();
   try {
-    await FB.db.collection("reminders").add({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
+    await FB.db.collection("reminders").doc(id).set({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
+    const l = actRemList(); if (l.indexOf(id) < 0) { l.push(id); actRemSave(l); }
   } catch (e) { }
+}
+// delete one custom-activity reminder (when its activity is removed from the timeline)
+export async function deleteReminder(id) {
+  if (id && FB.db) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} }
+  actRemSave(actRemList().filter((x) => x !== id));
+}
+// delete every custom-activity reminder this device created (on "Reset all")
+export async function clearActivityReminders() {
+  const l = actRemList();
+  if (FB.db) { for (const id of l) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} } }
+  actRemSave([]);
 }
 /* 1-hour + 15-min reminders before flight departures and daily hotel departures */
 export async function scheduleDepartureReminders() {
@@ -401,6 +484,17 @@ export async function scheduleDepartureReminders() {
     const hasChoir = eg.some((g) => g === "choir" || g === "schoir");
     for (const ln of lines) {
       if (/venue|school|return/i.test(ln)) continue;
+
+      const isOrchLine = /\b(orchestra|orch|sso)\b/i.test(ln);
+      const isBandLine = /\b(band|swe)\b/i.test(ln);
+      const isChoirLine = /\bchoir\b/i.test(ln);
+
+      // If the line mentions specific groups, but none of them match the user's groups, skip it.
+      if ((isOrchLine || isBandLine || isChoirLine) &&
+          !((isOrchLine && hasOrch) || (isBandLine && hasBand) || (isChoirLine && hasChoir))) {
+        continue;
+      }
+
       const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i) || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i) || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
       if (m) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2];
     }
@@ -416,11 +510,12 @@ export async function scheduleDepartureReminders() {
   });
   let prev = []; try { prev = JSON.parse(localStorage.getItem("jt_depremids") || "[]"); } catch (e) { }
   const now = Date.now();
-  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) { } }
+  for (const id of prev) if (!want[id]) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) { console.error("Failed to delete stale reminder:", id, e); } }
   const keep = [];
   for (const id in want) {
     const w = want[id]; if (w.fireAtMs <= now) continue;
-    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); } catch (e) { }
+    try { await FB.db.collection("reminders").doc(id).set({ token, title: w.title, body: w.body, fireAtMs: w.fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() }); keep.push(id); }
+    catch (e) { console.error("Failed to save departure reminder:", id, e); }
   }
   try { localStorage.setItem("jt_depremids", JSON.stringify(keep)); } catch (e) { }
 }
