@@ -12,6 +12,32 @@ const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
 const Check = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 
+// color class for an @-mention — by group (swe / sso / choir share a color across performers/chap/shadow;
+// flights share one color; @everyone its own).
+function mentionClass(tag) {
+  const t = String(tag).toLowerCase();
+  if (t === "everyone") return "m-everyone";
+  if (t.indexOf("swe") === 0) return "m-swe";
+  if (t.indexOf("sso") === 0) return "m-sso";
+  if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("flight") === 0) return "m-flight";
+  return "m-everyone";
+}
+const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|Flight\s+[A-I])\b/gi;
+// render message text with @-mentions highlighted (Discord-style colored pills)
+function renderBody(text) {
+  const s = String(text || "");
+  const out = []; let last = 0, i = 0, m;
+  MENTION_RE.lastIndex = 0;
+  while ((m = MENTION_RE.exec(s))) {
+    if (m.index > last) out.push(<span key={i++}>{s.slice(last, m.index)}</span>);
+    out.push(<span key={i++} className={"ment " + mentionClass(m[1])}>{"@" + m[1]}</span>);
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(<span key={i++}>{s.slice(last)}</span>);
+  return out.length ? out : s;
+}
+
 function AnnCard({ m, isChapTab, canEdit }) {
   const bodyRef = useRef(null);
   const [overflow, setOverflow] = useState(false);
@@ -39,7 +65,7 @@ function AnnCard({ m, isChapTab, canEdit }) {
           {canEdit ? <button className="ann-kebab" onClick={() => setMsgMenu(m.id)}>⋮</button> : null}
         </div>
       </div>
-      <div ref={bodyRef} className={"ann-card-body " + (exp ? "" : "clamp")}>{m.text}</div>
+      <div ref={bodyRef} className={"ann-card-body " + (exp ? "" : "clamp")}>{renderBody(m.text)}</div>
       {overflow ? <button className="msg-more" onClick={() => toggleExpanded(m.id)}>{exp ? "Show less" : "Show more"}</button> : null}
     </div>
   );
@@ -108,7 +134,7 @@ function Compose() {
       {chap ? <div className="ann-compose-who">Posting as <b>{localName()}</b> · <button onClick={() => { setName(localName()); setNameEdit(true); }}>Change</button></div> : null}
       <div className="ann-mentions">
         <span className="ann-mentions-hint">Mention to notify:</span>
-        {mentions.map((t) => <button key={t} type="button" className="ann-mention-chip" onClick={() => insertMention(t)}>@{t}</button>)}
+        {mentions.map((t) => <button key={t} type="button" className={"ann-mention-chip " + mentionClass(t)} onClick={() => insertMention(t)}>@{t}</button>)}
       </div>
       <div className="ann-compose-row">
         <textarea className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
