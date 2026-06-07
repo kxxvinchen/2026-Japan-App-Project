@@ -37,6 +37,10 @@ export function setupKeyboard() {
     document.body.classList.toggle("kbd-open", kbOpen);
     if (kbOpen) {
       document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      // Prevent visual viewport/layout viewport scrolling offset on iOS
+      if (window.scrollY !== 0) {
+        window.scrollTo(0, 0);
+      }
     } else {
       document.documentElement.style.removeProperty("--vvh");
     }
@@ -46,15 +50,11 @@ export function setupKeyboard() {
     if (isTextInput(e.target)) {
       inputFocused = true;
       refresh();
-      // Scroll the active input into view smoothly
+      // Scroll the active input into view instantly (no smooth behavior to avoid iOS scroll offsets)
       setTimeout(() => {
         try {
-          e.target.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        } catch (_) {
-          try {
-            e.target.scrollIntoView({ block: "nearest" });
-          } catch (__) {}
-        }
+          e.target.scrollIntoView({ block: "nearest" });
+        } catch (_) {}
       }, 120);
     }
   });
