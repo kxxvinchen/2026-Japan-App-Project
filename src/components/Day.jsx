@@ -4,6 +4,7 @@ import { mapsUrl } from "../lib/ui.js";
 import { daySet, attireSet, egroups, inGroup, itemGroups, myGroupsEff, groupLabel } from "../lib/groups.js";
 import { TYPE_LABEL, timeBlocks } from "../lib/schedule.js";
 import { deleteReminder } from "../lib/firebase.js";
+import { timesToAmPm } from "../lib/activity.js";
 
 function PlaceRow({ name, kind, cls, q }) {
   const ic = cls === "hotel" ? "H" : cls === "venue" ? "V" : "S";
@@ -28,11 +29,11 @@ function ItemCard({ di, it, g, dir }) {
     <div className={"item t-" + it.type + (ex ? " excluded" : "") + (it._custom ? " custom" : "")}>
       <div className="item-in">
         <div className="item-top">
-          <span className="item-hr">{it.hr || ""}</span>
+          <span className="item-hr">{timesToAmPm(it.hr || "")}</span>
           <span className="item-title">{it.title}</span>
           <span className={"type-chip c-" + it.type}>{tlabel}</span>
         </div>
-        <div className="item-desc">{it.desc}</div>
+        <div className="item-desc">{timesToAmPm(it.desc)}</div>
         {it.gnote ? <div className="item-gnote">{it.gnote}</div> : null}
         {it.remind ? <div className="item-gnote">⏰ Reminder {it.remind} min before</div> : null}
         {chips.length ? (
@@ -118,7 +119,7 @@ export default function Day() {
                 {logBlocks.map((b, i) => (
                   <div className="log-block" key={i}>
                     <div className="log-label">{b.label}</div>
-                    <ul className="log-lines">{b.lines.map((l, j) => <li key={j}>{l}</li>)}</ul>
+                    <ul className="log-lines">{b.lines.map((l, j) => <li key={j}>{timesToAmPm(l)}</li>)}</ul>
                   </div>
                 ))}
               </div>

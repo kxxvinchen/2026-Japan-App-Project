@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useFB } from "../lib/useFB.js";
-import { FB, CH_LABEL, localName, signIn, signOut, setShowSignIn } from "../lib/firebase.js";
+import { FB, CH_LABEL, signIn, signOut, setShowSignIn } from "../lib/firebase.js";
 
 export default function SignInCard() {
   useFB();
@@ -21,10 +21,10 @@ export default function SignInCard() {
   );
   if (FB.chapChannels && FB.chapChannels.length) {
     const names = FB.chapChannels.map((id) => CH_LABEL[id] || id).join(", ");
-    const nm = localName();
+    const nm = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
     return (
       <div className="set-card"><h3>Chaperone</h3>
-        <div className="set-sub">Your channel{FB.chapChannels.length > 1 ? "s" : ""}: <b>{names}</b>.{nm ? <> Posting as <b>{nm}</b>.</> : " You'll set the name shown on your messages in the Announcements tab."}</div>
+        <div className="set-sub">Your channel{FB.chapChannels.length > 1 ? "s" : ""}: <b>{names}</b>. Posting as <b>{nm}</b>.</div>
         <button className="btn ghost" onClick={signOut}>Sign out</button></div>
     );
   }
