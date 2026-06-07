@@ -16,8 +16,8 @@ export const FLIGHT_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
    Group tags ping only that group; flight tags ping only that flight. */
 export const CH_MENTIONS = {
   performers: ["swe", "sso", "choir"],
-  chaperones: ["swe", "sso", "choir"],
-  shadow:     ["swe", "sso", "choir"],
+  chaperones: ["swe-chaperones", "sso-chaperones", "choir-chaperones"],
+  shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
   directors:  [],
   flights:    FLIGHT_IDS.map((f) => "Flight " + f),
 };

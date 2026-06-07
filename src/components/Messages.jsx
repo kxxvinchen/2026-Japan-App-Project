@@ -12,6 +12,33 @@ const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
 const Check = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 
+// color class for an @-mention tag — swe/sso/choir each own a color (shared across
+// performers/chaperones/shadow via the suffix), flights share one, @everyone its own.
+function mentionClass(tag) {
+  const t = String(tag).toLowerCase();
+  if (t === "everyone") return "m-everyone";
+  if (t.indexOf("swe") === 0) return "m-swe";
+  if (t.indexOf("sso") === 0) return "m-sso";
+  if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("flight") === 0) return "m-flight";
+  return "m-everyone";
+}
+const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|Flight\s+[A-I])\b/gi;
+// backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills
+function renderHighlight(text) {
+  const s = String(text || "");
+  const out = []; let last = 0, i = 0, m;
+  MENTION_RE.lastIndex = 0;
+  while ((m = MENTION_RE.exec(s))) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<mark key={i++} className={"ment " + mentionClass(m[1])}>{"@" + m[1]}</mark>);
+    last = m.index + m[0].length;
+  }
+  out.push(s.slice(last));
+  out.push("​");          // preserve height for a trailing newline
+  return out;
+}
+
 function AnnCard({ m, isChapTab, canEdit }) {
   const bodyRef = useRef(null);
   const [overflow, setOverflow] = useState(false);
@@ -79,6 +106,7 @@ function Compose() {
   const editing = FB.editing && FB.editing.channel === FB.activeChannel;
   const chLabel = CH_LABEL[FB.activeChannel] || "channel";
   const [draft, setDraft] = useState(editing ? FB.editing.text : getDraft(FB.activeChannel));
+  const taRef = useRef(null), hlRef = useRef(null);   // textarea + highlight backdrop
   useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
   const onDraft = (v) => { setDraft(v); if (!editing) saveDraft(FB.activeChannel, v); };
 
@@ -99,9 +127,13 @@ function Compose() {
         {mentions.map((t) => <button key={t} type="button" className="ann-mention-chip" onClick={() => insertMention(t)}>@{t}</button>)}
       </div>
       <div className="ann-compose-row">
-        <textarea className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
-          placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
-          value={draft} onChange={(e) => onDraft(e.target.value)} />
+        <div className="ann-input-wrap">
+          <div ref={hlRef} className="ann-input-hl" aria-hidden="true">{renderHighlight(draft)}</div>
+          <textarea ref={taRef} className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
+            placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
+            value={draft} onChange={(e) => onDraft(e.target.value)}
+            onScroll={(e) => { if (hlRef.current) { hlRef.current.scrollTop = e.target.scrollTop; hlRef.current.scrollLeft = e.target.scrollLeft; } }} />
+        </div>
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
       </div>
     </div>
