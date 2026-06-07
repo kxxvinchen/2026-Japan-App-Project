@@ -54,12 +54,14 @@ export function setupKeyboard() {
     if (isTextInput(e.target)) {
       inputFocused = true;
       refresh();
-      // Scroll the active input into view instantly (no smooth behavior to avoid iOS scroll offsets)
-      setTimeout(() => {
-        try {
-          e.target.scrollIntoView({ block: "nearest" });
-        } catch (_) {}
-      }, 120);
+      // Only scroll compose textareas programmatically (standard inputs in #app are scrolled natively by the browser)
+      if (e.target.id === "msgText" || e.target.id === "chapName") {
+        setTimeout(() => {
+          try {
+            e.target.scrollIntoView({ block: "nearest" });
+          } catch (_) {}
+        }, 120);
+      }
     }
   });
 
