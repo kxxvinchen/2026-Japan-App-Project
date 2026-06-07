@@ -78,4 +78,11 @@ export function setupKeyboard() {
 
   vv.addEventListener("resize", refresh);
   vv.addEventListener("scroll", refresh);
+
+  // Prevent browser-level layout viewport scrolling when the keyboard is open
+  window.addEventListener("scroll", () => {
+    if (document.body.classList.contains("kbd-open") && window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+    }
+  });
 }
