@@ -82,6 +82,9 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
   html{background:#fff;}
+  html, body, input, textarea, select, button, a {
+    touch-action: manipulation;
+  }
   /* FULL-SCREEN FLEX SHELL. height:100vh (NOT 100dvh / not fixed) because on iOS standalone
      100vh reports the true full screen, while the layout viewport (innerHeight / fixed / dvh)
      is short — which left a dead strip at the bottom. #app scrolls; #navbar is the bottom row. */
@@ -225,7 +228,7 @@
     box-shadow:0 1px 2px rgba(20,30,45,.06);}
   .ph-search svg{flex:0 0 auto;width:17px;height:17px;color:var(--muted);}
   .ph-search input{flex:1;min-width:0;border:none;background:none;outline:none;font:inherit;
-    font-size:14px;color:var(--ink);padding:12px 0;-webkit-appearance:none;}
+    font-size:16px;color:var(--ink);padding:12px 0;-webkit-appearance:none;}
   .ph-search input::-webkit-search-decoration,.ph-search input::-webkit-search-cancel-button{display:none;}
   .ph-search-x{flex:0 0 auto;width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;
     background:#e1e6ee;color:#5a6573;font-size:15px;line-height:1;align-items:center;justify-content:center;}
@@ -293,7 +296,7 @@
   .note-box{margin-top:8px;}
   .note-box textarea{
     width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;
-    font:inherit;font-size:12px;resize:vertical;min-height:46px;
+    font:inherit;font-size:16px;resize:vertical;min-height:46px;
   }
   .item.custom .item-in{background:#fbf7ff;}
 
@@ -404,7 +407,7 @@
   .flight-dot,.bus-dot{width:auto;height:auto;background:none;font-size:13px;line-height:1;}
   .flight-banner{margin-top:8px;}
   .flight-select{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;
-    font:inherit;font-size:13px;background:#fff;color:var(--ink);margin-bottom:10px;}
+    font:inherit;font-size:16px;background:#fff;color:var(--ink);margin-bottom:10px;}
   .fl-who{font-size:12.5px;color:var(--indigo2);font-weight:700;margin:2px 4px 8px;}
   .fl-card{padding:12px 13px;}
   .fl-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
@@ -571,7 +574,7 @@
   .ann-name-row .ann-compose-btn{height:46px;box-sizing:border-box;}
   .ann-compose-row{display:flex;gap:9px;align-items:flex-end;}
   .ann-compose-input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;
-    font:inherit;font-size:14px;resize:none;max-height:120px;background:#f7f8fa;color:var(--ink);}
+    font:inherit;font-size:16px;resize:none;max-height:120px;background:#f7f8fa;color:var(--ink);}
   .ann-compose-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;background:var(--indigo);color:#fff;
     border:none;border-radius:11px;padding:11px 17px;font-weight:700;font-size:14px;cursor:pointer;}
   .ann-compose-btn svg{width:17px;height:17px;stroke:#fff;}
@@ -583,7 +586,7 @@
     background:var(--bg);border-top:1px solid var(--line);padding:8px 16px;box-sizing:border-box;}
   .compose-spacer{height:88px;}
   .compose-input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:20px;padding:9px 14px;
-    font:inherit;font-size:14px;resize:none;max-height:120px;background:#fff;color:var(--ink);}
+    font:inherit;font-size:16px;resize:none;max-height:120px;background:#fff;color:var(--ink);}
   .compose-send{flex:0 0 auto;background:var(--indigo);color:#fff;border:none;border-radius:20px;
     padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;}
   .chap-opt{display:flex;align-items:center;gap:12px;padding:13px;border:2px solid var(--line);
@@ -599,7 +602,7 @@
   .form-label:first-child{margin-top:0;}
   .form-label .opt{font-weight:500;text-transform:none;letter-spacing:0;color:#9aa5b1;}
   .form-in{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 11px;
-    font:inherit;font-size:14px;background:#fff;color:var(--ink);}
+    font:inherit;font-size:16px;background:#fff;color:var(--ink);}
   textarea.form-in{resize:vertical;min-height:60px;}
   .pw-wrap{position:relative;}
   .pw-wrap .form-in{padding-right:44px;}
