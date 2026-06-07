@@ -3,6 +3,7 @@ import { useStore } from "../store.jsx";
 import { mapsUrl } from "../lib/ui.js";
 import { daySet, attireSet, egroups, inGroup, itemGroups, myGroupsEff, groupLabel } from "../lib/groups.js";
 import { TYPE_LABEL, timeBlocks } from "../lib/schedule.js";
+import { deleteReminder } from "../lib/firebase.js";
 import { timesToAmPm } from "../lib/activity.js";
 
 function PlaceRow({ name, kind, cls, q }) {
@@ -42,7 +43,7 @@ function ItemCard({ di, it, g, dir }) {
           {it.loc ? <a className="mini-btn map" target="_blank" rel="noopener" href={mapsUrl(it.loc.q)}>📍 {it.loc.n}</a> : null}
           <button className="mini-btn ex" onClick={() => dispatch({ type: "toggleExcl", key: nk })}>{ex ? "↺ Restore" : "✕ Skip this"}</button>
           <button className="mini-btn" onClick={() => setNoteOpen((o) => !o)}>✎ Note{noteVal ? " •" : ""}</button>
-          {it._custom ? <button className="mini-btn ex" onClick={() => dispatch({ type: "delCustom", di, ci: it._ci })}>Delete</button> : null}
+          {it._custom ? <button className="mini-btn ex" onClick={() => { if (it.remId) deleteReminder(it.remId); dispatch({ type: "delCustom", di, ci: it._ci }); }}>Delete</button> : null}
         </div>
         {noteOpen ? (
           <div className="note-box" style={{ display: "block" }}>

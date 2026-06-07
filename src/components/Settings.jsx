@@ -5,6 +5,7 @@ import GroupPicker from "./GroupPicker.jsx";
 import FlightSelect from "./FlightSelect.jsx";
 import BusSelect from "./BusSelect.jsx";
 import SignInCard from "./SignInCard.jsx";
+import { enableNotifs, notifGranted, clearActivityReminders } from "../lib/firebase.js";
 import { enableNotifs, notifGranted } from "../lib/firebase.js";
 import { useFB } from "../lib/useFB.js";
 
@@ -79,7 +80,7 @@ export default function Settings() {
         <div className="set-card">
           <h3>Customizations</h3>
           <div className="set-sub">Skipped {exCount} · added {cuCount} (saved on this device only).</div>
-          <button className="btn ghost" onClick={() => dispatch({ type: "set", patch: { excluded: {}, custom: {}, notes: {} } })}>Reset all</button>
+          <button className="btn ghost" onClick={() => { clearActivityReminders(); dispatch({ type: "set", patch: { excluded: {}, custom: {}, notes: {} } }); }}>Reset all</button>
         </div>
 
         <div className="set-card" style={{ fontSize: 12.5, color: "var(--muted)" }}>

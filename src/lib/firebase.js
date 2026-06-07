@@ -409,18 +409,37 @@ function jtDeviceId() {
   if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("jt_devid", id); }
   return id;
 }
-/* personal reminder for a custom activity (5/10/15/30/60 min before) */
-export async function saveReminder(d, time, remind, title) {
+/* personal reminders for custom activities (5/10/15/30/60 min before).
+   Each reminder uses a client-generated doc id stored on the activity (item.remId) and
+   tracked locally, so it can be deleted from Firestore when the activity is deleted or
+   when the user taps "Reset all" — otherwise the scheduled push would still fire. */
+const ACT_REM_KEY = "jt_actremids";
+const actRemList = () => { try { return JSON.parse(localStorage.getItem(ACT_REM_KEY) || "[]"); } catch (e) { return []; } };
+const actRemSave = (l) => { try { localStorage.setItem(ACT_REM_KEY, JSON.stringify(l)); } catch (e) {} };
+export const newReminderId = () => "act_" + jtDeviceId() + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+export async function saveReminder(d, time, remind, title, remId) {
   if (!remind || !FB.db) return;
   const fireAtMs = jstToUtcMs(d.dm, d.dd, time) - remind * 60000;
   if (fireAtMs <= Date.now()) { toast("Activity added (reminder time already passed)"); return; }
   const token = await ensureWebToken();
   if (!token) { toast("Turn on notifications (Group tab) to get reminders"); return; }
+  const id = remId || newReminderId();
   try {
-    await FB.db.collection("reminders").add({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
-  } catch (e) {
-    console.error("saveReminder failed:", e);
-  }
+    await FB.db.collection("reminders").doc(id).set({ token, title: "Reminder: " + title, body: title + " at " + fmt12(time), fireAtMs, ts: firebase.firestore.FieldValue.serverTimestamp() });
+    const l = actRemList(); if (l.indexOf(id) < 0) { l.push(id); actRemSave(l); }
+  } catch (e) { }
+}
+// delete one custom-activity reminder (when its activity is removed from the timeline)
+export async function deleteReminder(id) {
+  if (id && FB.db) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} }
+  actRemSave(actRemList().filter((x) => x !== id));
+}
+// delete every custom-activity reminder this device created (on "Reset all")
+export async function clearActivityReminders() {
+  const l = actRemList();
+  if (FB.db) { for (const id of l) { try { await FB.db.collection("reminders").doc(id).delete(); } catch (e) {} } }
+  actRemSave([]);
 }
 /* 1-hour + 15-min reminders before flight departures and daily hotel departures */
 export async function scheduleDepartureReminders() {

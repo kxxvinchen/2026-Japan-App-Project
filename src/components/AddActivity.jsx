@@ -3,7 +3,7 @@ import { useStore } from "../store.jsx";
 import { ALL } from "../data.js";
 import { daySet, inGroup } from "../lib/groups.js";
 import { fmt12, blockFor, activityConflict } from "../lib/activity.js";
-import { saveReminder } from "../lib/firebase.js";
+import { saveReminder, newReminderId } from "../lib/firebase.js";
 
 export default function AddActivity() {
   const { state, dispatch } = useStore();
@@ -25,9 +25,10 @@ export default function AddActivity() {
     if (clash) return setError("That time clashes with “" + clash.label + "”. Please pick another time.");
     const item = { t: blockFor(time), hr: fmt12(time), type: "other", title: title.trim(), desc: desc.trim() || "Personal addition to the itinerary.", groups: ALL };
     if (addr.trim()) item.loc = { n: addr.trim(), q: addr.trim(), kind: "sight" };
-    if (remind > 0) item.remind = remind;
+    const remId = remind > 0 ? newReminderId() : null;
+    if (remind > 0) { item.remind = remind; item.remId = remId; }
     dispatch({ type: "addCustom", di, item });
-    if (remind > 0) saveReminder(d, time, remind, title.trim());
+    if (remId) saveReminder(d, time, remind, title.trim(), remId);
     dispatch({ type: "nav", screen: "day" });
   };
 
