@@ -270,8 +270,8 @@ const DAYS = [
     hotels: [{ n: "Grand Nikko Tokyo Daiba", q: "Grand Nikko Tokyo Daiba", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast at hotel",
-        desc: "Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
+        desc: "Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."
       },
       {
         t: "Morning", hr: "9:10 AM", type: "sightseeing", groups: ["band", "orch", "sband"],
@@ -343,8 +343,8 @@ const DAYS = [
     hotels: [{ n: "Grand Nikko Tokyo Daiba", q: "Grand Nikko Tokyo Daiba", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast at hotel",
-        desc: "Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
+        desc: "Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."
       },
       {
         t: "Morning", hr: "8:45 AM", type: "sightseeing", groups: ["band", "orch", "sband"],
@@ -414,8 +414,8 @@ const DAYS = [
     hotels: [{ n: "Grand Nikko Tokyo Daiba", q: "Grand Nikko Tokyo Daiba", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast at hotel",
-        desc: "Breakfast at the hotel restaurant. Multiple choices available — check your room key packet for details."
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
+        desc: "Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."
       },
       {
         t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["band", "orch"],
@@ -553,7 +553,7 @@ const DAYS = [
     hotels: [{ n: "Miyako Hotel Kyoto Hachijo", q: "Miyako Hotel Kyoto Hachijo", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast in groups & check out",
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: ALL, title: "Breakfast in groups & check out",
         desc: "Breakfast in timed groups (Band & Choir: Garden Café · Orchestra: Fujiyama Terrace; seatings 07:00 / 07:45 / 08:30), then check out. Depart around 10:30."
       },
       {
@@ -719,8 +719,8 @@ const DAYS = [
     ],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast at hotel",
-        desc: "Band & Orchestra: breakfast 08:00–09:30 in the Rokko Banquet Room (3F). Choir: breakfast 07:00 at the hotel restaurant."
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
+        desc: "Choir: breakfast from 07:00 at the hotel restaurant. Band & Orchestra: breakfast 08:00–09:30 in the Rokko Banquet Room (3F)."
       },
       {
         t: "Afternoon", hr: "12:00 PM", type: "sightseeing", groups: ["band", "orch", "sband"],
@@ -891,7 +891,7 @@ const DAYS = [
     hotels: [{ n: "Grand Prince Hotel Hiroshima", q: "Grand Prince Hotel Hiroshima", groups: ALL }],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast at hotel",
+        t: "Morning", hr: "6:30 AM", type: "meal", groups: ALL, title: "Breakfast at hotel",
         desc: "Breakfast 06:30–08:00 in the Setouchi Banquet Room (2F)."
       },
       {
@@ -988,8 +988,8 @@ const DAYS = [
     hotels: [],
     items: [
       {
-        t: "Morning", hr: "breakfast", type: "meal", groups: ALL, title: "Breakfast & free morning",
-        desc: "Breakfast at the hotel; multiple choices available. Free morning on your own in small groups. Check out before 13:00, load luggage onto the truck, and depart for the airport on your flight group's schedule. If your departure is after 13:00, bring luggage to the 1F lobby to load or store until departure."
+        t: "Morning", hr: "7:00 AM", type: "meal", groups: ALL, title: "Breakfast & free morning",
+        desc: "Breakfast served 7:00–10:00am at the hotel; multiple choices available. Free morning on your own in small groups. Check out before 13:00, load luggage onto the truck, and depart for the airport on your flight group's schedule. If your departure is after 13:00, bring luggage to the 1F lobby to load or store until departure."
       },
       {
         t: "Afternoon", hr: "see logistics", type: "travel", groups: ALL,
@@ -1176,7 +1176,9 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Day 10 (June 18) Awaji optional activities: review the info sheet and book + pay via QR code by Sunday, June 14 at 6pm (first-come, first-served; non-refundable).",
-    logistics: [{ label: "Buses 1–2 / Buses 3–4", groups: SHG, lines: ["Bus 1–2 meet 9:00am; Bus 3–4 meet 9:30am at hotel 1F", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["09:00 — Depart hotel for Tokyo sightseeing (Bus 1–2; Bus 3 by 09:30)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:30 — Depart hotel for Tokyo sightseeing (Bus 4)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] }]
   },
   {
     d: 4, dow: "Fri", dd: "12", dm: "JUN", date: "Friday, June 12, 2026",
@@ -1214,12 +1216,20 @@ const SHADOW_DAYS = [
         loc: { n: "Toko Gakuen — Toko Hall", q: "Toko Gakuen Tokyo", kind: "venue" }
       },
       {
-        t: "Evening", hr: "6:00 PM", type: "meal", groups: SHG,
+        t: "Evening", hr: "6:00 PM", type: "meal", groups: SBO,
         title: "Group dinner — Ocean Club Buffet",
-        desc: "Group dinner at the Ocean Club Buffet, then return to the hotel (arrive ~8:15pm)."
+        desc: "Band & Orchestra Shadow: group dinner at the Ocean Club Buffet (6:00pm), then return to the hotel (~8:15pm)."
+      },
+      {
+        t: "Evening", hr: "6:30 PM", type: "meal", groups: SCH,
+        title: "Group dinner — Ocean Club Buffet",
+        desc: "Choir Shadow: join the group for dinner at the Ocean Club Buffet (6:30pm), then return to the hotel (~8:15pm)."
       }
     ],
-    logistics: [{ label: "Attire", groups: SHG, lines: ["Casual sightseeing attire", "Choir Shadow: semi-formal concert-attendee attire for the afternoon"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["10:50 — Depart hotel for Asakusa (Bus 1–2; Bus 3 by 11:00)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["10:00 — Depart hotel for Asakusa (Bus 4)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] },
+      { label: "Attire", groups: SHG, lines: ["Casual sightseeing attire", "Choir Shadow: semi-formal concert-attendee attire for the afternoon"] }]
   },
   {
     d: 5, dow: "Sat", dd: "13", dm: "JUN", date: "Saturday, June 13, 2026",
@@ -1258,7 +1268,10 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Pack a small overnight bag for tomorrow's one-night stay at Lake Ashi — your large luggage is loaded in the morning and won't be accessible again until Kyoto.",
-    logistics: [{ label: "Attire", groups: SHG, lines: ["Casual sightseeing attire", "Band/Orch Shadow: semi-formal concert-attendee attire"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["09:10 — Depart hotel for Kawagoe (Bus 1–2; Bus 3 by 09:20)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["10:30 — Depart hotel for Kawagoe (Bus 4)", "Breakfast from 6:30am at Restaurant Cross Dine (1F)"] },
+      { label: "Attire", groups: SHG, lines: ["Casual sightseeing attire", "Band/Orch Shadow: semi-formal concert-attendee attire"] }]
   },
   {
     d: 6, dow: "Sun", dd: "14", dm: "JUN", date: "Sunday, June 14, 2026",
@@ -1302,7 +1315,10 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Today (June 14) at 6pm is the deadline to book + pay for a Day 10 Awaji optional activity.",
-    logistics: [{ label: "Overnight at Lake Ashi", groups: SHG, lines: ["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111", "Pack a small overnight bag; large luggage goes ahead to Kyoto"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["08:15 — Depart hotel for Mt. Fuji (Bus 1–2; Bus 3 by 08:30)", "Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:30 — Depart hotel for Mt. Fuji (Bus 4)", "Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"] },
+      { label: "Overnight at Lake Ashi", groups: SHG, lines: ["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111", "Pack a small overnight bag; large luggage goes ahead to Kyoto"] }]
   },
   {
     d: 7, dow: "Mon", dd: "15", dm: "JUN", date: "Monday, June 15, 2026",
@@ -1334,7 +1350,9 @@ const SHADOW_DAYS = [
         loc: { n: "Hotel Nikko Princess Kyoto", q: "Hotel Nikko Princess Kyoto", kind: "hotel" }
       }
     ],
-    logistics: [{ label: "Train", groups: SHG, lines: ["Shinkansen Hikari 719 — Atami → Kyoto, board 4:40pm (~2 hours), arrive ~6:37pm"] }]
+    logistics: [
+      { label: "Departure (all Shadow, Bus 1–4)", groups: SHG, lines: ["15:00 — Depart hotel for Atami Station (check out by 11:00am; meet 14:30 to retrieve bags)"] },
+      { label: "Train", groups: SHG, lines: ["Shinkansen Hikari 719 — Atami → Kyoto, board 4:40pm (~2 hours), arrive ~6:37pm"] }]
   },
   {
     d: 8, dow: "Tue", dd: "16", dm: "JUN", date: "Tuesday, June 16, 2026",
@@ -1396,7 +1414,10 @@ const SHADOW_DAYS = [
         loc: { n: "Grand Nikko Awaji", q: "Grand Nikko Awaji", kind: "hotel" }
       }
     ],
-    logistics: [{ label: "Attire", groups: SHG, lines: ["Casual travel attire; semi-formal concert-attendee attire for the evening"] },
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["09:00 — Depart hotel for Fushimi Inari (Bus 1–2; Bus 3 by 09:15)", "Luggage to truck & check out by 08:00; breakfast from 7:00am"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:15 — Depart hotel for Fushimi Inari (Bus 4)", "Luggage to truck & check out by 08:00; breakfast from 7:00am"] },
+      { label: "Attire", groups: SHG, lines: ["Casual travel attire; semi-formal concert-attendee attire for the evening"] },
     { label: "Train / hotel", groups: SHG, lines: ["Grand Nikko Awaji — 2 Yumebutai, Awaji, Hyogo 656-2306 · +81-799-74-1111"] }]
   },
   {
@@ -1428,7 +1449,9 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Choir Shadow members who chose an Awaji optional experience will miss the afternoon Kobe High School choir concert.",
-    logistics: [{ label: "Optional activity schedules", groups: SBO, lines: ["NIJIGEN NO MORI: depart 9:50am, return ~4:20pm", "Zenbo Seinei (18+): depart 11:30am, return ~3:20pm", "Hello Kitty Apple Land: depart 10:30am, return ~2:30pm", "Breakfast at Coccolare (2F) from 7:00am"] }]
+    logistics: [
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["12:15 — Depart hotel for downtown Kobe (Nankinmachi)", "Breakfast at Coccolare (2F) from 7:00am"] },
+      { label: "Band & Orchestra Shadow — optional excursions", groups: SBO, lines: ["NIJIGEN NO MORI: depart 9:50am, return ~4:20pm", "Zenbo Seinei (18+): depart 11:30am, return ~3:20pm", "Hello Kitty Apple Land: depart 10:30am, return ~2:30pm", "Breakfast at Coccolare (2F) from 7:00am"] }]
   },
   {
     d: 11, dow: "Fri", dd: "19", dm: "JUN", date: "Friday, June 19, 2026",
@@ -1459,7 +1482,10 @@ const SHADOW_DAYS = [
         loc: { n: "RIHGA Royal Hotel Hiroshima", q: "RIHGA Royal Hotel Hiroshima", kind: "hotel" }
       }
     ],
-    logistics: [{ label: "Train / hotel", groups: SHG, lines: ["Shinkansen Nozomi 25 — Shin-Kobe → Hiroshima, board 1:15pm (~1h10m)", "RIHGA Royal Hotel Hiroshima — 6-78 Motomachi, Naka-ku, Hiroshima 730-0011 · +81-82-502-1121"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["09:45 — Depart hotel for Kobe Harborland (Bus 1–2; Bus 3 by 10:00)", "Luggage to truck & check out by 08:00; breakfast from 7:00am"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["10:00 — Depart hotel for Kobe Harborland (Bus 4)", "Luggage to truck & check out by 08:00; breakfast from 7:00am"] },
+      { label: "Train / hotel", groups: SHG, lines: ["Shinkansen Nozomi 25 — Shin-Kobe → Hiroshima, board 1:15pm (~1h10m)", "RIHGA Royal Hotel Hiroshima — 6-78 Motomachi, Naka-ku, Hiroshima 730-0011 · +81-82-502-1121"] }]
   },
   {
     d: 12, dow: "Sat", dd: "20", dm: "JUN", date: "Saturday, June 20, 2026",
@@ -1492,7 +1518,10 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Tomorrow (June 21) all Shadow Tour families move to the student hotel, the Grand Prince Hotel Hiroshima.",
-    logistics: [{ label: "Attire", groups: SHG, lines: ["Casual sightseeing attire; semi-formal concert-attendee attire for the afternoon", "Breakfast at Dining Luore (1F) from 7:00am"] }]
+    logistics: [
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["09:15 — Depart hotel for Peace Memorial Park", "Breakfast at Dining Luore (1F) from 7:00am"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["08:45 — Depart hotel for Peace Memorial Park", "13:45 — Depart hotel for the afternoon concert at Gaine's Hall", "Breakfast at Dining Luore (1F) from 7:00am"] },
+      { label: "Attire", groups: SHG, lines: ["Casual sightseeing attire; semi-formal concert-attendee attire for the afternoon", "Breakfast at Dining Luore (1F) from 7:00am"] }]
   },
   {
     d: 13, dow: "Sun", dd: "21", dm: "JUN", date: "Sunday, June 21, 2026",
@@ -1523,7 +1552,9 @@ const SHADOW_DAYS = [
       }
     ],
     note: "Dress to impress for the Farewell Dinner & Dance Party.",
-    logistics: [{ label: "Farewell party & luggage", groups: SHG, lines: ["Setouchi Banquet Room (2F) — doors 5:30pm, party 6:00pm", "Pack and load large luggage by 10:00pm; next access is in Tokyo", "Grand Prince Hotel Hiroshima — 23-1 Motoujinamachi, Minami-ku, Hiroshima 734-8543 · +81-82-256-1111"] }]
+    logistics: [
+      { label: "Departure (all Shadow, Bus 1–4)", groups: SHG, lines: ["08:30 — Depart hotel for the Miyajima ferry", "Luggage to truck & check out by 08:00; breakfast from 7:00am"] },
+      { label: "Farewell party & luggage", groups: SHG, lines: ["Setouchi Banquet Room (2F) — doors 5:30pm, party 6:00pm", "Pack and load large luggage by 10:00pm; next access is in Tokyo", "Grand Prince Hotel Hiroshima — 23-1 Motoujinamachi, Minami-ku, Hiroshima 734-8543 · +81-82-256-1111"] }]
   },
   {
     d: 14, dow: "Mon", dd: "22", dm: "JUN", date: "Monday, June 22, 2026",
@@ -1548,7 +1579,9 @@ const SHADOW_DAYS = [
         loc: { n: "Grand Nikko Tokyo Daiba", q: "Grand Nikko Tokyo Daiba", kind: "hotel" }
       }
     ],
-    logistics: [{ label: "Train / hotel", groups: SHG, lines: ["Shinkansen Nozomi 24 — Hiroshima → Tokyo, board 12:18pm (~4 hours)", "Grand Nikko Tokyo Daiba — 2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · +81-3-5500-6711"] }]
+    logistics: [
+      { label: "Departure (all Shadow, Bus 1–4)", groups: SHG, lines: ["09:20 — Depart hotel for Hiroshima Station", "Breakfast in Setouchi Banquet Room (2F) 7:00–9:00am; return room keys before boarding"] },
+      { label: "Train / hotel", groups: SHG, lines: ["Shinkansen Nozomi 24 — Hiroshima → Tokyo, board 12:18pm (~4 hours)", "Grand Nikko Tokyo Daiba — 2-6-1 Daiba, Minato-ku, Tokyo 135-8701 · +81-3-5500-6711"] }]
   },
   {
     d: 15, dow: "Tue", dd: "23", dm: "JUN", date: "Tuesday, June 23, 2026",
