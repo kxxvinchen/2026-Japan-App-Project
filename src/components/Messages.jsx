@@ -114,12 +114,11 @@ function Compose() {
   const sugg = pop.open ? allTags.filter((t) => t.toLowerCase().indexOf(pop.q) > -1) : [];
 
   const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); closePop(); if (!wasEditing) saveDraft(ch, ""); };
-  const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
   return (
     <div className="ann-compose">
       {editing ? <div className="ann-compose-editing"><span>Editing announcement</span><button onClick={cancelEdit}>Cancel</button></div> : null}
       <div className="ann-compose-label">{chap ? "Message " + chLabel : "New announcement"}</div>
-      {chap ? <div className="ann-compose-who">Posting as <b>{myName}</b></div> : null}
+      {chap ? <div className="ann-compose-who">Use <b>@mention</b> to notify </div> : null}
       {pop.open && sugg.length ? (
         <div className="ann-mention-pop">
           <div className="ann-mention-pop-h">Mention to notify</div>
