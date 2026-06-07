@@ -22,9 +22,10 @@ function mentionClass(tag) {
   if (t.indexOf("choir") === 0) return "m-choir";
   if (t.indexOf("perc") === 0) return "m-perc";
   if (t.indexOf("flight") === 0) return "m-flight";
+  if (t.indexOf("bus") === 0) return "m-bus";
   return "m-everyone";
 }
-const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I])\b/gi;
+const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I]|Bus\s+[0-9]+)\b/gi;
 // backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills
 function renderHighlight(text) {
   const s = String(text || "");

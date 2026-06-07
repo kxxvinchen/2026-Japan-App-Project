@@ -38,8 +38,11 @@ export const FB = {
 
 let userGroups = [];
 let userFlight = "";
+let userBus = "";
 export function setGroups(groups) { userGroups = groups || []; subscribeChannels(); syncNotifTopics(); scheduleDepartureReminders(); notify(); }
-export function setFlight(f) { userFlight = f || ""; scheduleDepartureReminders(); }
+// Re-sync the web token so @Flight X / @Bus N targeting always reflects the latest choice.
+export function setFlight(f) { userFlight = f || ""; syncNotifTopics(); scheduleDepartureReminders(); }
+export function setBus(b) { userBus = b || ""; syncNotifTopics(); }
 
 /* ---- subscription for React (useSyncExternalStore) ---- */
 let ver = 0;
@@ -338,8 +341,8 @@ export async function ensureWebToken() {
   }
 }
 function tokenData(token) {
-  // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
-  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
+  // tags + flight + bus let the server target @swe/@sso/@choir, @Flight X and @Bus N to only those people
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", bus: userBus || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
 // Stable Firestore doc id derived from the FCM token itself, so the same device/token
 // always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or

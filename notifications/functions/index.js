@@ -23,7 +23,7 @@ initializeApp();
 setGlobalOptions({region: "us-central1"});
 
 const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights"];
-const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
+const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights / Buses"};
 
 /* ---- @-mention parsing ---- */
 function parseMentions(text) {
@@ -33,7 +33,10 @@ function parseMentions(text) {
   const flights = [];
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
-  return {everyone, groups, flights};
+  const buses = [];
+  const reB = /@bus\s*([0-9]+)\b/gi; let bb;
+  while ((bb = reB.exec(t))) { const b = bb[1]; if (buses.indexOf(b) < 0) buses.push(b); }
+  return {everyone, groups, flights, buses};
 }
 
 /* ---- send helpers ---- */
@@ -100,7 +103,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const m = snap.data() || {};
   const text = String(m.text || "");
   const men = parseMentions(text);
-  if (!men.everyone && !men.groups.length && !men.flights.length) return;   // no @ → ping no one
+  if (!men.everyone && !men.groups.length && !men.flights.length && !men.buses.length) return;   // no @ → ping no one
 
   const db = getFirestore();
   const msg = getMessaging();
@@ -125,11 +128,12 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
     return;
   }
 
-  // targeted: only the mentioned groups/flights (web tokens — topics can't target subgroups)
+  // targeted: only the mentioned groups/flights/buses (web tokens — topics can't target subgroups)
   const targets = all.filter((w) => {
     const tags = Array.isArray(w.tags) ? w.tags : [];
     if (men.groups.some((g) => tags.includes(g))) return true;
     if (men.flights.length && men.flights.includes(w.flight)) return true;
+    if (men.buses.length && men.buses.includes(w.bus)) return true;
     return false;
   });
   await multicast(db, msg, targets, title, body);
