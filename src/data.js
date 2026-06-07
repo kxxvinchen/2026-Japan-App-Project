@@ -80,16 +80,30 @@ const EMERGENCY = {
 };
 
 const GROUPS = [
-  {id:"band",   cat:"Performer", name:"Symphonic Wind Ensemble", short:"Band (SWE)",
-   desc:"Wind / band players — performs with SSO at most concerts."},
-  {id:"orch",   cat:"Performer", name:"Symphony Orchestra", short:"Orchestra (SSO)",
-   desc:"Orchestra players — performs with SWE at most concerts."},
-  {id:"choir",  cat:"Performer", name:"SHS & LHS Combined Choir", short:"Choir",
-   desc:"Combined choir — separate concert schedule from the bands."},
-  {id:"schoir", cat:"Shadow Tour", name:"Choir Shadow", short:"Choir Shadow",
-   desc:"Non-performing travelers following the Choir's schedule."},
-  {id:"sband",  cat:"Shadow Tour", name:"Band / Orchestra Shadow", short:"Band/Orch Shadow",
-   desc:"Non-performing travelers following the SWE / SSO schedule."}
+  {
+    id: "band", cat: "Performer", name: "Symphonic Wind Ensemble", short: "Band (SWE)",
+    desc: "Wind / band players — performs with SSO at most concerts."
+  },
+  {
+    id: "orch", cat: "Performer", name: "Symphony Orchestra", short: "Orchestra (SSO)",
+    desc: "Orchestra players — performs with SWE at most concerts."
+  },
+  {
+    id: "perc", cat: "Performer", name: "Percussion", short: "Percussion",
+    desc: "Percussion section — travels and performs with the Symphonic Wind Ensemble (SWE)."
+  },
+  {
+    id: "choir", cat: "Performer", name: "SHS & LHS Combined Choir", short: "Choir",
+    desc: "Combined choir — separate concert schedule from the bands."
+  },
+  {
+    id: "schoir", cat: "Shadow Tour", name: "Choir Shadow", short: "Choir Shadow",
+    desc: "Non-performing travelers following the Choir's schedule."
+  },
+  {
+    id: "sband", cat: "Shadow Tour", name: "Band / Orchestra Shadow", short: "Band/Orch Shadow",
+    desc: "Non-performing travelers following the SWE / SSO schedule."
+  }
 ];
 const ALL=["band","orch","choir","schoir","sband"];
 const PERF=["band","orch","choir"];

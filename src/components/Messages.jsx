@@ -11,6 +11,18 @@ const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
 const Check = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 
+// color class for an @-mention tag — swe/sso/choir each own a color (shared across
+// performers/chaperones/shadow), flights share one, @everyone its own.
+function mentionClass(tag) {
+  const t = String(tag).toLowerCase();
+  if (t === "everyone") return "m-everyone";
+  if (t.indexOf("swe") === 0) return "m-swe";
+  if (t.indexOf("sso") === 0) return "m-sso";
+  if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("perc") === 0) return "m-perc";
+  if (t.indexOf("flight") === 0) return "m-flight";
+  return "m-everyone";
+}
 function AnnCard({ m, isChapTab, canEdit }) {
   const bodyRef = useRef(null);
   const [overflow, setOverflow] = useState(false);

@@ -20,11 +20,19 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 initializeApp();
 setGlobalOptions({region: "us-central1"});
 
-const CHANNELS = ["swesso", "choir", "swesso-shadow", "choir-shadow", "swesso-chap", "choir-chap", "directors"];
-const LABELS = {
-  swesso: "SWE/SSO", choir: "Choir", "swesso-shadow": "SWE/SSO Shadow", "choir-shadow": "Choir Shadow",
-  "swesso-chap": "SWE/SSO Chaperones", "choir-chap": "Choir Chaperones", "directors": "Directors",
-};
+const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights"];
+const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
+
+/* ---- @-mention parsing ---- */
+function parseMentions(text) {
+  const t = String(text || "");
+  const everyone = /(^|[^\w@])@everyone\b/i.test(t);
+  const groups = ["swe", "sso", "choir", "perc"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
+  const flights = [];
+  const re = /@flight\s*([a-i])\b/gi; let mm;
+  while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
+  return {everyone, groups, flights};
+}
 
 /* ---- send helpers ---- */
 async function sendToChannel(db, msg, channel, title, body) {
