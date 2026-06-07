@@ -4,7 +4,7 @@
    unread baselines, compose draft, edit target, menus) lives here, tightly coupled to FB. */
 import { CHANNELS, CH_LABEL, GROUP_TAGS } from "./channels.js";
 import { FLIGHTS } from "../data.js";
-import { daySet } from "./groups.js";
+import { daySet, effGroups } from "./groups.js";
 import { fmt12 } from "./activity.js";
 
 const FIREBASE_CONFIG = {
@@ -74,18 +74,20 @@ export function clearToast() {
 /* ---- channels ---- */
 export { CHANNELS, CH_LABEL };
 function ensembleChannels() {
-  const hasPerf = userGroups.some((g) => g === "band" || g === "orch" || g === "choir");
+  const hasPerf = userGroups.some((g) => g === "band" || g === "orch" || g === "choir" || g === "perc");
   const hasShadow = userGroups.some((g) => g === "sband" || g === "schoir");
   if (hasPerf) return ["performers"];
   if (hasShadow) return ["shadow"];
   return [];
 }
 export function accessibleChannels() {
-  if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all 5
-  if (FB.isAdmin) return CHANNELS.map((c) => c.id).filter((id) => id !== "directors");
+  if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all channels (incl. Percussion)
+  // Percussion is a closed channel: only directors and percussion members may see it.
+  if (FB.isAdmin) return CHANNELS.map((c) => c.id).filter((id) => id !== "directors" && id !== "percussion");
   if ((FB.chapChannels || []).length) return ["performers", "chaperones", "flights"];
   const set = { flights: 1 };                                                        // Flights is for everyone
   ensembleChannels().forEach((c) => { set[c] = 1; });
+  if (userGroups.some((g) => g === "perc")) set.percussion = 1;                      // Percussion channel: percussion only
   return CHANNELS.map((c) => c.id).filter((id) => set[id]);                          // keep dropdown order
 }
 // Mention tags the current user belongs to (so @swe/@sso/@choir target only them).
@@ -241,6 +243,21 @@ export async function signIn(emailRaw, pwd) {
   FB.pendingSignIn = true; FB.signinBusy = true; notify();
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
+}
+export async function sendPasswordReset(emailRaw) {
+  let email = (emailRaw || "").trim();
+  if (!email) { FB.error = "Enter your username or email first."; notify(); return; }
+  if (email.indexOf("@") < 0) email = email.toLowerCase() + LOGIN_DOMAIN;
+  FB.error = "";
+  if (!FB.auth) await new Promise((res) => { const t0 = Date.now(); (function chk() { if (FB.auth || Date.now() - t0 > 8000) return res(); setTimeout(chk, 150); })(); });
+  if (!FB.auth) { FB.error = "Still connecting — wait a moment and try again."; notify(); return; }
+  try {
+    await FB.auth.sendPasswordResetEmail(email);
+    toast("Password reset email sent!");
+  } catch (e) {
+    FB.error = "Failed to send password reset email. Check username/email.";
+    notify();
+  }
 }
 export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
@@ -447,6 +464,7 @@ export async function scheduleDepartureReminders() {
   const token = await ensureWebToken();
   if (!token) return;
   const dev = jtDeviceId();
+  const eg = effGroups(userGroups);   // Percussion follows the Band (SWE) departures
   const OFF = [{ m: 60, t: "in 1 hour" }, { m: 15, t: "in 15 minutes" }];
   const want = {};
   if (userFlight) {
@@ -461,8 +479,22 @@ export async function scheduleDepartureReminders() {
   const AIR = /haneda|narita|airport|san francisco|\bSFO\b|\bLAX\b|\bSEA\b|departure for|truck loading/i;
   const depT = (lines) => {
     if (lines.some((l) => AIR.test(l))) return null;
+    const hasBand = eg.some((g) => g === "band" || g === "sband");
+    const hasOrch = eg.some((g) => g === "orch" || g === "sband");
+    const hasChoir = eg.some((g) => g === "choir" || g === "schoir");
     for (const ln of lines) {
       if (/venue|school|return/i.test(ln)) continue;
+
+      const isOrchLine = /\b(orchestra|orch|sso)\b/i.test(ln);
+      const isBandLine = /\b(band|swe)\b/i.test(ln);
+      const isChoirLine = /\bchoir\b/i.test(ln);
+
+      // If the line mentions specific groups, but none of them match the user's groups, skip it.
+      if ((isOrchLine || isBandLine || isChoirLine) &&
+          !((isOrchLine && hasOrch) || (isBandLine && hasBand) || (isChoirLine && hasChoir))) {
+        continue;
+      }
+
       const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i) || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i) || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
       if (m) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2];
     }
@@ -470,7 +502,7 @@ export async function scheduleDepartureReminders() {
   };
   daySet(userGroups).forEach((d, di) => {
     (d.logistics || []).forEach((b, bi) => {
-      if (!b.groups || !b.groups.some((g) => userGroups.indexOf(g) > -1)) return;
+      if (!b.groups || !b.groups.some((g) => eg.indexOf(g) > -1)) return;
       const t = depT(b.lines || []); if (!t) return;
       const ms = jstToUtcMs(d.dm, d.dd, t);
       OFF.forEach((o) => { want[dev + "_dep_" + di + "_" + bi + "_" + o.m] = { fireAtMs: ms - o.m * 60000, title: "🚌 Depart hotel " + o.t, body: (d.date.split(",")[0]) + " — leave at " + fmt12(t) }; });

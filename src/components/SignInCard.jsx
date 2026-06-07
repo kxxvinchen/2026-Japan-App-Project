@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useFB } from "../lib/useFB.js";
-import { FB, CH_LABEL, signIn, signOut, setShowSignIn } from "../lib/firebase.js";
+import { FB, CH_LABEL, signIn, signOut, setShowSignIn, sendPasswordReset } from "../lib/firebase.js";
 
 export default function SignInCard() {
   useFB();
@@ -38,7 +38,15 @@ export default function SignInCard() {
       {FB.error ? <div className="msg-status err" style={{ margin: "0 0 8px" }}>{FB.error}</div> : null}
       <label className="form-label">Username or email</label>
       <input className="form-in" type="text" autoCapitalize="none" autoCorrect="off" placeholder="your username" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <label className="form-label">Password</label>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <label className="form-label" style={{ margin: "11px 0 5px" }}>Password</label>
+        <span 
+          style={{ fontSize: "11.5px", fontWeight: "700", color: "var(--indigo2)", cursor: "pointer", textDecoration: "underline" }}
+          onClick={() => sendPasswordReset(email)}
+        >
+          Reset Password
+        </span>
+      </div>
       <div className="pw-wrap">
         <input className="form-in" type={show ? "text" : "password"} placeholder="Password" value={pwd} onChange={(e) => setPwd(e.target.value)} />
         <button type="button" className="pw-toggle" onClick={() => setShow((s) => !s)} aria-label="Show password">{show ? "🙈" : "👁"}</button>

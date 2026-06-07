@@ -22,14 +22,14 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 initializeApp();
 setGlobalOptions({region: "us-central1"});
 
-const CHANNELS = ["performers", "chaperones", "directors", "shadow", "flights"];
-const LABELS = {performers: "Performers", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
+const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights"];
+const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
 
 /* ---- @-mention parsing ---- */
 function parseMentions(text) {
   const t = String(text || "");
   const everyone = /(^|[^\w@])@everyone\b/i.test(t);
-  const groups = ["swe", "sso", "choir"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
+  const groups = ["swe", "sso", "choir", "perc"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
   const flights = [];
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
@@ -106,8 +106,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const msg = getMessaging();
   const label = LABELS[channel] || "Japan Tour 2026";
   const author = (m.author && String(m.author).trim()) ? String(m.author).trim() : "";
-  const multiSender = (channel === "directors") || (channel === "chaperones");
-  const title = multiSender ? (author ? author + " · " + label : label)
+  const title = author ? (author + " to " + label)
     : ((m.title && String(m.title).trim()) ? String(m.title) : label);
   const body = text.slice(0, 180);
 

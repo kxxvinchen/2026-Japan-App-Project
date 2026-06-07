@@ -20,10 +20,11 @@ function mentionClass(tag) {
   if (t.indexOf("swe") === 0) return "m-swe";
   if (t.indexOf("sso") === 0) return "m-sso";
   if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("perc") === 0) return "m-perc";
   if (t.indexOf("flight") === 0) return "m-flight";
   return "m-everyone";
 }
-const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|Flight\s+[A-I])\b/gi;
+const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I])\b/gi;
 // backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills
 function renderHighlight(text) {
   const s = String(text || "");
@@ -107,31 +108,53 @@ function Compose() {
   const chLabel = CH_LABEL[FB.activeChannel] || "channel";
   const [draft, setDraft] = useState(editing ? FB.editing.text : getDraft(FB.activeChannel));
   const taRef = useRef(null), hlRef = useRef(null);   // textarea + highlight backdrop
+  const [pop, setPop] = useState({ open: false, q: "", at: -1 });   // @-mention autocomplete
   useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
-  const onDraft = (v) => { setDraft(v); if (!editing) saveDraft(FB.activeChannel, v); };
-
-  const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); if (!wasEditing) saveDraft(ch, ""); };
-  const insertMention = (tag) => {
-    const next = (draft && !/\s$/.test(draft) ? draft + " " : draft) + "@" + tag + " ";
-    onDraft(next);
+  const closePop = () => setPop({ open: false, q: "", at: -1 });
+  const onDraft = (v, el) => {
+    setDraft(v); if (!editing) saveDraft(FB.activeChannel, v);
+    const pos = el ? el.selectionStart : v.length;
+    const mAt = v.slice(0, pos).match(/(^|\s)@([^\s@]*)$/);   // an @-token being typed at the cursor
+    if (mAt) setPop({ open: true, q: mAt[2].toLowerCase(), at: pos - mAt[2].length - 1 });
+    else closePop();
   };
-  const mentions = ["everyone"].concat(CH_MENTIONS[FB.activeChannel] || []);
-  const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
+  const choose = (tag) => {
+    const el = taRef.current;
+    const pos = el ? el.selectionStart : draft.length;
+    const next = draft.slice(0, pop.at) + "@" + tag + " " + draft.slice(pos);
+    setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
+    closePop();
+    setTimeout(() => { if (el) { el.focus(); const c = pop.at + tag.length + 2; el.setSelectionRange(c, c); } }, 0);
+  };
+  const allTags = ["everyone"].concat(CH_MENTIONS[FB.activeChannel] || []);
+  const sugg = pop.open ? allTags.filter((t) => t.toLowerCase().indexOf(pop.q) > -1) : [];
+
+  const send = () => { const ch = FB.activeChannel, wasEditing = editing; sendMessage(draft); setDraft(""); closePop(); if (!wasEditing) saveDraft(ch, ""); };
   return (
     <div className="ann-compose">
       {editing ? <div className="ann-compose-editing"><span>Editing announcement</span><button onClick={cancelEdit}>Cancel</button></div> : null}
       <div className="ann-compose-label">{chap ? "Message " + chLabel : "New announcement"}</div>
-      {chap ? <div className="ann-compose-who">Posting as <b>{myName}</b></div> : null}
-      <div className="ann-mentions">
-        <span className="ann-mentions-hint">Mention to notify:</span>
-        {mentions.map((t) => <button key={t} type="button" className="ann-mention-chip" onClick={() => insertMention(t)}>@{t}</button>)}
-      </div>
+      {chap ? <div className="ann-compose-who">Use <b>@mention</b> to notify </div> : null}
+      {pop.open && sugg.length ? (
+        <div className="ann-mention-pop">
+          <div className="ann-mention-pop-h">Mention to notify</div>
+          {sugg.map((t) => (
+            <button key={t} type="button" className="ann-mention-opt"
+              onMouseDown={(e) => { e.preventDefault(); choose(t); }}>
+              <span className={"ment " + mentionClass(t)}>@{t}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="ann-compose-row">
         <div className="ann-input-wrap">
           <div ref={hlRef} className="ann-input-hl" aria-hidden="true">{renderHighlight(draft)}</div>
           <textarea ref={taRef} className="ann-compose-input" id="msgText" rows={1} maxLength={2000}
             placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
-            value={draft} onChange={(e) => onDraft(e.target.value)}
+            value={draft}
+            onChange={(e) => onDraft(e.target.value, e.target)}
+            onKeyUp={(e) => onDraft(e.target.value, e.target)}
+            onBlur={() => setTimeout(closePop, 150)}
             onScroll={(e) => { if (hlRef.current) { hlRef.current.scrollTop = e.target.scrollTop; hlRef.current.scrollLeft = e.target.scrollLeft; } }} />
         </div>
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
