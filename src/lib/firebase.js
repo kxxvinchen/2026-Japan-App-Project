@@ -461,8 +461,22 @@ export async function scheduleDepartureReminders() {
   const AIR = /haneda|narita|airport|san francisco|\bSFO\b|\bLAX\b|\bSEA\b|departure for|truck loading/i;
   const depT = (lines) => {
     if (lines.some((l) => AIR.test(l))) return null;
+    const hasBand = userGroups.some((g) => g === "band" || g === "sband");
+    const hasOrch = userGroups.some((g) => g === "orch" || g === "sband");
+    const hasChoir = userGroups.some((g) => g === "choir" || g === "schoir");
     for (const ln of lines) {
       if (/venue|school|return/i.test(ln)) continue;
+
+      const isOrchLine = /\b(orchestra|orch|sso)\b/i.test(ln);
+      const isBandLine = /\b(band|swe)\b/i.test(ln);
+      const isChoirLine = /\bchoir\b/i.test(ln);
+
+      // If the line mentions specific groups, but none of them match the user's groups, skip it.
+      if ((isOrchLine || isBandLine || isChoirLine) &&
+          !((isOrchLine && hasOrch) || (isBandLine && hasBand) || (isChoirLine && hasChoir))) {
+        continue;
+      }
+
       const m = ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Depart hotel/i) || ln.match(/(\d{1,2}):(\d{2})\s*[—\-]\s*Departure\b/i) || ln.match(/(\d{1,2}):(\d{2})\s*depart\b/i);
       if (m) return (m[1].length < 2 ? "0" : "") + m[1] + ":" + m[2];
     }
