@@ -25,7 +25,7 @@ const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], authorName: "",
+  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
@@ -199,7 +199,17 @@ export async function startMessaging() {
       if (u && u.email) {
         try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
         try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
-        try { const c = await FB.db.collection("chaperones").doc(u.email).get(); if (c.exists) { chapOk = true; const cd = c.data() || {}; FB.chapChannels = ["chaperones"]; FB.chapTags = ["swe", "sso", "choir"]; if (!FB.authorName && cd.name) FB.authorName = cd.name; } } catch (e) { }
+        try {
+          const c = await FB.db.collection("chaperones").doc(u.email).get();
+          if (c.exists) {
+            chapOk = true;
+            const cd = c.data() || {};
+            FB.chapChannels = ["chaperones"];
+            FB.chapTags = ["swe", "sso", "choir"];
+            FB.chapGroups = cd.groups || ["band", "orch", "choir", "schoir", "sband"];
+            if (!FB.authorName && cd.name) FB.authorName = cd.name;
+          }
+        } catch (e) { }
         if (!FB.authorName && (dirOk || adminOk || chapOk)) {
           FB.authorName = u.email.split("@")[0];
         }
@@ -213,7 +223,7 @@ export async function startMessaging() {
           const acc = accessibleChannels();
           FB.activeChannel = (FB.chapChannels && FB.chapChannels.length) ? FB.chapChannels[0] : (acc[0] || "");
           markChannelRead(FB.activeChannel);
-          if (window.__jtNav) window.__jtNav("messages");
+          if (window.__jtNav) window.__jtNav("overview");
         }
       }
       subscribeChannels(); syncNotifTopics(); notify();
@@ -233,7 +243,7 @@ export async function signIn(emailRaw, pwd) {
   try { await FB.auth.signInWithEmailAndPassword(email, pwd); FB.signinBusy = false; }
   catch (e) { FB.pendingSignIn = false; FB.signinBusy = false; FB.error = "Sign-in failed. Check your username and password."; notify(); }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
 
