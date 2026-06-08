@@ -47,17 +47,6 @@ function getUserMentionTags(state, FB) {
       tags.add("choir-shadow");
     }
   });
-
-  const isChap = (FB.chapChannels || []).length > 0;
-  if (isChap) {
-    tags.add("swe-chaperones");
-    tags.add("sso-chaperones");
-    tags.add("choir-chaperones");
-    tags.add("swe");
-    tags.add("sso");
-    tags.add("choir");
-    tags.add("perc");
-  }
   return tags;
 }
 

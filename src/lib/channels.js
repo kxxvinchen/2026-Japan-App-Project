@@ -32,7 +32,7 @@ export const CH_MENTIONS = {
    perc (Percussion) is part of the wind ensemble, so it answers to @swe and to @perc. */
 export const GROUP_TAGS = { band: ["swe"], orch: ["sso"], choir: ["choir"], sband: ["swe", "sso"], schoir: ["choir"], perc: ["swe", "perc"] };
 
-export const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I])\b/gi;
+export const MENTION_RE = /@(everyone|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I])\b/gi;
 
 // color class for an @-mention tag — swe/sso/choir each own a color (shared across
 // performers/chaperones/shadow via the suffix), flights share one, @everyone its own.
