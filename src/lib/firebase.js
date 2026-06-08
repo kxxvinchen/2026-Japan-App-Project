@@ -22,15 +22,23 @@ const LOGIN_DOMAIN = "@japantour.local";
 
 const loadMsgCache = () => { try { return JSON.parse(localStorage.getItem("jt_msgs")) || {}; } catch (e) { return {}; } };
 const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")) || {}; } catch (e) { return {}; } };
+const loadCacheItem = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
+const saveCacheItem = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, isNotificationTester: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
+  isDirector: loadCacheItem("jt_is_director", false),
+  isAdmin: loadCacheItem("jt_is_admin", false),
+  isNotificationTester: loadCacheItem("jt_is_tester", false),
+  chapChannels: loadCacheItem("jt_chap_channels", []),
+  chapTags: loadCacheItem("jt_chap_tags", []),
+  chapGroups: loadCacheItem("jt_chap_groups", []),
+  authorName: loadCacheItem("jt_author_name", ""),
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
   // UI state
-  activeChannel: "", lastRead: loadRead(), drafts: {}, editing: null,
+  activeChannel: loadCacheItem("jt_active_channel", ""), lastRead: loadRead(), drafts: {}, editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
   toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
@@ -279,6 +287,14 @@ export async function startMessaging() {
         }
         try { localStorage.removeItem("jt_chapname"); } catch (e) { }
       }
+      saveCacheItem("jt_is_director", FB.isDirector);
+      saveCacheItem("jt_is_admin", FB.isAdmin);
+      saveCacheItem("jt_is_tester", FB.isNotificationTester);
+      saveCacheItem("jt_chap_channels", FB.chapChannels);
+      saveCacheItem("jt_chap_tags", FB.chapTags);
+      saveCacheItem("jt_chap_groups", FB.chapGroups);
+      saveCacheItem("jt_author_name", FB.authorName);
+
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
         if (u && !dirOk && !chapOk && !adminOk && !testerOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) { } return; }
@@ -286,6 +302,7 @@ export async function startMessaging() {
           FB.error = ""; FB.showSignIn = false;
           const acc = accessibleChannels();
           FB.activeChannel = (FB.chapChannels && FB.chapChannels.length) ? FB.chapChannels[0] : (acc[0] || "");
+          saveCacheItem("jt_active_channel", FB.activeChannel);
           markChannelRead(FB.activeChannel);
           if (window.__jtNav) window.__jtNav("overview");
         }
@@ -322,7 +339,26 @@ export async function sendPasswordReset(emailRaw) {
     notify();
   }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.isNotificationTester = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() {
+  try { if (FB.auth) FB.auth.signOut(); } catch (e) { }
+  FB.isDirector = false;
+  FB.isAdmin = false;
+  FB.isNotificationTester = false;
+  FB.chapChannels = [];
+  FB.chapTags = [];
+  FB.chapGroups = [];
+  FB.user = null;
+  saveCacheItem("jt_is_director", false);
+  saveCacheItem("jt_is_admin", false);
+  saveCacheItem("jt_is_tester", false);
+  saveCacheItem("jt_chap_channels", []);
+  saveCacheItem("jt_chap_tags", []);
+  saveCacheItem("jt_chap_groups", []);
+  saveCacheItem("jt_author_name", "");
+  saveCacheItem("jt_active_channel", "");
+  subscribeChannels();
+  notify();
+}
 
 /* ---- compose / messages ---- */
 
@@ -339,7 +375,7 @@ export function canPostHere() {
   }
   return false;
 }
-export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
+export function setActiveChannel(ch) { FB.activeChannel = ch; saveCacheItem("jt_active_channel", ch); FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
 // Per-channel compose drafts so switching channels never wipes a half-typed message.
 export const getDraft = (ch) => (ch && FB.drafts[ch]) || "";
 export function saveDraft(ch, v) { if (ch) FB.drafts[ch] = v || ""; }
