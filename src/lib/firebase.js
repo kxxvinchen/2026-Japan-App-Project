@@ -55,14 +55,30 @@ const subs = new Set();
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
 export function getSnapshot() { return ver; }
 let lastBadgeCount = -1;
-async function syncUnreadToFirestore(count) {
-  if (!FB.db || !FB.webToken) return;
+let _syncUnreadTimer = null;
+let _pendingSyncCount = null;
+
+async function _doSyncUnreadToFirestore(count) {
+  if (!FB.db) return;
+  // If no webToken yet, retry once it arrives (token is fetched async after auth)
+  if (!FB.webToken) {
+    _pendingSyncCount = count;
+    return;
+  }
+  _pendingSyncCount = null;
   try {
     const id = await tokenDocId(FB.webToken);
     await FB.db.collection("webTokens").doc(id).update({ unreadCount: count });
   } catch (e) {
     console.error("Failed to sync unread count to Firestore:", e);
   }
+}
+
+// Debounced: coalesce rapid successive notify() calls (e.g. multi-channel initial load)
+// into a single Firestore write 1 second later.
+function syncUnreadToFirestore(count) {
+  clearTimeout(_syncUnreadTimer);
+  _syncUnreadTimer = setTimeout(() => _doSyncUnreadToFirestore(count), 1000);
 }
 
 function updateAppBadge() {
@@ -441,7 +457,12 @@ export async function ensureWebToken() {
     if (!FB.messaging) FB.messaging = firebase.messaging();
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
-    if (token) { FB.webToken = token; await saveWebToken(token); }
+    if (token) {
+      FB.webToken = token;
+      await saveWebToken(token);
+      // Flush any unread count sync that was deferred because the token wasn't ready yet
+      if (_pendingSyncCount !== null) _doSyncUnreadToFirestore(_pendingSyncCount);
+    }
     return FB.webToken;
   } catch (e) {
     console.error("ensureWebToken failed:", e);
