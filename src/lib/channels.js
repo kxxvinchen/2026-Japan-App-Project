@@ -20,11 +20,11 @@ export const FLIGHT_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 export const CH_MENTIONS = {
   performers: ["swe", "sso", "choir", "perc"],
   percussion: ["perc"],
-  chaperones: ["swe-chaperones", "sso-chaperones", "choir-chaperones"],
+  chaperones: ["swe", "sso", "choir"],
   shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
   directors:  [],
   flights:    FLIGHT_IDS.map((f) => "Flight " + f),
-  test:       ["swe", "sso", "choir", "perc", "swe-chaperones", "sso-chaperones", "choir-chaperones", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)),
+  test:       ["swe", "sso", "choir", "perc", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)),
 };
 
 /* A user's app group → the mention tags they belong to (for notification targeting).
