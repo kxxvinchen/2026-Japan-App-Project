@@ -730,18 +730,34 @@
      A colored backdrop sits behind a transparent-text textarea; both share the exact
      same box metrics so the backdrop's colored mentions line up under the caret. */
   .ann-input-wrap{flex:1;min-width:0;position:relative;}
-  .ann-input-wrap .ann-compose-input{position:relative;z-index:1;width:100%;line-height:1.4;
-    color:transparent;caret-color:var(--ink);background:transparent;}
+  .ann-input-wrap .ann-compose-input{position:relative;z-index:1;width:100%;
+    color:transparent;caret-color:var(--ink);background:transparent;
+    scrollbar-width:none; -ms-overflow-style:none;}
+  .ann-input-wrap .ann-compose-input::-webkit-scrollbar{display:none;}
   .ann-input-wrap .ann-compose-input::placeholder{color:var(--muted);}
-  body.dark .ann-input-wrap .ann-compose-input{caret-color:var(--ink);}
+  body.dark .ann-input-wrap .ann-compose-input{caret-color:var(--ink); color:transparent; background:transparent;}
   .ann-input-hl{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
     border:1.5px solid transparent;border-radius:11px;padding:11px 13px;
-    font:inherit;font-size:14px;line-height:1.4;color:var(--ink);
-    white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;text-align:left;}
+    color:var(--ink);
+    white-space:pre-wrap;overflow-wrap:break-word;text-align:left;}
   body.dark .ann-input-hl{color:var(--ink);}
+
+  /* Set uniform monospaced font stack and size to prevent character width misalignment */
+  .ann-input-wrap .ann-compose-input,
+  .ann-input-hl {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 15px;
+    line-height: 1.45;
+  }
 
   /* @-mention pill colors (per group), used in both live highlight and autocomplete */
   .ment{border-radius:4px;padding:1px 5px;font-weight:700;font-size:13px;}
+  /* Override mention chip styling inside the compose highlight backdrop to prevent caret/cursor offset */
+  .ann-input-hl .ment {
+    padding-left: 0;
+    padding-right: 0;
+    font-size: inherit;
+  }
   .m-everyone{color:#475569;background:rgba(71,85,105,.18);}
   .m-swe{color:#2563eb;background:rgba(37,99,235,.18);}
   .m-sso{color:#15803d;background:rgba(21,128,61,.18);}
@@ -754,3 +770,35 @@
   body.dark .m-choir{color:#c79bf5;background:rgba(199,155,245,.22);}
   body.dark .m-perc{color:#f49ac7;background:rgba(244,154,199,.22);}
   body.dark .m-flight{color:#fdba74;background:rgba(253,186,116,.22);}
+
+  /* ===== Markdown Formatting ===== */
+  .md-tag {
+    opacity: 0.45;
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
+  }
+  .md-link {
+    color: var(--indigo2);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .md-link-text {
+    color: var(--indigo2);
+    text-decoration: underline;
+  }
+  body.dark .md-link,
+  body.dark .md-link-text {
+    color: #8893bd;
+  }
+
+  /* Highlight styling for message cards when the user is mentioned */
+  .ann-card.mentioned {
+    border-left-color: #f59e0b;
+    background-color: #fef3c7;
+  }
+  body.dark .ann-card.mentioned {
+    border-left-color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.15);
+  }
+
