@@ -7,26 +7,75 @@ import {
   getDraft, saveDraft,
 } from "../lib/firebase.js";
 import { CH_MENTIONS, MENTION_RE, mentionClass } from "../lib/channels.js";
+import { parseMarkdown } from "../lib/markdown.jsx";
+import { useStore } from "../store.jsx";
 
 const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
 const Check = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
-// backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills
+// backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills and markdown support
 function renderHighlight(text) {
-  const s = String(text || "");
-  const out = []; let last = 0, i = 0, m;
-  MENTION_RE.lastIndex = 0;
-  while ((m = MENTION_RE.exec(s))) {
-    if (m.index > last) out.push(s.slice(last, m.index));
-    out.push(<mark key={i++} className={"ment " + mentionClass(m[1])}>{"@" + m[1]}</mark>);
-    last = m.index + m[0].length;
-  }
-  out.push(s.slice(last));
-  out.push("​");          // preserve height for a trailing newline
-  return out;
+  const parsed = parseMarkdown(String(text || ""), { isBackdrop: true, renderMentions: true });
+  parsed.push("\u200b"); // preserve height for a trailing newline
+  return parsed;
 }
 
-function AnnCard({ m, isChapTab, canEdit }) {
+// Helper to get lowercase mention tags for the user
+function getUserMentionTags(state, FB) {
+  const tags = new Set(["everyone"]);
+  if (state.flight) {
+    tags.add(`flight ${state.flight.toLowerCase()}`);
+  }
+  const myGroups = state.groups || [];
+  myGroups.forEach((g) => {
+    if (g === "band") {
+      tags.add("swe");
+    } else if (g === "orch") {
+      tags.add("sso");
+    } else if (g === "choir") {
+      tags.add("choir");
+    } else if (g === "perc") {
+      tags.add("swe");
+      tags.add("perc");
+    } else if (g === "sband") {
+      tags.add("swe");
+      tags.add("sso");
+      tags.add("swe-shadow");
+      tags.add("sso-shadow");
+    } else if (g === "schoir") {
+      tags.add("choir");
+      tags.add("choir-shadow");
+    }
+  });
+
+  const isChap = (FB.chapChannels || []).length > 0;
+  if (isChap) {
+    tags.add("swe-chaperones");
+    tags.add("sso-chaperones");
+    tags.add("choir-chaperones");
+    tags.add("swe");
+    tags.add("sso");
+    tags.add("choir");
+    tags.add("perc");
+  }
+  return tags;
+}
+
+// Helper to check if user tags are matched in message text
+function isUserMentioned(text, tags) {
+  if (!text) return false;
+  const mentionPattern = /@([a-zA-Z0-9- ]+)\b/gi;
+  let match;
+  while ((match = mentionPattern.exec(text)) !== null) {
+    const matchedTag = match[1].toLowerCase().trim();
+    if (tags.has(matchedTag)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function AnnCard({ m, isChapTab, canEdit, mentioned }) {
   const bodyRef = useRef(null);
   const [overflow, setOverflow] = useState(false);
   const exp = !!FB.expanded[m.id];
@@ -38,7 +87,7 @@ function AnnCard({ m, isChapTab, canEdit }) {
   const menuOpen = canEdit && FB.msgMenu === m.id;
   const dirBadge = isChapTab && m.role === "director";
   return (
-    <div className="ann-card">
+    <div className={"ann-card" + (mentioned ? " mentioned" : "")}>
       {menuOpen ? (
         FB.msgDel === m.id ? (
           <div className="msg-menu"><button className="del" onClick={() => deleteMessage(m.channel, m.id)}>Delete for everyone</button><button onClick={closeMenu}>Cancel</button></div>
@@ -53,7 +102,9 @@ function AnnCard({ m, isChapTab, canEdit }) {
           {canEdit ? <button className="ann-kebab" onClick={() => setMsgMenu(m.id)}>⋮</button> : null}
         </div>
       </div>
-      <div ref={bodyRef} className={"ann-card-body " + (exp ? "" : "clamp")}>{m.text}</div>
+      <div ref={bodyRef} className={"ann-card-body " + (exp ? "" : "clamp")}>
+        {parseMarkdown(m.text, { isBackdrop: false, renderMentions: true })}
+      </div>
       {overflow ? <button className="msg-more" onClick={() => toggleExpanded(m.id)}>{exp ? "Show less" : "Show more"}</button> : null}
     </div>
   );
@@ -96,6 +147,13 @@ function Compose() {
   const taRef = useRef(null), hlRef = useRef(null);   // textarea + highlight backdrop
   const [pop, setPop] = useState({ open: false, q: "", at: -1 });   // @-mention autocomplete
   useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
+  useEffect(() => {
+    const el = taRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+  }, [draft]);
   const closePop = () => setPop({ open: false, q: "", at: -1 });
   const onDraft = (v, el) => {
     setDraft(v); if (!editing) saveDraft(FB.activeChannel, v);
@@ -153,6 +211,8 @@ function Compose() {
 
 export default function Messages() {
   useFB();
+  const { state } = useStore();
+  const tags = getUserMentionTags(state, FB);
   const accessible = FB.configured ? accessibleChannels() : [];
   const accessibleKey = accessible.join("|");
 
@@ -176,7 +236,8 @@ export default function Messages() {
       const myName = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || "Chaperone";
       const mine = !FB.isDirector && isChapTab && (m.author || "") === myName && m.role !== "director";
       const canEdit = !m._local && (FB.isDirector || FB.isAdmin || mine);
-      return <AnnCard key={m.id} m={m} isChapTab={isChapTab} canEdit={canEdit} />;
+      const mentioned = isUserMentioned(m.text, tags);
+      return <AnnCard key={m.id} m={m} isChapTab={isChapTab} canEdit={canEdit} mentioned={mentioned} />;
     });
   } else {
     body = (
