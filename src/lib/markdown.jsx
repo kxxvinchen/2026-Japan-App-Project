@@ -51,6 +51,7 @@ function findEarliestMatch(text) {
     { type: "boldItalic", regex: /\*\*\*([\s\S]+?)\*\*\*/ },
     { type: "bold", regex: /\*\*([\s\S]+?)\*\*/ },
     { type: "underline", regex: /__([\s\S]+?)__/ },
+    { type: "strike", regex: /~~([\s\S]+?)~~/ },
     { type: "italic", regex: /\*([\s\S]+?)\*/ },
     { type: "link", regex: /\[([\s\S]+?)\]\(([^)]+?)\)/ },
     { type: "mention", regex: MENTION_RE },
@@ -167,6 +168,19 @@ export function parseMarkdown(text, options = {}) {
         );
       } else {
         result.push(<u key={key}>{parse(content)}</u>);
+      }
+    } else if (match.type === "strike") {
+      const content = match.captures[0];
+      if (isBackdrop) {
+        result.push(
+          <span key={key}>
+            <span className="md-tag">~~</span>
+            <s>{parse(content)}</s>
+            <span className="md-tag">~~</span>
+          </span>
+        );
+      } else {
+        result.push(<s key={key}>{parse(content)}</s>);
       }
     } else if (match.type === "italic") {
       const content = match.captures[0];
