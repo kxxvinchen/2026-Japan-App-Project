@@ -159,6 +159,36 @@ function Compose() {
     closePop();
     setTimeout(() => { if (el) { el.focus(); const c = pop.at + tag.length + 2; el.setSelectionRange(c, c); } }, 0);
   };
+  // Formatting toolbar: wrap the current selection in markdown markers (or drop a
+  // template at the cursor if nothing is selected), then reselect so it's easy to retype.
+  const wrapSel = (before, after) => {
+    const el = taRef.current; if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    const sel = draft.slice(start, end);
+    const next = draft.slice(0, start) + before + sel + after + draft.slice(end);
+    setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
+    requestAnimationFrame(() => {
+      const t = taRef.current; if (!t) return;
+      t.focus();
+      const s = start + before.length;
+      t.setSelectionRange(s, s + sel.length);
+    });
+  };
+  const insertLink = () => {
+    const el = taRef.current; if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    const sel = draft.slice(start, end) || "text";
+    const prefix = "[" + sel + "](";
+    const next = draft.slice(0, start) + prefix + "url" + ")" + draft.slice(end);
+    setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
+    requestAnimationFrame(() => {
+      const t = taRef.current; if (!t) return;
+      t.focus();
+      const s = start + prefix.length;
+      t.setSelectionRange(s, s + 3);   // select "url" so it's ready to overwrite
+    });
+  };
+
   // No @everyone option: a message with no group/flight mention already notifies the
   // whole channel by default, so @everyone would be redundant.
   const allTags = CH_MENTIONS[FB.activeChannel] || [];
@@ -181,6 +211,13 @@ function Compose() {
           ))}
         </div>
       ) : null}
+      <div className="ann-fmt-bar">
+        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); wrapSel("**", "**"); }}><b>B</b></button>
+        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); wrapSel("*", "*"); }}><i>I</i></button>
+        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); wrapSel("__", "__"); }}><u>U</u></button>
+        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); wrapSel("~~", "~~"); }}><s>S</s></button>
+        <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
+      </div>
       <div className="ann-compose-row">
         <div className="ann-input-wrap">
           <div ref={hlRef} className="ann-input-hl" aria-hidden="true">{renderHighlight(draft)}</div>
