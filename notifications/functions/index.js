@@ -37,24 +37,18 @@ function parseMentions(text) {
 
 /* ---- send helpers ---- */
 // multicast to a list of {id, token} docs, deleting tokens that have gone stale
-// multicast to a list of {id, token, unreadCount} docs, deleting tokens that have gone stale
 async function multicast(db, msg, docs, title, body) {
   const seen = {};
   const valid = docs.filter((x) => x.token && !seen[x.token] && (seen[x.token] = 1));
   for (let i = 0; i < valid.length; i += 500) {
     const chunk = valid.slice(i, i + 500);
-    const messages = chunk.map((x) => {
-      const count = (x.unreadCount || 0) + 1;
-      return {
-        token: x.token,
-        notification: {title, body},
-        webpush: {notification: {title, body, icon: "/icon-192.png"}},
-        apns: {payload: {aps: {sound: "default", badge: count}}},
-        android: {priority: "high", notification: {channelId: "announcements"}},
-      };
-    });
-
-    await msg.sendEach(messages).then((resp) => {
+    await msg.sendEachForMulticast({
+      tokens: chunk.map((x) => x.token),
+      notification: {title, body},
+      webpush: {notification: {title, body, icon: "/icon-192.png"}},
+      apns: {payload: {aps: {sound: "default", badge: 1}}},
+      android: {priority: "high", notification: {channelId: "announcements"}},
+    }).then((resp) => {
       resp.responses.forEach((r, idx) => {
         if (!r.success) {
           const code = r.error && r.error.code;
@@ -65,32 +59,15 @@ async function multicast(db, msg, docs, title, body) {
         }
       });
     }).catch((e) => console.error("web send:", e));
-
-    const batch = db.batch();
-    chunk.forEach((x) => {
-      const ref = db.collection("webTokens").doc(x.id);
-      batch.update(ref, { unreadCount: (x.unreadCount || 0) + 1 });
-    });
-    await batch.commit().catch(() => {});
   }
 }
 async function sendToToken(db, msg, token, title, body) {
-  let badge = 1;
-  try {
-    const snap = await db.collection("webTokens").where("token", "==", token).limit(1).get();
-    if (!snap.empty) {
-      const d = snap.docs[0];
-      badge = (d.data().unreadCount || 0) + 1;
-      await d.ref.update({ unreadCount: badge });
-    }
-  } catch (e) { }
-
   try {
     await msg.send({
       token,
       notification: {title, body},
       webpush: {notification: {title, body, icon: "/icon-192.png"}},
-      apns: {payload: {aps: {sound: "default", badge}}},
+      apns: {payload: {aps: {sound: "default", badge: 1}}},
       android: {priority: "high", notification: {channelId: "announcements"}},
     });
   } catch (e) { /* stale token — ignore */ }
@@ -104,7 +81,7 @@ async function sendToChannel(db, msg, channel, title, body) {
     android: {priority: "high", notification: {channelId: "announcements"}},
   }).catch((e) => console.error("topic send:", e));
   const snap = await db.collection("webTokens").where("channels", "array-contains", channel).get();
-  await multicast(db, msg, snap.docs.map((d) => { const x = d.data() || {}; return {id: d.id, token: x.token, unreadCount: x.unreadCount || 0}; }), title, body);
+  await multicast(db, msg, snap.docs.map((d) => ({id: d.id, token: (d.data() || {}).token})), title, body);
 }
 
 /* ---- 1) announcements ----

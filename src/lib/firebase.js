@@ -55,43 +55,17 @@ const subs = new Set();
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
 export function getSnapshot() { return ver; }
 let lastBadgeCount = -1;
-let _syncUnreadTimer = null;
-let _pendingSyncCount = null;
-
-async function _doSyncUnreadToFirestore(count) {
-  if (!FB.db) return;
-  // If no webToken yet, retry once it arrives (token is fetched async after auth)
-  if (!FB.webToken) {
-    _pendingSyncCount = count;
-    return;
-  }
-  _pendingSyncCount = null;
-  try {
-    const id = await tokenDocId(FB.webToken);
-    await FB.db.collection("webTokens").doc(id).update({ unreadCount: count });
-  } catch (e) {
-    console.error("Failed to sync unread count to Firestore:", e);
-  }
-}
-
-// Debounced: coalesce rapid successive notify() calls (e.g. multi-channel initial load)
-// into a single Firestore write 1 second later.
-function syncUnreadToFirestore(count) {
-  clearTimeout(_syncUnreadTimer);
-  _syncUnreadTimer = setTimeout(() => _doSyncUnreadToFirestore(count), 1000);
-}
-
 function updateAppBadge() {
   try {
     if (!FB.configured) return;
-    const count = totalUnread();
-    if (count === lastBadgeCount) return;
-    lastBadgeCount = count;
+    const hasUnread = totalUnread() > 0 ? 1 : 0;
+    if (hasUnread === lastBadgeCount) return;
+    lastBadgeCount = hasUnread;
 
-    // 1. Standard PWA App Badging API
+    // 1. Standard PWA App Badging API (no-arg = dot badge, no number)
     if (typeof navigator !== "undefined" && navigator.setAppBadge) {
-      if (count > 0) {
-        navigator.setAppBadge(count).catch((e) => console.error("setAppBadge failed:", e));
+      if (hasUnread) {
+        navigator.setAppBadge().catch((e) => console.error("setAppBadge failed:", e));
       } else {
         navigator.clearAppBadge().catch((e) => console.error("clearAppBadge failed:", e));
       }
@@ -100,9 +74,8 @@ function updateAppBadge() {
     // 2. Native App Shell Bridge
     const br = notifBridge();
     if (br) {
-      br.post({ action: "setBadge", count });
+      br.post({ action: "setBadge", count: hasUnread });
     }
-    syncUnreadToFirestore(count);
   } catch (err) {
     console.error("updateAppBadge failed:", err);
   }
@@ -561,11 +534,6 @@ if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       handleAppResume();
-    } else {
-      // App is being backgrounded/closed — flush the debounced sync immediately
-      // so the server always has an up-to-date unreadCount before the app dies.
-      clearTimeout(_syncUnreadTimer);
-      _doSyncUnreadToFirestore(totalUnread());
     }
   });
 }
