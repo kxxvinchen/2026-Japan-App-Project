@@ -46,7 +46,7 @@ async function multicast(db, msg, docs, title, body) {
       tokens: chunk.map((x) => x.token),
       notification: {title, body},
       webpush: {notification: {title, body, icon: "/icon-192.png"}},
-      apns: {payload: {aps: {sound: "default"}}},
+      apns: {payload: {aps: {sound: "default", badge: 1}}},
       android: {priority: "high", notification: {channelId: "announcements"}},
     }).then((resp) => {
       resp.responses.forEach((r, idx) => {
@@ -61,13 +61,13 @@ async function multicast(db, msg, docs, title, body) {
     }).catch((e) => console.error("web send:", e));
   }
 }
-async function sendToToken(msg, token, title, body) {
+async function sendToToken(db, msg, token, title, body) {
   try {
     await msg.send({
       token,
       notification: {title, body},
       webpush: {notification: {title, body, icon: "/icon-192.png"}},
-      apns: {payload: {aps: {sound: "default"}}},
+      apns: {payload: {aps: {sound: "default", badge: 1}}},
       android: {priority: "high", notification: {channelId: "announcements"}},
     });
   } catch (e) { /* stale token — ignore */ }
@@ -77,7 +77,7 @@ async function sendToChannel(db, msg, channel, title, body) {
   await msg.send({
     topic: channel,
     notification: {title, body},
-    apns: {payload: {aps: {sound: "default"}}},
+    apns: {payload: {aps: {sound: "default", badge: 1}}},
     android: {priority: "high", notification: {channelId: "announcements"}},
   }).catch((e) => console.error("topic send:", e));
   const snap = await db.collection("webTokens").where("channels", "array-contains", channel).get();
@@ -117,7 +117,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
     await msg.send({
       topic: channel,
       notification: {title, body},
-      apns: {payload: {aps: {sound: "default"}}},
+      apns: {payload: {aps: {sound: "default", badge: 1}}},
       android: {priority: "high", notification: {channelId: "announcements"}},
     }).catch((e) => console.error("topic send:", e));
     await multicast(db, msg, all, title, body);
@@ -213,7 +213,7 @@ exports.sendReminders = onSchedule(
       await Promise.all(docs.slice(i, i + 100).map((d) => {
         const r = d.data() || {};
         return r.token ?
-          sendToToken(msg, r.token, r.title || "Reminder", r.body || "") :
+          sendToToken(db, msg, r.token, r.title || "Reminder", r.body || "") :
           Promise.resolve();
       }));
     }

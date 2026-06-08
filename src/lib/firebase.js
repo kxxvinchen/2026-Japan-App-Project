@@ -22,15 +22,23 @@ const LOGIN_DOMAIN = "@japantour.local";
 
 const loadMsgCache = () => { try { return JSON.parse(localStorage.getItem("jt_msgs")) || {}; } catch (e) { return {}; } };
 const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")) || {}; } catch (e) { return {}; } };
+const loadCacheItem = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
+const saveCacheItem = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, isNotificationTester: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
+  isDirector: loadCacheItem("jt_is_director", false),
+  isAdmin: loadCacheItem("jt_is_admin", false),
+  isNotificationTester: loadCacheItem("jt_is_tester", false),
+  chapChannels: loadCacheItem("jt_chap_channels", []),
+  chapTags: loadCacheItem("jt_chap_tags", []),
+  chapGroups: loadCacheItem("jt_chap_groups", []),
+  authorName: loadCacheItem("jt_author_name", ""),
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
   // UI state
-  activeChannel: "", lastRead: loadRead(), drafts: {}, editing: null,
+  activeChannel: loadCacheItem("jt_active_channel", ""), lastRead: loadRead(), drafts: {}, editing: null,
   msgMenu: "", msgDel: "", nameEdit: false, chanMenu: false, expanded: {},
   showSignIn: false, signinBusy: false, pendingSignIn: false, notifPerm: "",
   toastMsg: "", toastNav: "", toastChannel: "", currentScreen: "",
@@ -46,7 +54,38 @@ let ver = 0;
 const subs = new Set();
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
 export function getSnapshot() { return ver; }
-function notify() { ver++; subs.forEach((f) => f()); }
+let lastBadgeCount = -1;
+function updateAppBadge() {
+  try {
+    if (!FB.configured) return;
+    const hasUnread = totalUnread() > 0 ? 1 : 0;
+    if (hasUnread === lastBadgeCount) return;
+    lastBadgeCount = hasUnread;
+
+    // 1. Standard PWA App Badging API (no-arg = dot badge, no number)
+    if (typeof navigator !== "undefined" && navigator.setAppBadge) {
+      if (hasUnread) {
+        navigator.setAppBadge(1).catch((e) => console.error("setAppBadge failed:", e));
+      } else {
+        navigator.clearAppBadge().catch((e) => console.error("clearAppBadge failed:", e));
+      }
+    }
+
+    // 2. Native App Shell Bridge
+    const br = notifBridge();
+    if (br) {
+      br.post({ action: "setBadge", count: hasUnread });
+    }
+  } catch (err) {
+    console.error("updateAppBadge failed:", err);
+  }
+}
+
+function notify() {
+  ver++;
+  subs.forEach((f) => f());
+  updateAppBadge();
+}
 
 let _toastT = null;
 export function toast(msg, toPage, toChannel) {
@@ -182,7 +221,7 @@ function subscribeChannels() {
         FB.msgsByChannel[ch] = arr;
         if (FB.pending && FB.pending.length) FB.pending = FB.pending.filter((p) => !(p.ch === ch && arr.some((m) => m.text === p.text && (m.author || "") === (p.author || ""))));
         if (FB.lastRead[ch] == null) { FB.lastRead[ch] = arr.length ? arr[0].ts : 0; saveRead(); }
-        else if (ch === FB.activeChannel && FB.currentScreen === "messages") markChannelRead(ch);
+        else if (ch === FB.activeChannel && FB.currentScreen === "messages" && (typeof document === "undefined" || document.visibilityState !== "hidden")) markChannelRead(ch);
         saveMsgCache(); FB.ready = true; notify();
       }, () => { });
   });
@@ -248,6 +287,14 @@ export async function startMessaging() {
         }
         try { localStorage.removeItem("jt_chapname"); } catch (e) { }
       }
+      saveCacheItem("jt_is_director", FB.isDirector);
+      saveCacheItem("jt_is_admin", FB.isAdmin);
+      saveCacheItem("jt_is_tester", FB.isNotificationTester);
+      saveCacheItem("jt_chap_channels", FB.chapChannels);
+      saveCacheItem("jt_chap_tags", FB.chapTags);
+      saveCacheItem("jt_chap_groups", FB.chapGroups);
+      saveCacheItem("jt_author_name", FB.authorName);
+
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
         if (u && !dirOk && !chapOk && !adminOk && !testerOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) { } return; }
@@ -255,6 +302,7 @@ export async function startMessaging() {
           FB.error = ""; FB.showSignIn = false;
           const acc = accessibleChannels();
           FB.activeChannel = (FB.chapChannels && FB.chapChannels.length) ? FB.chapChannels[0] : (acc[0] || "");
+          saveCacheItem("jt_active_channel", FB.activeChannel);
           markChannelRead(FB.activeChannel);
           if (window.__jtNav) window.__jtNav("overview");
         }
@@ -291,7 +339,26 @@ export async function sendPasswordReset(emailRaw) {
     notify();
   }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.isNotificationTester = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() {
+  try { if (FB.auth) FB.auth.signOut(); } catch (e) { }
+  FB.isDirector = false;
+  FB.isAdmin = false;
+  FB.isNotificationTester = false;
+  FB.chapChannels = [];
+  FB.chapTags = [];
+  FB.chapGroups = [];
+  FB.user = null;
+  saveCacheItem("jt_is_director", false);
+  saveCacheItem("jt_is_admin", false);
+  saveCacheItem("jt_is_tester", false);
+  saveCacheItem("jt_chap_channels", []);
+  saveCacheItem("jt_chap_tags", []);
+  saveCacheItem("jt_chap_groups", []);
+  saveCacheItem("jt_author_name", "");
+  saveCacheItem("jt_active_channel", "");
+  subscribeChannels();
+  notify();
+}
 
 /* ---- compose / messages ---- */
 
@@ -308,7 +375,7 @@ export function canPostHere() {
   }
   return false;
 }
-export function setActiveChannel(ch) { FB.activeChannel = ch; FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
+export function setActiveChannel(ch) { FB.activeChannel = ch; saveCacheItem("jt_active_channel", ch); FB.msgMenu = ""; FB.msgDel = ""; FB.editing = null; FB.chanMenu = false; markChannelRead(ch); notify(); }
 // Per-channel compose drafts so switching channels never wipes a half-typed message.
 export const getDraft = (ch) => (ch && FB.drafts[ch]) || "";
 export function saveDraft(ch, v) { if (ch) FB.drafts[ch] = v || ""; }
@@ -363,7 +430,10 @@ export async function ensureWebToken() {
     if (!FB.messaging) FB.messaging = firebase.messaging();
     const reg = FB.swReg || (navigator.serviceWorker ? await navigator.serviceWorker.ready : null);
     const token = await FB.messaging.getToken({ vapidKey: WEB_PUSH_VAPID_KEY, serviceWorkerRegistration: reg || undefined });
-    if (token) { FB.webToken = token; await saveWebToken(token); }
+    if (token) {
+      FB.webToken = token;
+      await saveWebToken(token);
+    }
     return FB.webToken;
   } catch (e) {
     console.error("ensureWebToken failed:", e);
@@ -372,6 +442,8 @@ export async function ensureWebToken() {
 }
 function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
+  // NOTE: unreadCount is intentionally excluded — it is managed exclusively by
+  // syncUnreadToFirestore() so that saveWebToken() never resets the counter.
   return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
 // Stable Firestore doc id derived from the FCM token itself, so the same device/token
@@ -390,7 +462,8 @@ async function tokenDocId(token) {
 async function saveWebToken(token) {
   try {
     const id = await tokenDocId(token);
-    await FB.db.collection("webTokens").doc(id).set(tokenData(token));
+    // Use merge:true so we never overwrite an existing unreadCount written by the server
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true });
   } catch (e) {
     console.error("saveWebToken failed:", e);
   }
@@ -447,6 +520,24 @@ export function notifBannerNeeded() {
 
 /* native iOS/Android shells call window.jtNotifStatus("granted"|"denied") */
 if (typeof window !== "undefined") window.jtNotifStatus = (stat) => { FB.notifPerm = stat; notify(); };
+
+function handleAppResume() {
+  if (FB.currentScreen === "messages") {
+    markActiveChannelRead();
+  } else {
+    notify();
+  }
+}
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      handleAppResume();
+    }
+  });
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("focus", handleAppResume);
+}
 
 /* ---- reminders (delivered by the sendReminders Cloud Function) ---- */
 const MONIDX = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
