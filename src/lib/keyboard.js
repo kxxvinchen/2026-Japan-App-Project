@@ -26,8 +26,14 @@ export function setupKeyboard() {
     (el.tagName === "INPUT" && !["checkbox", "radio", "button", "submit", "file"].includes(el.type))
   );
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Keep the layout-viewport pinned to the very top so the header can never scroll
+  // out of view behind the keyboard (iOS can offset either the window or the document
+  // scroller when the keyboard opens).
+  const pinTop = () => {
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
+    const se = document.scrollingElement;
+    if (se && se.scrollTop !== 0) se.scrollTop = 0;
+  };
 
   const refresh = () => {
     if (!inputFocused) {
@@ -39,21 +45,14 @@ export function setupKeyboard() {
     );
     document.body.classList.toggle("kbd-open", kbOpen);
     if (kbOpen) {
-      if (isIOS) {
-        document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
-      }
-      // Prevent visual viewport/layout viewport scrolling offset on iOS
-      if (window.scrollY !== 0) {
-        window.scrollTo(0, 0);
-      }
+      // Shrink the shell to exactly the area above the keyboard on EVERY platform (not
+      // just iOS). The shell is a flex column, so only the scrollable message list
+      // shrinks — the header stays put and the compose bar rises with the keyboard.
+      document.documentElement.style.setProperty("--vvh", Math.round(vv.height) + "px");
+      pinTop();
     } else {
-      if (isIOS) {
-        document.documentElement.style.removeProperty("--vvh");
-      }
-      // Reset scroll position when keyboard is closed to prevent blank space/layout shift on iOS/Android
-      if (window.scrollY !== 0) {
-        window.scrollTo(0, 0);
-      }
+      document.documentElement.style.removeProperty("--vvh");
+      pinTop();
     }
   };
 
@@ -61,14 +60,9 @@ export function setupKeyboard() {
     if (isTextInput(e.target)) {
       inputFocused = true;
       refresh();
-      // Only scroll compose textareas programmatically (standard inputs in #app are scrolled natively by the browser)
-      if (e.target.id === "msgText" || e.target.id === "chapName") {
-        setTimeout(() => {
-          try {
-            e.target.scrollIntoView({ block: "nearest" });
-          } catch (_) {}
-        }, 120);
-      }
+      // NOTE: intentionally no scrollIntoView here. Once the shell shrinks, the compose
+      // box already sits just above the keyboard; forcing a scroll was what dragged the
+      // header (and the rest of the screen) upward.
     }
   });
 
