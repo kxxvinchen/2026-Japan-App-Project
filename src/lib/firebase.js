@@ -65,7 +65,7 @@ function updateAppBadge() {
     // 1. Standard PWA App Badging API (no-arg = dot badge, no number)
     if (typeof navigator !== "undefined" && navigator.setAppBadge) {
       if (hasUnread) {
-        navigator.setAppBadge().catch((e) => console.error("setAppBadge failed:", e));
+        navigator.setAppBadge(1).catch((e) => console.error("setAppBadge failed:", e));
       } else {
         navigator.clearAppBadge().catch((e) => console.error("clearAppBadge failed:", e));
       }
@@ -433,8 +433,6 @@ export async function ensureWebToken() {
     if (token) {
       FB.webToken = token;
       await saveWebToken(token);
-      // Flush any unread count sync that was deferred because the token wasn't ready yet
-      if (_pendingSyncCount !== null) _doSyncUnreadToFirestore(_pendingSyncCount);
     }
     return FB.webToken;
   } catch (e) {
