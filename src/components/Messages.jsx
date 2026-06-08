@@ -64,9 +64,9 @@ function getUserMentionTags(state, FB) {
 // Helper to check if user tags are matched in message text
 function isUserMentioned(text, tags) {
   if (!text) return false;
-  const mentionPattern = /@([a-zA-Z0-9- ]+)\b/gi;
+  MENTION_RE.lastIndex = 0;
   let match;
-  while ((match = mentionPattern.exec(text)) !== null) {
+  while ((match = MENTION_RE.exec(text)) !== null) {
     const matchedTag = match[1].toLowerCase().trim();
     if (tags.has(matchedTag)) {
       return true;
