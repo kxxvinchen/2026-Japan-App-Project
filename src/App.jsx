@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { useStore } from "./store.jsx";
 import Nav from "./components/Nav.jsx";
 import Toast from "./components/Toast.jsx";
@@ -68,10 +68,40 @@ export default function App() {
     }
   }, [fb.ready, fb.isDirector, fb.chapChannels, fb.chapGroups, state.groups, dispatch]);
 
+  // ----- scroll memory -----
+  // The whole app shares one scroll container (#app). When you open a NEW view we jump to
+  // the top; when you go BACK to a view you already visited we restore where you were.
+  // "Back" is inferred from a lightweight nav stack since there's no router/history here.
+  // All in-memory (a few tiny entries) — nothing is persisted.
+  const appRef = useRef(null);
+  const scrollPos = useRef({});   // viewKey -> last scrollTop
+  const navStack = useRef([]);    // visited viewKeys (lightweight history)
+  const prevKey = useRef(null);
+  const viewKey = state.screen
+    + (state.screen === "day" ? ":" + state.dayIdx : state.screen === "city" ? ":" + state.cityIdx : "");
+  const viewKeyRef = useRef(viewKey);
+  viewKeyRef.current = viewKey;
+  const onAppScroll = () => { if (appRef.current) scrollPos.current[viewKeyRef.current] = appRef.current.scrollTop; };
+
+  useLayoutEffect(() => {
+    const app = appRef.current;
+    if (!app || prevKey.current === viewKey) return;
+    const stack = navStack.current;
+    const isBack = stack.length >= 2 && stack[stack.length - 2] === viewKey;
+    if (isBack) {
+      stack.pop();
+      app.scrollTop = scrollPos.current[viewKey] || 0;   // returning — restore position
+    } else {
+      stack.push(viewKey);
+      app.scrollTop = 0;                                  // new view — start at the top
+    }
+    prevKey.current = viewKey;
+  }, [viewKey]);
+
   const Cur = SCREENS[state.screen];
   return (
     <>
-      <div id="app">{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
+      <div id="app" ref={appRef} onScroll={onAppScroll}>{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
       <Nav />
       <Toast />
       <NotifBanner />
