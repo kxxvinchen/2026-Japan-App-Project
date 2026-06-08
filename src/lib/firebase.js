@@ -471,7 +471,9 @@ export async function ensureWebToken() {
 }
 function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
-  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", unreadCount: totalUnread(), ts: firebase.firestore.FieldValue.serverTimestamp() };
+  // NOTE: unreadCount is intentionally excluded — it is managed exclusively by
+  // syncUnreadToFirestore() so that saveWebToken() never resets the counter.
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
 // Stable Firestore doc id derived from the FCM token itself, so the same device/token
 // always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or
@@ -489,7 +491,8 @@ async function tokenDocId(token) {
 async function saveWebToken(token) {
   try {
     const id = await tokenDocId(token);
-    await FB.db.collection("webTokens").doc(id).set(tokenData(token));
+    // Use merge:true so we never overwrite an existing unreadCount written by the server
+    await FB.db.collection("webTokens").doc(id).set(tokenData(token), { merge: true });
   } catch (e) {
     console.error("saveWebToken failed:", e);
   }
@@ -556,7 +559,14 @@ function handleAppResume() {
 }
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") handleAppResume();
+    if (document.visibilityState === "visible") {
+      handleAppResume();
+    } else {
+      // App is being backgrounded/closed — flush the debounced sync immediately
+      // so the server always has an up-to-date unreadCount before the app dies.
+      clearTimeout(_syncUnreadTimer);
+      _doSyncUnreadToFirestore(totalUnread());
+    }
   });
 }
 if (typeof window !== "undefined") {
