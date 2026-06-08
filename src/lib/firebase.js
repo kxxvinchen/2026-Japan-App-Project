@@ -48,24 +48,28 @@ export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
 export function getSnapshot() { return ver; }
 let lastBadgeCount = -1;
 function updateAppBadge() {
-  if (!FB.configured) return;
-  const count = totalUnread();
-  if (count === lastBadgeCount) return;
-  lastBadgeCount = count;
+  try {
+    if (!FB.configured) return;
+    const count = totalUnread();
+    if (count === lastBadgeCount) return;
+    lastBadgeCount = count;
 
-  // 1. Standard PWA App Badging API
-  if (typeof navigator !== "undefined" && navigator.setAppBadge) {
-    if (count > 0) {
-      navigator.setAppBadge(count).catch((e) => console.error("setAppBadge failed:", e));
-    } else {
-      navigator.clearAppBadge().catch((e) => console.error("clearAppBadge failed:", e));
+    // 1. Standard PWA App Badging API
+    if (typeof navigator !== "undefined" && navigator.setAppBadge) {
+      if (count > 0) {
+        navigator.setAppBadge(count).catch((e) => console.error("setAppBadge failed:", e));
+      } else {
+        navigator.clearAppBadge().catch((e) => console.error("clearAppBadge failed:", e));
+      }
     }
-  }
 
-  // 2. Native App Shell Bridge
-  const br = notifBridge();
-  if (br) {
-    br.post({ action: "setBadge", count });
+    // 2. Native App Shell Bridge
+    const br = notifBridge();
+    if (br) {
+      br.post({ action: "setBadge", count });
+    }
+  } catch (err) {
+    console.error("updateAppBadge failed:", err);
   }
 }
 
