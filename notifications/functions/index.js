@@ -99,7 +99,11 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const text = String(m.text || "");
   const men = parseMentions(text);
   // No specific group/flight mention => notify the whole channel by default.
-  const everyone = !men.groups.length && !men.flights.length;
+  // The Percussion channel is private to percussion members + directors, so EVERY post
+  // there is "to the whole channel" — force the whole-channel path so it goes out on the
+  // FCM topic (reaching native-app members), not just web tokens. A targeted @perc would
+  // otherwise reach web tokens only, leaving native-app percussion members with no ping.
+  const everyone = channel === "percussion" || (!men.groups.length && !men.flights.length);
 
   const db = getFirestore();
   const msg = getMessaging();
