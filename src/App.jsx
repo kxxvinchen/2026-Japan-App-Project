@@ -73,40 +73,29 @@ export default function App() {
     }
   }, [fb.ready, fb.isDirector, fb.chapChannels, fb.chapGroups, state.groups, dispatch]);
 
-  // ----- scroll memory -----
-  // The whole app shares one scroll container (#app). When you open a NEW view we jump to
-  // the top; when you go BACK to a view you already visited we restore where you were.
-  // "Back" is inferred from a lightweight nav stack since there's no router/history here.
-  // All in-memory (a few tiny entries) — nothing is persisted.
+  // ----- scroll reset on navigation -----
+  // The whole app shares one scroll container (#app). Whenever the VIEW changes (screen,
+  // or the selected day/city) we jump back to the top. We reset in a layout effect AND
+  // again on the next animation frame, because when the page height changes the browser
+  // re-anchors the scroll immediately after — a single reset can get undone.
+  // Keyed on viewKey only, so re-renders that DON'T change the view (a new announcement
+  // arriving, group/flight syncing, expanding a section) never disturb your scroll.
   const appRef = useRef(null);
-  const scrollPos = useRef({});   // viewKey -> last scrollTop
-  const navStack = useRef([]);    // visited viewKeys (lightweight history)
-  const prevKey = useRef(null);
   const viewKey = state.screen
     + (state.screen === "day" ? ":" + state.dayIdx : state.screen === "city" ? ":" + state.cityIdx : "");
-  const viewKeyRef = useRef(viewKey);
-  viewKeyRef.current = viewKey;
-  const onAppScroll = () => { if (appRef.current) scrollPos.current[viewKeyRef.current] = appRef.current.scrollTop; };
 
   useLayoutEffect(() => {
     const app = appRef.current;
-    if (!app || prevKey.current === viewKey) return;
-    const stack = navStack.current;
-    const isBack = stack.length >= 2 && stack[stack.length - 2] === viewKey;
-    if (isBack) {
-      stack.pop();
-      app.scrollTop = scrollPos.current[viewKey] || 0;   // returning — restore position
-    } else {
-      stack.push(viewKey);
-      app.scrollTop = 0;                                  // new view — start at the top
-    }
-    prevKey.current = viewKey;
+    if (!app) return;
+    app.scrollTop = 0;
+    const id = requestAnimationFrame(() => { if (appRef.current) appRef.current.scrollTop = 0; });
+    return () => cancelAnimationFrame(id);
   }, [viewKey]);
 
   const Cur = SCREENS[state.screen];
   return (
     <>
-      <div id="app" ref={appRef} onScroll={onAppScroll}>{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
+      <div id="app" ref={appRef}>{Cur ? <Cur /> : <Stub name={LABELS[state.screen] || "Screen"} />}</div>
       <Nav />
       <Toast />
       <NotifBanner />
