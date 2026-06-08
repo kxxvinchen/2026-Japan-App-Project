@@ -17,7 +17,7 @@ import Messages from "./components/Messages.jsx";
 import Utilities from "./components/Utilities.jsx";
 import Handbooks from "./components/Handbooks.jsx";
 import NotifBanner from "./components/NotifBanner.jsx";
-import { setGroups, setFlight, FB } from "./lib/firebase.js";
+import { setGroups, setFlight, FB, markActiveChannelRead } from "./lib/firebase.js";
 import { useFB } from "./lib/useFB.js";
 
 const SCREENS = {
@@ -46,8 +46,13 @@ export default function App() {
   useEffect(() => { setGroups(state.groups); }, [state.groups]);
   // flight choice drives the departure reminders
   useEffect(() => { setFlight(state.flight); }, [state.flight]);
-  // sync the current screen state to the FB layer so we know when to show toasts
-  useEffect(() => { FB.currentScreen = state.screen; }, [state.screen]);
+  // sync the current screen state to the FB layer so we know when to show toasts and mark messages read
+  useEffect(() => {
+    FB.currentScreen = state.screen;
+    if (state.screen === "messages") {
+      markActiveChannelRead();
+    }
+  }, [state.screen]);
 
 
   // Synchronize store groups with director or chaperone status
