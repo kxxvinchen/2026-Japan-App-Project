@@ -39,7 +39,7 @@ export default function Emergency() {
         </div>
         <div className="set-card emerg-dir">
           <button className="emerg-dir-toggle" onClick={() => setDirOpen((o) => !o)} aria-expanded={dirOpen}>
-            <span className="emerg-dir-title">Director Emergency Contact</span>
+            <span className="emerg-dir-title">Emergency Contact Information</span>
             <span className="emerg-dir-caret">{dirOpen ? "▾" : "▸"}</span>
           </button>
           {dirOpen ? (
