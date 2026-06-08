@@ -63,7 +63,12 @@ export default function Settings() {
             <>
               <div className="set-sub">Pick the group(s) you're traveling with.</div>
               <GroupPicker value={pend} onToggle={toggle} />
-              <button className="btn" onClick={() => { dispatch({ type: "groups", groups: pend }); dispatch({ type: "nav", screen: "overview" }); }}>Save</button>
+              <button className="btn" onClick={() => {
+                dispatch({ type: "groups", groups: pend });
+                // Stay on the Group tab and jump to the top (rAF so it sticks after the re-render).
+                const app = document.getElementById("app");
+                if (app) { app.scrollTop = 0; requestAnimationFrame(() => { if (app) app.scrollTop = 0; }); }
+              }}>Save</button>
             </>
           )}
         </div>
