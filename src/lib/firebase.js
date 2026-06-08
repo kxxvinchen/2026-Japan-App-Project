@@ -25,7 +25,7 @@ const loadRead = () => { try { return JSON.parse(localStorage.getItem("jt_read")
 
 export const FB = {
   configured: !!FIREBASE_CONFIG.projectId, ready: false, error: "", user: null,
-  isDirector: false, isAdmin: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
+  isDirector: false, isAdmin: false, isNotificationTester: false, chapChannels: [], chapTags: [], chapGroups: [], authorName: "",
   db: null, auth: null, messaging: null, swReg: null, webToken: "", listeners: {},
   msgsByChannel: loadMsgCache(),
   pending: [],
@@ -81,14 +81,33 @@ function ensembleChannels() {
   return [];
 }
 export function accessibleChannels() {
-  if (FB.isDirector) return CHANNELS.map((c) => c.id);                              // all channels (incl. Percussion)
-  // Percussion is a closed channel: only directors and percussion members may see it.
-  if (FB.isAdmin) return CHANNELS.map((c) => c.id).filter((id) => id !== "directors" && id !== "percussion");
-  if ((FB.chapChannels || []).length) return ["performers", "chaperones", "flights"];
-  const set = { flights: 1 };                                                        // Flights is for everyone
-  ensembleChannels().forEach((c) => { set[c] = 1; });
-  if (userGroups.some((g) => g === "perc")) set.percussion = 1;                      // Percussion channel: percussion only
-  return CHANNELS.map((c) => c.id).filter((id) => set[id]);                          // keep dropdown order
+  let chs = [];
+  if (FB.isDirector) {
+    chs = CHANNELS.map((c) => c.id);                              // all channels (incl. Percussion)
+  } else if (FB.isAdmin) {
+    chs = CHANNELS.map((c) => c.id).filter((id) => id !== "directors" && id !== "percussion");
+  } else if ((FB.chapChannels || []).length) {
+    chs = ["performers", "chaperones", "flights"];
+  } else {
+    const set = { flights: 1 };                                                        // Flights is for everyone
+    ensembleChannels().forEach((c) => { set[c] = 1; });
+    if (userGroups.some((g) => g === "perc")) set.percussion = 1;                      // Percussion channel: percussion only
+    chs = CHANNELS.map((c) => c.id).filter((id) => set[id]);                          // keep dropdown order
+  }
+
+  if (!FB.isNotificationTester) {
+    chs = chs.filter((id) => id !== "test");
+  } else if (chs.indexOf("test") < 0) {
+    chs.push("test");
+  }
+
+  chs.sort((a, b) => {
+    const idxA = CHANNELS.findIndex((c) => c.id === a);
+    const idxB = CHANNELS.findIndex((c) => c.id === b);
+    return idxA - idxB;
+  });
+
+  return chs;
 }
 // Mention tags the current user belongs to (so @swe/@sso/@choir target only them).
 function userTags() {
@@ -195,8 +214,8 @@ export async function startMessaging() {
       console.log("Connected to Auth Emulator");
     }
     FB.auth.onAuthStateChanged(async (u) => {
-      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.authorName = "";
-      let dirOk = false, chapOk = false, adminOk = false;
+      FB.user = u || null; FB.isDirector = false; FB.isAdmin = false; FB.isNotificationTester = false; FB.chapChannels = []; FB.chapTags = []; FB.authorName = "";
+      let dirOk = false, chapOk = false, adminOk = false, testerOk = false;
       if (u && u.email) {
         try { const d = await FB.db.collection("directors").doc(u.email).get(); if (d.exists) { dirOk = true; FB.isDirector = true; const dd = d.data() || {}; if (dd.name) FB.authorName = dd.name; } } catch (e) { }
         try { const a = await FB.db.collection("admins").doc(u.email).get(); if (a.exists) { adminOk = true; FB.isAdmin = true; const ad = a.data() || {}; if (!FB.authorName && ad.name) FB.authorName = ad.name; } } catch (e) { }
@@ -206,19 +225,31 @@ export async function startMessaging() {
             chapOk = true;
             const cd = c.data() || {};
             FB.chapChannels = ["chaperones"];
-            FB.chapTags = ["swe", "sso", "choir"];
-            FB.chapGroups = cd.groups || ["band", "orch", "choir", "schoir", "sband"];
+            const groups = cd.groups || ["band", "orch", "choir", "schoir", "sband"];
+            FB.chapGroups = groups;
+            const tags = {};
+            groups.forEach((g) => (GROUP_TAGS[g] || []).forEach((t) => { tags[t] = 1; }));
+            FB.chapTags = Object.keys(tags);
             if (!FB.authorName && cd.name) FB.authorName = cd.name;
           }
         } catch (e) { }
-        if (!FB.authorName && (dirOk || adminOk || chapOk)) {
+        try {
+          const t = await FB.db.collection("notification tester").doc(u.email).get();
+          if (t.exists) {
+            testerOk = true;
+            FB.isNotificationTester = true;
+            const td = t.data() || {};
+            if (!FB.authorName && td.name) FB.authorName = td.name;
+          }
+        } catch (e) { }
+        if (!FB.authorName && (dirOk || adminOk || chapOk || testerOk)) {
           FB.authorName = u.email.split("@")[0];
         }
         try { localStorage.removeItem("jt_chapname"); } catch (e) { }
       }
       if (FB.pendingSignIn) {
         FB.pendingSignIn = false;
-        if (u && !dirOk && !chapOk && !adminOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) { } return; }
+        if (u && !dirOk && !chapOk && !adminOk && !testerOk) { FB.error = "That account isn't authorized. Check the username/password."; try { await FB.auth.signOut(); } catch (e) { } return; }
         if (u) {
           FB.error = ""; FB.showSignIn = false;
           const acc = accessibleChannels();
@@ -259,7 +290,7 @@ export async function sendPasswordReset(emailRaw) {
     notify();
   }
 }
-export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
+export function signOut() { try { if (FB.auth) FB.auth.signOut(); } catch (e) { } FB.isDirector = false; FB.isAdmin = false; FB.isNotificationTester = false; FB.chapChannels = []; FB.chapTags = []; FB.chapGroups = []; FB.user = null; subscribeChannels(); notify(); }
 
 /* ---- compose / messages ---- */
 
@@ -268,6 +299,7 @@ export function setNameEdit(v) { FB.nameEdit = v; notify(); }
 export function canPostHere() {
   const ch = FB.activeChannel || "";
   if (!ch) return false;
+  if (ch === "test") return !!FB.isNotificationTester;
   if (FB.isDirector) return true;
   if (FB.isAdmin) return ch !== "directors";
   if ((FB.chapChannels || []).length) {

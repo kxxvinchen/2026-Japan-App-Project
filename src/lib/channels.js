@@ -8,6 +8,7 @@ export const CHANNELS = [
   { id: "directors",  label: "Directors",  short: "Directors",  cat: "Announcements", dir: true },
   { id: "shadow",     label: "Shadow",      short: "Shadow",     cat: "Announcements" },
   { id: "flights",    label: "Flights",     short: "Flights",    cat: "Announcements", flights: true },
+  { id: "test",       label: "Test",        short: "Test",       cat: "Announcements" },
 ];
 export const CH_LABEL = {};
 CHANNELS.forEach((c) => { CH_LABEL[c.id] = c.label; });
@@ -23,6 +24,7 @@ export const CH_MENTIONS = {
   shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
   directors:  [],
   flights:    FLIGHT_IDS.map((f) => "Flight " + f),
+  test:       ["swe", "sso", "choir", "perc", "swe-chaperones", "sso-chaperones", "choir-chaperones", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)),
 };
 
 /* A user's app group → the mention tags they belong to (for notification targeting).

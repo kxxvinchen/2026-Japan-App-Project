@@ -22,8 +22,8 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 initializeApp();
 setGlobalOptions({region: "us-central1"});
 
-const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights"];
-const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights"};
+const CHANNELS = ["performers", "percussion", "chaperones", "directors", "shadow", "flights", "test"];
+const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: "Chaperones", directors: "Directors", shadow: "Shadow", flights: "Flights", test: "Test"};
 
 /* ---- @-mention parsing ---- */
 function parseMentions(text) {
