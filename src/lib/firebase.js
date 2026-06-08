@@ -479,6 +479,22 @@ export function notifBannerNeeded() {
 /* native iOS/Android shells call window.jtNotifStatus("granted"|"denied") */
 if (typeof window !== "undefined") window.jtNotifStatus = (stat) => { FB.notifPerm = stat; notify(); };
 
+function handleAppResume() {
+  if (FB.currentScreen === "messages") {
+    markActiveChannelRead();
+  } else {
+    notify();
+  }
+}
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") handleAppResume();
+  });
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("focus", handleAppResume);
+}
+
 /* ---- reminders (delivered by the sendReminders Cloud Function) ---- */
 const MONIDX = { JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11 };
 function jstToUtcMs(dm, dd, hhmm) {
