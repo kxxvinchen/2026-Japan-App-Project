@@ -68,12 +68,19 @@ export function setupKeyboard() {
 
   document.addEventListener("focusout", (e) => {
     if (isTextInput(e.target)) {
-      setTimeout(() => {
+      // Use a longer delay on iOS PWA: the visual viewport height doesn't update
+      // synchronously when the keyboard animates away, so a short timeout races
+      // against the animation and can leave kbd-open stuck (hiding the navbar).
+      // The second timeout at 700ms is a safety net for slow/stuttering transitions
+      // on devices like iPhone 16 Pro where the Dynamic Island changes safe area geometry.
+      const tryRestore = () => {
         if (!isTextInput(document.activeElement)) {
           inputFocused = false;
           refresh();
         }
-      }, 300);
+      };
+      setTimeout(tryRestore, 400);
+      setTimeout(tryRestore, 700);
     }
   });
 
