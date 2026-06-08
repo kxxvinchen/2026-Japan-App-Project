@@ -55,6 +55,16 @@ const subs = new Set();
 export function subscribe(fn) { subs.add(fn); return () => subs.delete(fn); }
 export function getSnapshot() { return ver; }
 let lastBadgeCount = -1;
+async function syncUnreadToFirestore(count) {
+  if (!FB.db || !FB.webToken) return;
+  try {
+    const id = await tokenDocId(FB.webToken);
+    await FB.db.collection("webTokens").doc(id).update({ unreadCount: count });
+  } catch (e) {
+    console.error("Failed to sync unread count to Firestore:", e);
+  }
+}
+
 function updateAppBadge() {
   try {
     if (!FB.configured) return;
@@ -76,6 +86,7 @@ function updateAppBadge() {
     if (br) {
       br.post({ action: "setBadge", count });
     }
+    syncUnreadToFirestore(count);
   } catch (err) {
     console.error("updateAppBadge failed:", err);
   }
@@ -221,7 +232,7 @@ function subscribeChannels() {
         FB.msgsByChannel[ch] = arr;
         if (FB.pending && FB.pending.length) FB.pending = FB.pending.filter((p) => !(p.ch === ch && arr.some((m) => m.text === p.text && (m.author || "") === (p.author || ""))));
         if (FB.lastRead[ch] == null) { FB.lastRead[ch] = arr.length ? arr[0].ts : 0; saveRead(); }
-        else if (ch === FB.activeChannel && FB.currentScreen === "messages") markChannelRead(ch);
+        else if (ch === FB.activeChannel && FB.currentScreen === "messages" && (typeof document === "undefined" || document.visibilityState !== "hidden")) markChannelRead(ch);
         saveMsgCache(); FB.ready = true; notify();
       }, () => { });
   });
@@ -439,7 +450,7 @@ export async function ensureWebToken() {
 }
 function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
-  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", unreadCount: totalUnread(), ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
 // Stable Firestore doc id derived from the FCM token itself, so the same device/token
 // always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or
