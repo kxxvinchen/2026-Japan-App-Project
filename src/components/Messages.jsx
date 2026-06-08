@@ -211,13 +211,6 @@ function Compose() {
           ))}
         </div>
       ) : null}
-      <div className="ann-fmt-bar">
-        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); wrapSel("**", "**"); }}><b>B</b></button>
-        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); wrapSel("*", "*"); }}><i>I</i></button>
-        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); wrapSel("__", "__"); }}><u>U</u></button>
-        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); wrapSel("~~", "~~"); }}><s>S</s></button>
-        <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
-      </div>
       <div className="ann-compose-row">
         <div className="ann-input-wrap">
           <div ref={hlRef} className="ann-input-hl" aria-hidden="true">{renderHighlight(draft)}</div>
@@ -230,6 +223,13 @@ function Compose() {
             onScroll={(e) => { if (hlRef.current) { hlRef.current.scrollTop = e.target.scrollTop; hlRef.current.scrollLeft = e.target.scrollLeft; } }} />
         </div>
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
+      </div>
+      <div className="ann-fmt-bar">
+        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); wrapSel("**", "**"); }}><b>B</b></button>
+        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); wrapSel("*", "*"); }}><i>I</i></button>
+        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); wrapSel("__", "__"); }}><u>U</u></button>
+        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); wrapSel("~~", "~~"); }}><s>S</s></button>
+        <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
       </div>
     </div>
   );
