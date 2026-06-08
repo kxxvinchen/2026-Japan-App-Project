@@ -28,12 +28,11 @@ const LABELS = {performers: "Performers", percussion: "Percussion", chaperones: 
 /* ---- @-mention parsing ---- */
 function parseMentions(text) {
   const t = String(text || "");
-  const everyone = /(^|[^\w@])@everyone\b/i.test(t);
   const groups = ["swe", "sso", "choir", "perc"].filter((g) => new RegExp("(^|[^\\w@])@" + g + "\\b", "i").test(t));
   const flights = [];
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
-  return {everyone, groups, flights};
+  return {groups, flights};
 }
 
 /* ---- send helpers ---- */
@@ -87,10 +86,9 @@ async function sendToChannel(db, msg, channel, title, body) {
 
 /* ---- 1) announcements ----
  * Notifications are driven by @-mentions in the message text:
- *   • @everyone           → everyone in the channel (native topic + all web tokens)
- *   • @swe / @sso / @choir → only those people in the channel
- *   • @Flight A … @Flight I → only people on that flight (Flights channel)
- *   • no @mention          → no push at all
+ *   • no @mention (default)      → everyone in the channel (native topic + all web tokens)
+ *   • @swe / @sso / @choir / @perc → only those people in the channel
+ *   • @Flight A … @Flight I       → only people on that flight (Flights channel)
  */
 exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", async (event) => {
   const snap = event.data;
@@ -100,7 +98,8 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const m = snap.data() || {};
   const text = String(m.text || "");
   const men = parseMentions(text);
-  if (!men.everyone && !men.groups.length && !men.flights.length) return;   // no @ → ping no one
+  // No specific group/flight mention => notify the whole channel by default.
+  const everyone = !men.groups.length && !men.flights.length;
 
   const db = getFirestore();
   const msg = getMessaging();
@@ -113,7 +112,7 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const tokSnap = await db.collection("webTokens").where("channels", "array-contains", channel).get();
   const all = tokSnap.docs.map((d) => ({id: d.id, ...(d.data() || {})}));
 
-  if (men.everyone) {
+  if (everyone) {
     // whole channel: native topic + every web token registered for it
     await msg.send({
       topic: channel,

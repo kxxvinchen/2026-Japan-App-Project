@@ -20,14 +20,29 @@ export const FLIGHT_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 export const CH_MENTIONS = {
   performers: ["swe", "sso", "choir", "perc"],
   percussion: ["perc"],
-  chaperones: ["swe-chaperones", "sso-chaperones", "choir-chaperones"],
+  chaperones: ["swe", "sso", "choir"],
   shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
   directors:  [],
   flights:    FLIGHT_IDS.map((f) => "Flight " + f),
-  test:       ["swe", "sso", "choir", "perc", "swe-chaperones", "sso-chaperones", "choir-chaperones", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)),
+  test:       ["swe", "sso", "choir", "perc", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)),
 };
 
 /* A user's app group → the mention tags they belong to (for notification targeting).
    sband = shadow Band & Orchestra, so it answers to both @swe and @sso.
    perc (Percussion) is part of the wind ensemble, so it answers to @swe and to @perc. */
 export const GROUP_TAGS = { band: ["swe"], orch: ["sso"], choir: ["choir"], sband: ["swe", "sso"], schoir: ["choir"], perc: ["swe", "perc"] };
+
+export const MENTION_RE = /@(everyone|swe-chaperones|sso-chaperones|choir-chaperones|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I])\b/gi;
+
+// color class for an @-mention tag — swe/sso/choir each own a color (shared across
+// performers/chaperones/shadow via the suffix), flights share one, @everyone its own.
+export function mentionClass(tag) {
+  const t = String(tag).toLowerCase();
+  if (t === "everyone") return "m-everyone";
+  if (t.indexOf("swe") === 0) return "m-swe";
+  if (t.indexOf("sso") === 0) return "m-sso";
+  if (t.indexOf("choir") === 0) return "m-choir";
+  if (t.indexOf("perc") === 0) return "m-perc";
+  if (t.indexOf("flight") === 0) return "m-flight";
+  return "m-everyone";
+}

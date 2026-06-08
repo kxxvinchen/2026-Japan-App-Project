@@ -141,6 +141,7 @@ export function unreadCount(ch) {
 }
 export function totalUnread() { let n = 0; accessibleChannels().forEach((ch) => { n += unreadCount(ch); }); return n; }
 export function markChannelRead(ch) { if (!ch) return; const t = latestTs(ch); FB.lastRead[ch] = t > 0 ? t : Date.now(); saveRead(); }
+export function markActiveChannelRead() { if (FB.activeChannel) { markChannelRead(FB.activeChannel); notify(); } }
 
 export function channelMessages(ch) {
   let base = (FB.msgsByChannel[ch] || []).slice();
@@ -181,7 +182,7 @@ function subscribeChannels() {
         FB.msgsByChannel[ch] = arr;
         if (FB.pending && FB.pending.length) FB.pending = FB.pending.filter((p) => !(p.ch === ch && arr.some((m) => m.text === p.text && (m.author || "") === (p.author || ""))));
         if (FB.lastRead[ch] == null) { FB.lastRead[ch] = arr.length ? arr[0].ts : 0; saveRead(); }
-        else if (ch === FB.activeChannel) markChannelRead(ch);
+        else if (ch === FB.activeChannel && FB.currentScreen === "messages") markChannelRead(ch);
         saveMsgCache(); FB.ready = true; notify();
       }, () => { });
   });
