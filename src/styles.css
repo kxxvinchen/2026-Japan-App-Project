@@ -586,7 +586,7 @@
   .ann-name-row .ann-compose-input{height:46px;box-sizing:border-box;}
   .ann-name-row .ann-compose-btn{height:46px;box-sizing:border-box;}
   /* Formatting toolbar (B / I / U / S / link) above the compose box */
-  .ann-fmt-bar{display:flex;gap:5px;margin-bottom:8px;}
+  .ann-fmt-bar{display:flex;gap:5px;margin-top:8px;}
   .ann-fmt-btn{width:31px;height:31px;display:inline-flex;align-items:center;justify-content:center;
     background:#f7f8fa;border:1px solid var(--line);border-radius:8px;color:var(--ink);
     font-size:14px;line-height:1;cursor:pointer;padding:0;}
