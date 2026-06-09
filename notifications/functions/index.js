@@ -33,6 +33,10 @@ function parseMentions(text) {
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
   const buses = [];
+  // Shadow Tour coaches: @ShadowBus1 → token bus "s1". Parse these BEFORE @Bus so the
+  // "Bus" inside "ShadowBus" can't be mistaken for a performer bus.
+  const sBusRe = /@ShadowBus([1-9])\b/gi; let sbm;
+  while ((sbm = sBusRe.exec(t))) { const b = "s" + sbm[1]; if (buses.indexOf(b) < 0) buses.push(b); }
   const busRe = /@Bus([1-9])\b/gi; let bm;
   while ((bm = busRe.exec(t))) { const b = bm[1]; if (buses.indexOf(b) < 0) buses.push(b); }
   return {groups, flights, buses};

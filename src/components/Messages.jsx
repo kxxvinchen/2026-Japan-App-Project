@@ -27,7 +27,9 @@ function getUserMentionTags(state, FB) {
     tags.add(`flight ${state.flight.toLowerCase()}`);
   }
   if (state.bus) {
-    tags.add(`bus${state.bus}`);   // e.g. "bus4" matches @Bus4
+    // Shadow Tour bus ids look like "s1".."s4" → tag "shadowbus1" matches @ShadowBus1;
+    // performer bus ids "1".."9" → tag "bus4" matches @Bus4.
+    tags.add(state.bus[0] === "s" ? `shadowbus${state.bus.slice(1)}` : `bus${state.bus}`);
   }
   const myGroups = state.groups || [];
   myGroups.forEach((g) => {

@@ -15,6 +15,8 @@ CHANNELS.forEach((c) => { CH_LABEL[c.id] = c.label; });
 
 export const FLIGHT_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 export const BUS_IDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+// Shadow Tour coaches, numbered 1–4 within the Shadow Tour (mentioned as @ShadowBus1…@ShadowBus4).
+export const SHADOW_BUS_IDS = ["1", "2", "3", "4"];
 
 /* @-mention tags offered in each channel (besides @everyone, which every channel has).
    Group tags ping only that group; flight tags ping only that flight. */
@@ -24,8 +26,8 @@ export const CH_MENTIONS = {
   chaperones: ["swe", "sso", "choir"],
   shadow:     ["swe-shadow", "sso-shadow", "choir-shadow"],
   directors:  [],
-  flights:    FLIGHT_IDS.map((f) => "Flight " + f).concat(BUS_IDS.map((n) => "Bus" + n)),
-  test:       ["swe", "sso", "choir", "perc", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)).concat(BUS_IDS.map((n) => "Bus" + n)),
+  flights:    FLIGHT_IDS.map((f) => "Flight " + f).concat(BUS_IDS.map((n) => "Bus" + n)).concat(SHADOW_BUS_IDS.map((n) => "ShadowBus" + n)),
+  test:       ["swe", "sso", "choir", "perc", "swe-shadow", "sso-shadow", "choir-shadow"].concat(FLIGHT_IDS.map((f) => "Flight " + f)).concat(BUS_IDS.map((n) => "Bus" + n)).concat(SHADOW_BUS_IDS.map((n) => "ShadowBus" + n)),
 };
 
 /* A user's app group → the mention tags they belong to (for notification targeting).
@@ -33,7 +35,7 @@ export const CH_MENTIONS = {
    perc (Percussion) is part of the wind ensemble, so it answers to @swe and to @perc. */
 export const GROUP_TAGS = { band: ["swe"], orch: ["sso"], choir: ["choir"], sband: ["swe", "sso"], schoir: ["choir"], perc: ["swe", "perc"] };
 
-export const MENTION_RE = /@(everyone|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I]|Bus[1-9])\b/gi;
+export const MENTION_RE = /@(everyone|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I]|ShadowBus[1-9]|Bus[1-9])\b/gi;
 
 // color class for an @-mention tag — swe/sso/choir each own a color (shared across
 // performers/chaperones/shadow via the suffix), flights share one, @everyone its own.
@@ -45,6 +47,7 @@ export function mentionClass(tag) {
   if (t.indexOf("choir") === 0) return "m-choir";
   if (t.indexOf("perc") === 0) return "m-perc";
   if (t.indexOf("flight") === 0) return "m-flight";
+  if (t.indexOf("shadowbus") === 0) return "m-bus";
   if (t.indexOf("bus") === 0) return "m-bus";
   return "m-everyone";
 }

@@ -2010,6 +2010,23 @@ const BUSES = [
   {
     id: "9", num: "9", grp: "choir", ensemble: "Choir (SHS & LHS Combined Choir)",
     desc: "Choir coach. Boards with the Choir group (Buses 8–9) each day."
+  },
+  // ----- Shadow Tour coaches (separate fleet, numbered 1–4 within the Shadow Tour) -----
+  {
+    id: "s1", num: "1", grp: "sband", shadow: true, ensemble: "Band & Orchestra Shadow Tour",
+    desc: "Shadow Tour coach for Band & Orchestra Shadow families (Shadow Buses 1–3)."
+  },
+  {
+    id: "s2", num: "2", grp: "sband", shadow: true, ensemble: "Band & Orchestra Shadow Tour",
+    desc: "Shadow Tour coach for Band & Orchestra Shadow families (Shadow Buses 1–3)."
+  },
+  {
+    id: "s3", num: "3", grp: "sband", shadow: true, ensemble: "Band & Orchestra Shadow Tour",
+    desc: "Shadow Tour coach for Band & Orchestra Shadow families (Shadow Buses 1–3)."
+  },
+  {
+    id: "s4", num: "4", grp: "schoir", shadow: true, ensemble: "Choir Shadow Tour",
+    desc: "Shadow Tour coach for Choir Shadow families (Shadow Bus 4)."
   }
 ];
 
