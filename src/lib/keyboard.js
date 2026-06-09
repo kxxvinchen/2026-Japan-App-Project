@@ -93,4 +93,21 @@ export function setupKeyboard() {
       window.scrollTo(0, 0);
     }
   });
+
+  // Lock the document from being dragged while the announcements compose box is focused
+  // with the keyboard up. Without this, dragging a NON-scrollable area (header, channel
+  // bar, toolbar) lets iOS rubber-band the whole app below the screen — most noticeable
+  // when the @-mention popup has grown the compose stack taller than the viewport.
+  // Scoped tightly: it only engages when the compose itself is focused, so every other
+  // screen (Add Activity, Settings, Translation search, etc.) scrolls exactly as before.
+  // Touches that begin inside a real scroller are allowed through unchanged.
+  document.addEventListener("touchmove", (e) => {
+    if (!document.body.classList.contains("kbd-open")) return;
+    const a = document.activeElement;
+    const composeFocused = a && (a.id === "msgText" || (a.closest && a.closest(".ann-compose")));
+    if (!composeFocused) return;                       // not the announcements compose → leave scrolling alone
+    const t = e.target;
+    if (t && t.closest && t.closest(".ann-body, .ann-mention-pop, .ann-compose-input")) return; // real scrollers OK
+    e.preventDefault();                                // everything else: no document drag
+  }, { passive: false });
 }
