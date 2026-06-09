@@ -46,8 +46,10 @@ export const FB = {
 
 let userGroups = [];
 let userFlight = "";
+let userBus = "";
 export function setGroups(groups) { userGroups = groups || []; subscribeChannels(); syncNotifTopics(); scheduleDepartureReminders(); notify(); }
 export function setFlight(f) { userFlight = f || ""; scheduleDepartureReminders(); }
+export function setUserBus(b) { userBus = b || ""; syncWebChannels(); }
 
 /* ---- subscription for React (useSyncExternalStore) ---- */
 let ver = 0;
@@ -444,7 +446,7 @@ function tokenData(token) {
   // tags + flight let the server target @swe/@sso/@choir and @Flight X to only those people
   // NOTE: unreadCount is intentionally excluded — it is managed exclusively by
   // syncUnreadToFirestore() so that saveWebToken() never resets the counter.
-  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
+  return { token, channels: channelsForUser(), tags: userTags(), flight: userFlight || "", bus: userBus || "", ts: firebase.firestore.FieldValue.serverTimestamp() };
 }
 // Stable Firestore doc id derived from the FCM token itself, so the same device/token
 // always maps to ONE webTokens doc — even after logout, cache/localStorage clear, or
