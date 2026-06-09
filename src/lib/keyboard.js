@@ -3,10 +3,13 @@
    to the area above the keyboard, so the input fields sit above the keyboard.
    Driven by the actual viewport size. Also prevents user zooming. */
 export function setupKeyboard() {
+  let lastTouchY = 0;   // tracks the finger Y so the compose lock below knows scroll direction
   // Prevent multi-touch pinch zoom
   document.addEventListener("touchstart", (e) => {
     if (e.touches && e.touches.length > 1) {
       e.preventDefault();
+    } else if (e.touches && e.touches.length === 1) {
+      lastTouchY = e.touches[0].clientY;
     }
   }, { passive: false });
 
@@ -95,19 +98,35 @@ export function setupKeyboard() {
   });
 
   // Lock the document from being dragged while the announcements compose box is focused
-  // with the keyboard up. Without this, dragging a NON-scrollable area (header, channel
-  // bar, toolbar) lets iOS rubber-band the whole app below the screen — most noticeable
-  // when the @-mention popup has grown the compose stack taller than the viewport.
-  // Scoped tightly: it only engages when the compose itself is focused, so every other
-  // screen (Add Activity, Settings, Translation search, etc.) scrolls exactly as before.
-  // Touches that begin inside a real scroller are allowed through unchanged.
+  // with the keyboard up. Without this, dragging a NON-scrollable area lets iOS rubber-band
+  // the whole app below the screen — most noticeable when the @-mention popup has grown the
+  // compose stack taller than the viewport.
+  // Scoped tightly: only engages when the compose itself is focused, so every other screen
+  // (Add Activity, Settings, Translation search, etc.) scrolls exactly as before.
+  //   • the message list and the @-mention popup always scroll;
+  //   • the text box scrolls its OWN content, but only while it actually has overflow and
+  //     isn't already at the edge you're dragging toward — at the edge (or with nothing to
+  //     scroll) the drag is blocked so it can't leak into a page scroll;
+  //   • every other compose area (header, channel bar, toolbar, padding) is blocked.
   document.addEventListener("touchmove", (e) => {
+    const cy = (e.touches && e.touches.length) ? e.touches[0].clientY : lastTouchY;
+    const draggingDown = cy > lastTouchY;   // finger moving down → scrolling toward the top
+    lastTouchY = cy;
     if (!document.body.classList.contains("kbd-open")) return;
     const a = document.activeElement;
     const composeFocused = a && (a.id === "msgText" || (a.closest && a.closest(".ann-compose")));
-    if (!composeFocused) return;                       // not the announcements compose → leave scrolling alone
+    if (!composeFocused) return;
     const t = e.target;
-    if (t && t.closest && t.closest(".ann-body, .ann-mention-pop, .ann-compose-input")) return; // real scrollers OK
-    e.preventDefault();                                // everything else: no document drag
+    if (t && t.closest && t.closest(".ann-body, .ann-mention-pop")) return;   // list scrollers: always fine
+    const ta = t && t.closest && t.closest(".ann-compose-input");
+    if (ta) {
+      const canScroll = ta.scrollHeight - ta.clientHeight > 1;
+      const atTop = ta.scrollTop <= 0;
+      const atBottom = ta.scrollTop + ta.clientHeight >= ta.scrollHeight - 1;
+      if (canScroll && !((draggingDown && atTop) || (!draggingDown && atBottom))) return;  // box can scroll this way
+      e.preventDefault();   // box is at its edge (or has nothing to scroll) → don't move the page
+      return;
+    }
+    e.preventDefault();     // header / toolbar / padding → no document drag
   }, { passive: false });
 }
