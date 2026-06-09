@@ -414,7 +414,7 @@ export function canPostHere() {
   if (FB.isDirector) return true;
   if (FB.isAdmin) return ch !== "directors";
   if ((FB.chapChannels || []).length) {
-    return ch === "performers" || ch === "chaperones" || ch === "flights";
+    return ch === "chaperones";
   }
   return false;
 }
@@ -444,7 +444,7 @@ export async function sendMessage(text) {
     return;
   }
   const author = FB.authorName || (FB.user && (FB.user.displayName || (FB.user.email ? FB.user.email.split("@")[0] : ""))) || (FB.isDirector ? "Director" : FB.isAdmin ? "Admin" : "Chaperone");
-  const role = FB.isDirector ? "director" : "";
+  const role = FB.isDirector ? "director" : FB.isAdmin ? "admin" : "";
   const pend = { ch: chan, text, author, role, ts: Date.now() };
   FB.pending.push(pend); FB.drafts[chan] = ""; markChannelRead(chan); notify();
   try {

@@ -12,9 +12,7 @@
  */
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
-const {onRequest} = require("firebase-functions/v2/https");
 const {setGlobalOptions} = require("firebase-functions/v2");
-const crypto = require("crypto");
 const {initializeApp} = require("firebase-admin/app");
 const {getMessaging} = require("firebase-admin/messaging");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
@@ -142,38 +140,6 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   await multicast(db, msg, targets, title, body);
 });
 
-/* ---- one-time maintenance: merge old channel messages into the new channels ----
- * performers ← swesso + choir · shadow ← swesso-shadow + choir-shadow · chaperones ← swesso-chap + choir-chap.
- * (directors keeps its id, so its history carries over with no migration.) Copies each message with a
- * stable id (src_origId) so it's idempotent — safe to run more than once. Messages sort by their ts field.
- * RUN ONCE:  https://us-central1-japan-tour-2026.cloudfunctions.net/migrateChannels?confirm=yes
- * Then DELETE it:  firebase functions:delete migrateChannels
- */
-const MERGE = {performers: ["swesso", "choir"], shadow: ["swesso-shadow", "choir-shadow"], chaperones: ["swesso-chap", "choir-chap"]};
-exports.migrateChannels = onRequest(async (req, res) => {
-  if (req.query.confirm !== "yes") { res.status(400).send("Add ?confirm=yes to merge old channel messages into the new channels."); return; }
-  const db = getFirestore();
-  const summary = {};
-  let copied = 0;
-  for (const dest of Object.keys(MERGE)) {
-    let n = 0;
-    for (const src of MERGE[dest]) {
-      const msgs = await db.collection("channels").doc(src).collection("messages").get();
-      for (let i = 0; i < msgs.docs.length; i += 450) {
-        const batch = db.batch();
-        msgs.docs.slice(i, i + 450).forEach((d) => {
-          batch.set(db.collection("channels").doc(dest).collection("messages").doc(src + "_" + d.id), d.data());
-        });
-        await batch.commit();
-        n += Math.min(450, msgs.docs.length - i);
-      }
-    }
-    summary[dest] = n;
-    copied += n;
-  }
-  console.log("migrateChannels:", summary);
-  res.json({copied, summary});
-});
 
 /* ---- 2) reminders (every 5 min) ---- */
 const JST = 9 * 3600 * 1000;          // JST = UTC+9
@@ -232,59 +198,3 @@ exports.sendReminders = onSchedule(
     }
   });
 
-/* ---- one-time maintenance: collapse duplicate webTokens docs ----
- * Older clients keyed their webTokens doc by localStorage, so logout / cache-clear /
- * incognito created multiple docs for the SAME token. This rewrites each token to a
- * single canonical doc at sha256(token) (matching the client) with the newest channel
- * list, and deletes the leftovers. Idempotent — safe to run more than once.
- *
- * RUN ONCE:  open  https://us-central1-japan-tour-2026.cloudfunctions.net/cleanupWebTokens?confirm=yes
- * Then DELETE it:  firebase functions:delete cleanupWebTokens
- */
-const tsMs = (ts) => { try { return ts && ts.toMillis ? ts.toMillis() : 0; } catch (e) { return 0; } };
-exports.cleanupWebTokens = onRequest(async (req, res) => {
-  if (req.query.confirm !== "yes") {
-    res.status(400).send("Add ?confirm=yes to run. This collapses duplicate webTokens docs (one per token).");
-    return;
-  }
-  const db = getFirestore();
-  const snap = await db.collection("webTokens").get();
-  const docsBefore = snap.size;
-
-  // group all docs by their FCM token
-  const byToken = new Map();
-  snap.docs.forEach((d) => {
-    const data = d.data() || {};
-    if (!data.token) return;
-    const arr = byToken.get(data.token) || [];
-    arr.push({id: d.id, ref: d.ref, data});
-    byToken.set(data.token, arr);
-  });
-
-  const ops = [];
-  let uniqueTokens = 0;
-  for (const [token, group] of byToken) {
-    uniqueTokens++;
-    const canonicalId = crypto.createHash("sha256").update(token).digest("hex");
-    const newest = group.slice().sort((a, b) => tsMs(b.data.ts) - tsMs(a.data.ts))[0];
-    const data = {
-      ...newest.data,
-      channels: Array.isArray(newest.data.channels) ? newest.data.channels : [],
-      ts: FieldValue.serverTimestamp()
-    };
-    ops.push({type: "set", ref: db.collection("webTokens").doc(canonicalId), data});
-    group.forEach((x) => { if (x.id !== canonicalId) ops.push({type: "delete", ref: x.ref}); });
-  }
-
-  let duplicatesDeleted = 0;
-  for (let i = 0; i < ops.length; i += 450) {
-    const batch = db.batch();
-    ops.slice(i, i + 450).forEach((op) => (op.type === "set" ? batch.set(op.ref, op.data) : batch.delete(op.ref)));
-    await batch.commit();
-    duplicatesDeleted += ops.slice(i, i + 450).filter((op) => op.type === "delete").length;
-  }
-
-  const summary = {docsBefore, uniqueTokens, canonicalDocsAfter: uniqueTokens, duplicatesDeleted};
-  console.log("cleanupWebTokens:", summary);
-  res.json(summary);
-});

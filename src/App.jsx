@@ -58,7 +58,7 @@ export default function App() {
   }, [state.screen]);
 
 
-  // Synchronize store groups with director or chaperone status
+  // Synchronize store groups and isDirector status with director or chaperone status
   const ALL_GROUPS = ["band", "orch", "choir", "schoir", "sband"];
   useEffect(() => {
     if (!fb.ready) return;
@@ -67,14 +67,24 @@ export default function App() {
       if (!matches) {
         dispatch({ type: "groups", groups: ALL_GROUPS });
       }
+      if (!state.isDirector) {
+        dispatch({ type: "set", patch: { isDirector: true } });
+      }
     } else if ((fb.chapChannels || []).length > 0) {
       const chapGroups = (fb.chapGroups && fb.chapGroups.length) ? fb.chapGroups : ALL_GROUPS;
       const matches = state.groups.length === chapGroups.length && state.groups.every((g) => chapGroups.includes(g));
       if (!matches) {
         dispatch({ type: "groups", groups: chapGroups });
       }
+      if (state.isDirector) {
+        dispatch({ type: "set", patch: { isDirector: false } });
+      }
+    } else {
+      if (state.isDirector) {
+        dispatch({ type: "set", patch: { isDirector: false } });
+      }
     }
-  }, [fb.ready, fb.isDirector, fb.chapChannels, fb.chapGroups, state.groups, dispatch]);
+  }, [fb.ready, fb.isDirector, fb.chapChannels, fb.chapGroups, state.groups, state.isDirector, dispatch]);
 
   // ----- scroll reset on navigation -----
   // The whole app shares one scroll container (#app). Whenever the VIEW changes (screen,
