@@ -53,18 +53,23 @@ function getUserMentionTags(state, FB) {
   return tags;
 }
 
-// Helper to check if user tags are matched in message text
+// Whether to highlight a message for the current user.
+// A message with NO @-mentions is addressed to the whole channel, so everyone is
+// effectively mentioned → highlight it for all. A literal @everyone counts the same.
+// Otherwise, highlight only when one of the message's mentions matches the user's tags.
 function isUserMentioned(text, tags) {
   if (!text) return false;
   MENTION_RE.lastIndex = 0;
   let match;
+  let hasMention = false;
   while ((match = MENTION_RE.exec(text)) !== null) {
+    hasMention = true;
     const matchedTag = match[1].toLowerCase().trim();
-    if (tags.has(matchedTag)) {
+    if (matchedTag === "everyone" || tags.has(matchedTag)) {
       return true;
     }
   }
-  return false;
+  return !hasMention;   // no @-mention at all → everyone is mentioned
 }
 
 function AnnCard({ m, isChapTab, canEdit, mentioned }) {
