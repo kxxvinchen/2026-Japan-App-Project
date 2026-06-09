@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ---- helpers ---- */
+    function isTester() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/notificationTester/$(request.auth.token.email));
+    }
+    function isStaff() {
+      return request.auth != null && (
+        exists(/databases/$(database)/documents/directors/$(request.auth.token.email)) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.token.email)) ||
+        exists(/databases/$(database)/documents/chaperones/$(request.auth.token.email))
+      );
+    }
+
+    /* ---- identity / role collections (managed from the console) ---- */
+    match /directors/{email}          { allow read: if request.auth != null && request.auth.token.email == email; allow write: if false; }
+    match /admins/{email}             { allow read: if request.auth != null && request.auth.token.email == email; allow write: if false; }
+    match /chaperones/{email}         { allow read: if request.auth != null && request.auth.token.email == email; allow write: if false; }
+    match /notificationTester/{email} { allow read: if request.auth != null && request.auth.token.email == email; allow write: if false; }
+
+    /* ---- announcement messages ----
+       READ is the key fix: every channel except the private "test" sandbox is readable
+       by everyone — travelers (not signed in), performers, AND chaperones alike. Read
+       access does NOT depend on role, so signing in as a chaperone never removes the
+       performers channel they could otherwise see. (Channel visibility is enforced in the
+       app's accessibleChannels(); the "test" channel stays private to its test accounts.)
+       WRITE stays restricted: staff for normal channels, testers inside the test channel. */
+    match /channels/{channel}/messages/{msg} {
+      allow read:  if channel != 'test' || isTester();
+      allow write: if (channel == 'test' && isTester())
+                   || (channel != 'test' && isStaff());
+    }
+
+    /* ---- device push tokens & client-scheduled reminders (no sign-in required) ---- */
+    match /webTokens/{id} { allow read, write: if true; }
+    match /reminders/{id} { allow read, write: if true; }
+
+    /* ---- written only by the Cloud Function (Admin SDK bypasses these rules) ---- */
+    match /sentReminders/{id} { allow read, write: if false; }
+  }
+}
