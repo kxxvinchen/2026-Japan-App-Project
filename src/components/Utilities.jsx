@@ -8,6 +8,12 @@ const Book = () => (
   </svg>
 );
 
+const Violin = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+  </svg>
+);
+
 export default function Utilities() {
   const { dispatch } = useStore();
   const go = (screen) => dispatch({ type: "nav", screen });
@@ -38,6 +44,16 @@ export default function Utilities() {
 
         <div className="sec-title">Currency converter</div>
         <div className="card conv-card"><Converter /></div>
+
+        <div className="sec-title">Orchestra</div>
+        <button className="util-tile" onClick={() => go("orchestra")}>
+          <div className="util-ic"><Violin /></div>
+          <div className="util-tx">
+            <div className="t">Orchestra Resources</div>
+            <div className="s">Principal annotations &amp; extra-part managers</div>
+          </div>
+          <span className="chev2">›</span>
+        </button>
       </div>
     </div>
   );

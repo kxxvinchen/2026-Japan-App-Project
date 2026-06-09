@@ -676,6 +676,17 @@
   .hb-open{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--indigo);}
   body.dark .hb-open{color:#7aa0e0;}
 
+  /* Orchestra resources — extra-part managers list */
+  .card.orch-list{padding:4px 4px;overflow:hidden;}
+  .orch-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid var(--line);}
+  .orch-row:last-child{border-bottom:none;}
+  .orch-av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:15px;box-shadow:0 2px 5px rgba(20,30,45,.18);}
+  .orch-piece{flex:1;min-width:0;font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25;}
+  .orch-name{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--muted);
+    background:var(--bg);border-radius:999px;padding:4px 12px;white-space:nowrap;}
+  body.dark .orch-name{background:var(--card2);}
+
   /* Currency converter — large and roomy so the tab feels full */
   .conv-card{padding:20px;}
   .conv{display:flex;flex-direction:column;align-items:stretch;gap:8px;}
