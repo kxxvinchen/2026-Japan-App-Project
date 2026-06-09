@@ -19,7 +19,7 @@ function BusBanner() {
   const bo = BUSES.find((b) => b.id === state.bus);
   return (
     <div className="grp-banner bus-banner" onClick={() => dispatch({ type: "nav", screen: "bus" })}>
-      <span>Bus number: <b>{bo ? bo.num : "Tap to select"}</b></span>
+      <span>Bus number: <b>{bo ? (bo.shadow ? "Shadow " + bo.num : bo.num) : "Tap to select"}</b></span>
       <span className="chg">{bo ? "View ›" : "Select ›"}</span>
     </div>
   );
