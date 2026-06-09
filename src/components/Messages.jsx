@@ -169,19 +169,44 @@ function Compose() {
     closePop();
     setTimeout(() => { if (el) { el.focus(); const c = pop.at + tag.length + 2; el.setSelectionRange(c, c); } }, 0);
   };
-  // Formatting toolbar: wrap the current selection in markdown markers (or drop a
-  // template at the cursor if nothing is selected), then reselect so it's easy to retype.
-  const wrapSel = (before, after) => {
+  // Remove a marker's occurrences from within a selection (so re-formatting a mixed
+  // selection makes the WHOLE thing that style). For italic "*", keep bold "**" intact.
+  const stripMarker = (s, mk) => {
+    if (mk === "*") return s.split("**").map(function (seg) { return seg.replace(/\*/g, ""); }).join("**");
+    return s.split(mk).join("");
+  };
+  // Google-Docs-style toggle: if the selection is already a clean run of this style,
+  // remove it; otherwise apply the style to the whole selection.
+  const toggleFmt = (mk) => {
     const el = taRef.current; if (!el) return;
     const start = el.selectionStart, end = el.selectionEnd;
     const sel = draft.slice(start, end);
-    const next = draft.slice(0, start) + before + sel + after + draft.slice(end);
+    let next, selStart, selEnd;
+    let outside = draft.slice(start - mk.length, start) === mk
+      && draft.slice(end, end + mk.length) === mk
+      && sel.indexOf(mk) < 0;
+    // a lone italic "*" must not actually be part of a bold "**"
+    if (outside && mk === "*" && (draft.charAt(start - 2) === "*" || draft.charAt(end + 1) === "*")) outside = false;
+    const inside = sel.length >= 2 * mk.length
+      && sel.slice(0, mk.length) === mk && sel.slice(-mk.length) === mk
+      && sel.slice(mk.length, -mk.length).indexOf(mk) < 0;
+    if (outside) {                              // markers sit just outside the selection → unformat
+      next = draft.slice(0, start - mk.length) + sel + draft.slice(end + mk.length);
+      selStart = start - mk.length; selEnd = selStart + sel.length;
+    } else if (inside) {                        // selection includes the markers → unformat
+      const inner = sel.slice(mk.length, -mk.length);
+      next = draft.slice(0, start) + inner + draft.slice(end);
+      selStart = start; selEnd = start + inner.length;
+    } else {                                    // format the whole selection
+      const cleaned = stripMarker(sel, mk);
+      next = draft.slice(0, start) + mk + cleaned + mk + draft.slice(end);
+      selStart = start + mk.length; selEnd = selStart + cleaned.length;
+    }
     setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
     requestAnimationFrame(() => {
       const t = taRef.current; if (!t) return;
       t.focus();
-      const s = start + before.length;
-      t.setSelectionRange(s, s + sel.length);
+      t.setSelectionRange(selStart, selEnd);
     });
   };
   const insertLink = () => {
@@ -235,10 +260,10 @@ function Compose() {
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
       </div>
       <div className="ann-fmt-bar">
-        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); wrapSel("**", "**"); }}><b>B</b></button>
-        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); wrapSel("*", "*"); }}><i>I</i></button>
-        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); wrapSel("__", "__"); }}><u>U</u></button>
-        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); wrapSel("~~", "~~"); }}><s>S</s></button>
+        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); toggleFmt("**"); }}><b>B</b></button>
+        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); toggleFmt("*"); }}><i>I</i></button>
+        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); toggleFmt("__"); }}><u>U</u></button>
+        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); toggleFmt("~~"); }}><s>S</s></button>
         <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
       </div>
     </div>
