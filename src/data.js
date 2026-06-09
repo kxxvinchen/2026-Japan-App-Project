@@ -129,7 +129,7 @@ const BO = ["band", "orch", "sband"], CH = ["choir", "schoir"];
 const ATTIRE = {
   1: [{ g: ALL, t: "Tour shirt, comfortable layers" }],
   2: [{ g: ALL, t: "Tour shirt, comfortable layers" }],
-  3: [{ g: BO, t: "Casual attire for sightseeing & school visit (percussion only)" },
+  3: [{ g: BO, t: "Casual attire for sightseeing & school visit (percussion only — music dept. polo & khakis)" },
   { g: CH, t: "Casual attire for sightseeing" }],
   4: [{ g: BO, t: "Music dept. polo & khakis, plus optional casual attire for sightseeing" },
   { g: CH, t: "Casual attire for sightseeing; bring performance attire" }],
