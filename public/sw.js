@@ -77,6 +77,11 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("message", e => {
   if (e.data && e.data.type === "jt-skip-waiting") self.skipWaiting();
+  if (e.data && e.data.type === "jt-clear-badge") {
+    if (self.navigator && self.navigator.clearAppBadge) {
+      self.navigator.clearAppBadge().catch(() => {});
+    }
+  }
 });
 
 self.addEventListener("fetch", e => {

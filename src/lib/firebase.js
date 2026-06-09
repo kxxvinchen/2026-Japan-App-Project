@@ -71,7 +71,15 @@ function updateAppBadge() {
       }
     }
 
-    // 2. Native App Shell Bridge
+    // 2. Ask the service worker to clear the badge it set (iOS requires
+    //    the same context that called setAppBadge to clear it)
+    if (!hasUnread && typeof navigator !== "undefined" && navigator.serviceWorker) {
+      navigator.serviceWorker.ready.then((reg) => {
+        if (reg && reg.active) reg.active.postMessage({ type: "jt-clear-badge" });
+      }).catch(() => {});
+    }
+
+    // 3. Native App Shell Bridge
     const br = notifBridge();
     if (br) {
       br.post({ action: "setBadge", count: hasUnread });
