@@ -16,6 +16,7 @@ import Onboard from "./components/Onboard.jsx";
 import Messages from "./components/Messages.jsx";
 import Utilities from "./components/Utilities.jsx";
 import Handbooks from "./components/Handbooks.jsx";
+import OrchestraResources from "./components/OrchestraResources.jsx";
 import NotifBanner from "./components/NotifBanner.jsx";
 import { setGroups, setFlight, setUserBus, FB, markActiveChannelRead } from "./lib/firebase.js";
 import { useFB } from "./lib/useFB.js";
@@ -23,9 +24,9 @@ import { useFB } from "./lib/useFB.js";
 const SCREENS = {
   overview: Overview, day: Day, cities: Cities, city: City, phrases: Phrases,
   emergency: Emergency, flight: Flight, bus: Bus, settings: Settings,
-  addact: AddActivity, onboard: Onboard, messages: Messages, utilities: Utilities, handbooks: Handbooks,
+  addact: AddActivity, onboard: Onboard, messages: Messages, utilities: Utilities, handbooks: Handbooks, orchestra: OrchestraResources,
 };
-const LABELS = { day: "Day", cities: "Cities", city: "City", phrases: "Translation Guide", messages: "Announcements", settings: "Group & Settings", emergency: "Emergency", flight: "Flights", bus: "Buses", addact: "Add Activity", onboard: "Welcome", utilities: "Utilities", handbooks: "Handbooks" };
+const LABELS = { day: "Day", cities: "Cities", city: "City", phrases: "Translation Guide", messages: "Announcements", settings: "Group & Settings", emergency: "Emergency", flight: "Flights", bus: "Buses", addact: "Add Activity", onboard: "Welcome", utilities: "Utilities", handbooks: "Handbooks", orchestra: "Orchestra Resources" };
 
 function Stub({ name }) {
   const { dispatch } = useStore();
