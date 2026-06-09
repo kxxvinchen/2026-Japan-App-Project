@@ -283,7 +283,7 @@ export default function Messages() {
   }, [FB.configured, FB.activeChannel, accessibleKey]);
 
   const accCh = CHANNELS.filter((c) => accessible.indexOf(c.id) > -1);
-  const isChapTab = (FB.activeChannel || "").slice(-5) === "-chap";
+  const isChapTab = FB.activeChannel === "chaperones";
   const list = FB.activeChannel ? channelMessages(FB.activeChannel) : [];
   const label = CH_LABEL[FB.activeChannel] || "";
 

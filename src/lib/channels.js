@@ -33,7 +33,7 @@ export const CH_MENTIONS = {
 /* A user's app group → the mention tags they belong to (for notification targeting).
    sband = shadow Band & Orchestra, so it answers to both @swe and @sso.
    perc (Percussion) is part of the wind ensemble, so it answers to @swe and to @perc. */
-export const GROUP_TAGS = { band: ["swe"], orch: ["sso"], choir: ["choir"], sband: ["swe", "sso"], schoir: ["choir"], perc: ["swe", "perc"] };
+export const GROUP_TAGS = { band: ["swe"], orch: ["sso"], choir: ["choir"], sband: ["swe-shadow", "sso-shadow"], schoir: ["choir-shadow"], perc: ["swe", "perc"] };
 
 export const MENTION_RE = /@(everyone|swe-shadow|sso-shadow|choir-shadow|swe|sso|choir|perc|Flight\s+[A-I]|ShadowBus[1-9]|Bus[1-9])\b/gi;
 
