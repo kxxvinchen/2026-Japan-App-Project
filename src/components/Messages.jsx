@@ -172,7 +172,7 @@ function Compose() {
   // Remove a marker's occurrences from within a selection (so re-formatting a mixed
   // selection makes the WHOLE thing that style). For italic "*", keep bold "**" intact.
   const stripMarker = (s, mk) => {
-    if (mk === "*") return s.replace(/\*\*/g, " ").replace(/\*/g, "").replace(/ /g, "**");
+    if (mk === "*") return s.split("**").map(function (seg) { return seg.replace(/\*/g, ""); }).join("**");
     return s.split(mk).join("");
   };
   // Google-Docs-style toggle: if the selection is already a clean run of this style,
@@ -260,10 +260,10 @@ function Compose() {
         <button className="ann-compose-btn" onClick={send}><Plane /><span>{editing ? "Save" : (chap ? "Send" : "Post")}</span></button>
       </div>
       <div className="ann-fmt-bar">
-        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); wrapSel("**", "**"); }}><b>B</b></button>
-        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); wrapSel("*", "*"); }}><i>I</i></button>
-        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); wrapSel("__", "__"); }}><u>U</u></button>
-        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); wrapSel("~~", "~~"); }}><s>S</s></button>
+        <button type="button" className="ann-fmt-btn" title="Bold" aria-label="Bold" onMouseDown={(e) => { e.preventDefault(); toggleFmt("**"); }}><b>B</b></button>
+        <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); toggleFmt("*"); }}><i>I</i></button>
+        <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); toggleFmt("__"); }}><u>U</u></button>
+        <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); toggleFmt("~~"); }}><s>S</s></button>
         <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
       </div>
     </div>
