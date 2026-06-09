@@ -2,7 +2,7 @@
    Mirrors the original imperative logic, but instead of calling render() it calls notify(),
    which React subscribes to via useSyncExternalStore. Messaging UI state (active channel,
    unread baselines, compose draft, edit target, menus) lives here, tightly coupled to FB. */
-import { CHANNELS, CH_LABEL, GROUP_TAGS } from "./channels.js";
+import { CHANNELS, CH_LABEL, GROUP_TAGS, MENTION_RE } from "./channels.js";
 import { FLIGHTS } from "../data.js";
 import { daySet, effGroups } from "./groups.js";
 import { fmt12 } from "./activity.js";
@@ -157,6 +157,35 @@ function userTags() {
 }
 const channelsForUser = () => accessibleChannels();
 
+/* Does this message target the current user?  Mirrors the Cloud Function's
+   parseMentions → filter logic so that only messages the user would get a
+   notification for are counted as unread.
+   • No @mention at all → whole channel → true for everyone
+   • @swe/@sso/@choir/@perc → only matching tags
+   • @Flight X → only that flight                          */
+function msgTargetsUser(text) {
+  if (!text) return true;              // empty = channel-wide
+  MENTION_RE.lastIndex = 0;
+  const groups = [];  // e.g. ["swe", "choir"]
+  const flights = []; // e.g. ["A", "C"]
+  let m;
+  while ((m = MENTION_RE.exec(text)) !== null) {
+    const tag = m[1].toLowerCase().trim();
+    if (tag === "everyone") continue;   // @everyone = whole channel (same as no mention)
+    const flm = tag.match(/^flight\s+([a-i])$/i);
+    if (flm) { const f = flm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
+    else { if (groups.indexOf(tag) < 0) groups.push(tag); }
+  }
+  // No targeted mentions → whole channel
+  if (!groups.length && !flights.length) return true;
+  // Check groups
+  const myTags = userTags();
+  if (groups.length && groups.some((g) => myTags.indexOf(g) > -1)) return true;
+  // Check flights
+  if (flights.length && userFlight && flights.indexOf(userFlight.toUpperCase()) > -1) return true;
+  return false;
+}
+
 
 
 /* ---- time helpers ---- */
@@ -176,7 +205,11 @@ function saveRead() { try { localStorage.setItem("jt_read", JSON.stringify(FB.la
 function latestTs(ch) { const l = FB.msgsByChannel[ch] || []; return l.length ? l[0].ts : 0; }
 export function unreadCount(ch) {
   const lr = FB.lastRead[ch]; if (lr == null) return 0;
-  let n = 0; for (const m of (FB.msgsByChannel[ch] || [])) if (m.ts > lr) n++; return n;
+  let n = 0;
+  for (const m of (FB.msgsByChannel[ch] || [])) {
+    if (m.ts > lr && msgTargetsUser(m.text)) n++;
+  }
+  return n;
 }
 export function totalUnread() { let n = 0; accessibleChannels().forEach((ch) => { n += unreadCount(ch); }); return n; }
 export function markChannelRead(ch) { if (!ch) return; const t = latestTs(ch); FB.lastRead[ch] = t > 0 ? t : Date.now(); saveRead(); }

@@ -16,6 +16,34 @@ try {
   firebase.messaging(); // FCM auto-displays "notification" payloads while backgrounded
 } catch (e) { /* offline / SDK unavailable — caching still works */ }
 
+/* --- Badge on push (iOS PWA support) ---
+   iOS PWAs freeze JS when backgrounded, so navigator.setAppBadge() in the
+   main thread never runs.  The service-worker push event DOES fire, so we
+   set the badge here so the icon dot appears immediately alongside the banner. */
+self.addEventListener("push", e => {
+  // Set badge — navigator.setAppBadge is available in service worker scope
+  if (self.navigator && self.navigator.setAppBadge) {
+    e.waitUntil(self.navigator.setAppBadge(1).catch(() => {}));
+  }
+  // Firebase auto-displays the notification from the "notification" payload,
+  // so we don't need to call showNotification ourselves.
+});
+
+/* --- Notification click → open / focus the app --- */
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(wins => {
+      for (const w of wins) {
+        if (w.url.includes(self.registration.scope) || w.url.includes(self.location.origin)) {
+          return w.focus();
+        }
+      }
+      return clients.openWindow("/");
+    })
+  );
+});
+
 /* --- Offline app shell cache --- */
 const CACHE = "jt-v200";
 const ASSETS = ["./", "index.html", "manifest.json",
