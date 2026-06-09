@@ -7,7 +7,7 @@ export const CHANNELS = [
   { id: "chaperones", label: "Chaperones", short: "Chaperones", cat: "Announcements", chap: true },
   { id: "directors",  label: "Directors",  short: "Directors",  cat: "Announcements", dir: true },
   { id: "shadow",     label: "Shadow",      short: "Shadow",     cat: "Announcements" },
-  { id: "flights",    label: "Flights",     short: "Flights",    cat: "Announcements", flights: true },
+  { id: "flights",    label: "Flights / Buses", short: "Flights / Buses", cat: "Announcements", flights: true },
   { id: "test",       label: "Test",        short: "Test",       cat: "Announcements" },
 ];
 export const CH_LABEL = {};
