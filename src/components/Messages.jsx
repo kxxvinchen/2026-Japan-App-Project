@@ -26,6 +26,9 @@ function getUserMentionTags(state, FB) {
   if (state.flight) {
     tags.add(`flight ${state.flight.toLowerCase()}`);
   }
+  if (state.bus) {
+    tags.add(`bus${state.bus}`);   // e.g. "bus4" matches @Bus4
+  }
   const myGroups = state.groups || [];
   myGroups.forEach((g) => {
     if (g === "band") {

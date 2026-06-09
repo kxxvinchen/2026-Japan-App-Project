@@ -32,7 +32,10 @@ function parseMentions(text) {
   const flights = [];
   const re = /@flight\s*([a-i])\b/gi; let mm;
   while ((mm = re.exec(t))) { const f = mm[1].toUpperCase(); if (flights.indexOf(f) < 0) flights.push(f); }
-  return {groups, flights};
+  const buses = [];
+  const busRe = /@Bus([1-9])\b/gi; let bm;
+  while ((bm = busRe.exec(t))) { const b = bm[1]; if (buses.indexOf(b) < 0) buses.push(b); }
+  return {groups, flights, buses};
 }
 
 /* ---- send helpers ---- */
@@ -98,8 +101,8 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
   const m = snap.data() || {};
   const text = String(m.text || "");
   const men = parseMentions(text);
-  // No specific group/flight mention => notify the whole channel by default.
-  const everyone = !men.groups.length && !men.flights.length;
+  // No specific group/flight/bus mention => notify the whole channel by default.
+  const everyone = !men.groups.length && !men.flights.length && !men.buses.length;
 
   const db = getFirestore();
   const msg = getMessaging();
@@ -124,11 +127,12 @@ exports.notifyOnMessage = onDocumentCreated("channels/{channel}/messages/{id}", 
     return;
   }
 
-  // targeted: only the mentioned groups/flights (web tokens — topics can't target subgroups)
+  // targeted: only the mentioned groups/flights/buses (web tokens — topics can't target subgroups)
   const targets = all.filter((w) => {
     const tags = Array.isArray(w.tags) ? w.tags : [];
     if (men.groups.some((g) => tags.includes(g))) return true;
     if (men.flights.length && men.flights.includes(w.flight)) return true;
+    if (men.buses.length && men.buses.includes(w.bus)) return true;
     return false;
   });
   await multicast(db, msg, targets, title, body);
