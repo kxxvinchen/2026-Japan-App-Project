@@ -755,7 +755,8 @@
   .ann-compose{position:relative;}
   .ann-mention-pop{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;padding:6px;
     background:var(--card);border:1px solid var(--line);border-radius:12px;
-    box-shadow:0 10px 24px rgba(10,18,38,.20);max-height:190px;overflow:auto;}
+    box-shadow:0 10px 24px rgba(10,18,38,.20);max-height:190px;overflow-y:auto;
+    overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
   .ann-mention-pop-h{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
     color:var(--muted);padding:4px 6px 3px;}
   .ann-mention-opt{display:flex;align-items:center;text-align:left;background:none;border:none;cursor:pointer;
