@@ -465,6 +465,11 @@ const DAYS = [
         t: "Evening", hr: "7:30 PM", type: "meal", groups: ALL,
         title: "Dinner on own & pack overnight bag",
         desc: "Return to the hotel; dinner on your own in small groups. Prepare a small overnight bag and concert clothes for tomorrow's one-night stay at Fuji Lake Kawaguchi. Curfew announced by the directors."
+      },
+      {
+        t: "Evening", hr: "9:00 PM", type: "travel", groups: ["band", "orch", "choir"],
+        title: "Load big luggage for Kyoto",
+        desc: "Band, Orchestra & Choir: bring your large check-in luggage to load onto the truck, 9:00–10:00pm (likely on 1F). You won't have access to it again until Kyoto — keep a small overnight bag and your concert clothes with you for tomorrow."
       }
     ],
     logistics: [
@@ -506,9 +511,9 @@ const DAYS = [
         desc: "Palais Royal banquet room (BF1) for Band & Orchestra (5:45–7:00am). Hotel restaurant for Choir (from 7:00am)."
       },
       {
-        t: "Morning", hr: "7:15 AM", type: "travel", groups: ALL,
+        t: "Morning", hr: "6:15 AM", type: "travel", groups: ALL,
         title: "Check out & drive to Mt. Fuji",
-        desc: "Band & Orchestra: load suitcases at 05:30, depart ~07:15–07:30 in concert attire (~2-hr drive). Choir: depart 09:00 (~2.5-hr drive). Main luggage goes ahead to Kyoto."
+        desc: "Report time is one hour earlier today. Orchestra: report 6:00am, depart 6:15am. Band: report 6:15am, depart 6:30am (concert attire, ~2-hr drive). Choir: depart 09:00 (~2.5-hr drive). Large luggage was loaded the night before (Day 5) and goes ahead to Kyoto."
       },
       {
         t: "Afternoon", hr: "11:30 AM", type: "meal", groups: ALL,
@@ -554,7 +559,7 @@ const DAYS = [
     logistics: [
       {
         label: "Band & Orchestra — morning", groups: ["band", "orch", "sband"],
-        lines: ["05:30 — Load suitcases onto truck", "05:45–07:00 — Breakfast in Palais Royal banquet room (BF1)", "Orchestra (Bus 1–3): 07:00 board / 07:15 depart", "Band (Bus 4–7): 07:15 board / 07:30 depart (concert attire, ~2-hr non-stop drive)", "09:30 — Arrive Kawaguchiko Stellar Theater"]
+        lines: ["Breakfast in Palais Royal banquet room (BF1) before departure", "Orchestra (Bus 1–3): 06:00 board / 06:15 depart", "Band (Bus 4–7): 06:15 board / 06:30 depart (concert attire, ~2-hr non-stop drive)", "Large luggage was loaded the night before (Day 5, 9–10pm) and goes ahead to Kyoto", "09:30 — Arrive Kawaguchiko Stellar Theater"]
       },
       {
         label: "Mt. Fuji Music Festival — timing", groups: ["band", "orch", "sband"],
@@ -1358,9 +1363,9 @@ const SHADOW_DAYS = [
         desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F) before checkout."
       },
       {
-        t: "Morning", hr: "7:30 AM", type: "travel", groups: SHG,
+        t: "Morning", hr: "7:15 AM", type: "travel", groups: SHG,
         title: "Load luggage & depart for Mt. Fuji",
-        desc: "Bring large check-in luggage to load onto the truck by 7:30am (next access is in Kyoto). Return room keys, then board coaches with your overnight bag. Band/Orch depart ~8:00–8:30am; Choir departs ~9:30am (~2-hr drive)."
+        desc: "Bring large check-in luggage to the truck before departure (next access is in Kyoto). Return room keys, then board with your overnight bag. Band/Orch Shadow: Bus 1–2 meet 7:00am / leave 7:15am; Bus 3 meet 7:15am / leave 7:30am. Choir Shadow: meet 8:45am / leave 9:00am (~2-hr drive)."
       },
       {
         t: "Morning", hr: "10:30 AM", type: "sightseeing", groups: SBO,
@@ -1400,8 +1405,8 @@ const SHADOW_DAYS = [
     ],
     note: "Today (June 14) at 6pm is the deadline to book + pay for a Day 10 Awaji optional activity.",
     logistics: [
-      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["08:15 — Depart hotel for Mt. Fuji (Bus 1–2; Bus 3 by 08:30)", "Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"] },
-      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:30 — Depart hotel for Mt. Fuji (Bus 4)", "Luggage to truck by 07:30 (next access in Kyoto); breakfast from 6:30am"] },
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["07:15 — Depart hotel for Mt. Fuji (Bus 1–2 meet 7:00; Bus 3 meet 7:15, depart 7:30)", "Luggage to truck before departure (next access in Kyoto); breakfast from 6:30am"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:00 — Depart hotel for Mt. Fuji (Bus 4, meet 8:45)", "Luggage to truck before departure (next access in Kyoto); breakfast from 6:30am"] },
       { label: "Overnight at Lake Ashi", groups: SHG, lines: ["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111", "Pack a small overnight bag; large luggage goes ahead to Kyoto"] }]
   },
   {
