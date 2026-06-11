@@ -301,7 +301,7 @@ const DAYS = [
         loc: { n: "Nishi-Arai Cultural Hall (GalaxCity)", q: "Nishiarai Bunka Hall Adachi Tokyo", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "4:00 PM", type: "rehearsal", groups: ["band"], gnote: "Percussion section only", rep: "jun11",
+        t: "Afternoon", hr: "4:00 PM", type: "rehearsal", groups: ["band"], gnote: "Percussion section only",
         title: "Percussion — Iwakura High School",
         desc: "The Saratoga Percussion Section rehearses and performs at Iwakura High School, 16:00–18:00.",
         loc: { n: "Iwakura High School", q: "Iwakura High School Taito Tokyo", kind: "venue" }
@@ -368,7 +368,7 @@ const DAYS = [
         loc: { n: "Takeshita Street, Harajuku", q: "Takeshita Street Harajuku Tokyo", kind: "sight" }
       },
       {
-        t: "Afternoon", hr: "3:30 PM", type: "exchange", groups: ["band", "orch"], gnote: "Students only", rep: "jun12",
+        t: "Afternoon", hr: "3:30 PM", type: "exchange", groups: ["band", "orch"], gnote: "Students only",
         title: "Musical Exchange — Ichikawa Gakuen High School",
         desc: "Band & Orchestra are hosted by the Ichikawa Gakuen Band and Orchestra for a musical exchange (15:30–17:30), followed by social time and a group photo.",
         loc: { n: "Ichikawa Gakuen High School", q: "Ichikawa Gakuen High School Chiba", kind: "venue" }
@@ -432,13 +432,13 @@ const DAYS = [
         desc: "Bento box lunches provided at Beethoven Hall."
       },
       {
-        t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["band", "orch"], rep: "jun13",
+        t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Friendship Concert, Beethoven Hall",
         desc: "Band & Orchestra perform a Friendship Concert with Iwakura High School at Beethoven Hall, Musashino Academia Musicae (14:00–16:00, open to the public). Includes a combined 'Galaxy Express 999' with Iwakura and a pre-concert Saratoga Percussion Studio set, 'Shared Space'. Bento box lunches provided.",
         loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["sband"], gnote: "Attending", rep: "jun13",
+        t: "Afternoon", hr: "2:00 PM", type: "performance", groups: ["sband"], gnote: "Attending",
         title: "Attend the Beethoven Hall concert",
         desc: "Band/Orch Shadow travelers attend the Friendship Concert at Beethoven Hall (open to the public).",
         loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
@@ -516,13 +516,13 @@ const DAYS = [
         desc: "Choir & Shadow: lunch at Oshino Hakkai (prepaid card/cash packet). Band & Orchestra: lunch provided at Stellar Theater."
       },
       {
-        t: "Afternoon", hr: "12:00 PM", type: "performance", groups: ["band", "orch"], rep: "jun14",
+        t: "Afternoon", hr: "12:00 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Mt. Fuji Music Festival",
         desc: "Band & Orchestra perform at the Kawaguchiko Stellar Theater as part of the Mt. Fuji Music Festival (festival 12:00–16:30, open to the public). Orchestra performs 13:30–13:55, Band 15:40–16:05, with a combined finale of 'Takarajima' & 'The Stars and Stripes Forever' with local groups.",
         loc: { n: "Kawaguchiko Stellar Theater", q: "Kawaguchiko Stellar Theater", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "12:00 PM", type: "performance", groups: ["sband"], gnote: "Attending", rep: "jun14",
+        t: "Afternoon", hr: "12:00 PM", type: "performance", groups: ["sband"], gnote: "Attending",
         title: "Attend the Mt. Fuji Music Festival",
         desc: "Band/Orch Shadow travelers attend the Mt. Fuji Music Festival at the Kawaguchiko Stellar Theater (open to the public).",
         loc: { n: "Kawaguchiko Stellar Theater", q: "Kawaguchiko Stellar Theater", kind: "venue" }
@@ -696,7 +696,7 @@ const DAYS = [
         desc: "Choir & Shadow: early dinner on your own at Kobe Chinatown (14:00–16:00). Band, Orchestra & Shadow: bento box dinners provided at Akashi Civic Hall."
       },
       {
-        t: "Afternoon", hr: "6:00 PM", type: "performance", groups: ["band", "orch"], rep: "jun17",
+        t: "Afternoon", hr: "6:00 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Friendship Concert, Akashi Civic Hall",
         desc: "Band & Orchestra perform a Friendship Concert with Takigawa Daini High School at Akashi Civic Hall (18:00–20:30), including a combined 'Takarajima' with Takigawa Daini. Rehearsals beforehand.",
         loc: { n: "Akashi Civic Hall", q: "Akashi Civic Hall Hyogo", kind: "venue" }
@@ -714,7 +714,7 @@ const DAYS = [
         loc: { n: "Akashi Civic Hall", q: "Akashi Civic Hall Hyogo", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "4:00 PM", type: "performance", groups: ["sband"], gnote: "Attending", rep: "jun17",
+        t: "Afternoon", hr: "4:00 PM", type: "performance", groups: ["sband"], gnote: "Attending",
         title: "Attend the Akashi Civic Hall concert",
         desc: "Band/Orch Shadow travelers attend the Friendship Concert at Akashi Civic Hall.",
         loc: { n: "Akashi Civic Hall", q: "Akashi Civic Hall Hyogo", kind: "venue" }
@@ -887,13 +887,13 @@ const DAYS = [
         desc: "Bento box lunches provided at Hiroshima Phoenix Hall (Orchestra 11:00am, Band 11:50am)."
       },
       {
-        t: "Afternoon", hr: "1:30 PM", type: "performance", groups: ["band", "orch"], rep: "jun20",
+        t: "Afternoon", hr: "1:30 PM", type: "performance", groups: ["band", "orch"],
         title: "PERFORMANCE — Peace Friendship Concert, Hiroshima Phoenix Hall",
         desc: "Band & Orchestra perform the Peace Friendship Concert with Hijiyama High School at Hiroshima Phoenix Hall (13:30–15:45), with a combined 'Takarajima' & 'Let's Go Carp!' and a pre-concert Saratoga Percussion Studio set, 'José / beFORe John 5'. Checked instruments are packed for the flights home afterward.",
         loc: { n: "Hiroshima Phoenix Hall", q: "JMS Aster Plaza Hiroshima", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "1:30 PM", type: "performance", groups: ["sband"], gnote: "Attending", rep: "jun20",
+        t: "Afternoon", hr: "1:30 PM", type: "performance", groups: ["sband"], gnote: "Attending",
         title: "Attend the Peace Friendship Concert",
         desc: "Band/Orch Shadow travelers attend the Peace Friendship Concert at Hiroshima Phoenix Hall (open to the public).",
         loc: { n: "Hiroshima Phoenix Hall", q: "JMS Aster Plaza Hiroshima", kind: "venue" }
@@ -949,7 +949,7 @@ const DAYS = [
         desc: "Breakfast 06:30–08:00 in the Setouchi Banquet Room (2F)."
       },
       {
-        t: "Morning", hr: "10:00 AM", type: "exchange", groups: PERF, gnote: "Students only", rep: "jun21",
+        t: "Morning", hr: "10:00 AM", type: "exchange", groups: PERF, gnote: "Students only",
         title: "Cultural exchange — Hijiyama High School",
         desc: "Students arrive at Hijiyama High School at 10:00am for a cultural exchange (10:00–10:45) — performances, paper-crane making and friendship-building with Japanese students.",
         loc: { n: "Hijiyama High School", q: "Hijiyama Girls Junior and Senior High School Hiroshima", kind: "venue" }
@@ -2031,144 +2031,9 @@ const BUSES = [
 ];
 
 
-/* ============================ REPERTOIRE ============================ */
-/* Band & Orchestra (SWE / SSO) + Percussion concert programs, keyed by date.
-   Attached to performance items via their `rep` field and shown as a dropdown.
-   (Choir programs are intentionally not included.) */
-const REP_PERC = (list) => ({ ensemble: "Saratoga Percussion Studio", conductors: "Sean Clark & Chavadith Tantavirojn", pieces: list });
-const P = {
-  headTalk: { by: "Mark Ford (b. 1958)", work: "Head Talk" },
-  jose: { by: "Aurel Hollo (b. 1966)", work: "José / beFORe John 5" },
-  helix: { by: "Eric Rath (b. 1978)", work: "HeliX" },
-  shared: { by: "Ivan Trevino (b. 1983)", work: "Shared Space" },
-};
-const REPERTOIRE = {
-  jun11: {
-    venue: "Iwakura High School — school visit · June 11",
-    sets: [REP_PERC([P.headTalk, P.jose, P.helix, P.shared])],
-    note: "Percussion selections depend on available equipment and performance time.",
-  },
-  jun12: {
-    venue: "Ichikawa High School — school visit · June 12",
-    sets: [
-      REP_PERC([P.jose, P.helix, P.shared]),
-      { ensemble: "Saratoga Symphony Orchestra (strings only)", conductors: "Michael Boitz & Jason Shiuan", pieces: [
-        { by: "Johannes Brahms (1833–1897), Ed. Richard Dunser", work: "Concerto for Piano (Four Hands) and String Orchestra", sub: "I. Allegro non troppo" },
-        { by: "Yasushi Akutagawa (1925–1989)", work: "Triptyque for String Orchestra", sub: "I. Allegro" },
-      ] },
-      { ensemble: "Symphonic Wind Ensemble", conductors: "Jason Shiuan & Michael Boitz", pieces: [
-        { by: "Óscar Navarro (b. 1981)", work: "Paconchita" },
-        { by: "Carlos Simon (b. 1986)", work: "AMEN!" },
-      ] },
-      { ensemble: "Combined Finale", pieces: [
-        { by: "Yukihide Takekawa (b. 1952), Arr. Seiji Miyagawa", work: "The Galaxy Express 999" },
-        { by: "Hirotaka Izumi (b. 1958), Arr. Seiji Miyagawa", work: "Takarajima" },
-      ] },
-    ],
-  },
-  jun13: {
-    venue: "Musashino Academia Musicae w/ Iwakura HS · June 13",
-    sets: [
-      { ensemble: "Saratoga Percussion Studio", conductors: "Sean Clark & Chavadith Tantavirojn", note: "Pre-concert", pieces: [P.jose, P.shared] },
-      { ensemble: "Saratoga Symphony Orchestra", conductors: "Michael Boitz & Jason Shiuan", pieces: [
-        { by: "Aaron Copland (1900–1990)", work: "Hoe-down from “Rodeo”" },
-        { by: "Aaron Copland (1900–1990)", work: "Appalachian Spring Suite" },
-        { by: "Johannes Brahms (1833–1897), Ed. Richard Dunser", work: "Concerto for Piano (Four Hands) and String Orchestra", sub: "I. Allegro non troppo" },
-        { by: "Omar Thomas (b. 1984), Orchd. Nicholas Urie", work: "Come Sunday", sub: "I. Testimony · II. Shout!" },
-      ] },
-      { ensemble: "Symphonic Wind Ensemble", conductors: "Jason Shiuan & Michael Boitz", pieces: [
-        { by: "Óscar Navarro (b. 1981)", work: "Paconchita" },
-        { by: "Yo Goto (b. 1958)", work: "A Wild Rose Above" },
-        { by: "Mark Ford (b. 1958)", work: "Head Talk", sub: "Saratoga Percussion Studio" },
-        { by: "Tony Glausi (b. 1994)", work: "Lost Lullaby", sub: "World Premiere · Tony Glausi, trumpet" },
-        { by: "Carlos Simon (b. 1986)", work: "AMEN!" },
-      ] },
-      { ensemble: "Combined Finale", pieces: [
-        { by: "Yukihide Takekawa (b. 1952), Arr. Seiji Miyagawa", work: "The Galaxy Express 999" },
-        { by: "Hirotaka Izumi (b. 1958), Arr. Seiji Miyagawa", work: "Takarajima" },
-      ] },
-    ],
-  },
-  jun14: {
-    venue: "Stellar Theater — Mt. Fuji Festival · June 14",
-    sets: [
-      { ensemble: "Saratoga Symphony Orchestra", conductors: "Michael Boitz & Jason Shiuan", pieces: [
-        { by: "Aaron Copland (1900–1990)", work: "Hoe-down from “Rodeo”" },
-        { by: "Aaron Copland (1900–1990)", work: "Appalachian Spring Suite" },
-        { by: "Omar Thomas (b. 1984), Orchd. Nicholas Urie", work: "Come Sunday", sub: "I. Testimony · II. Shout!" },
-      ] },
-      { ensemble: "Symphonic Wind Ensemble", conductors: "Jason Shiuan & Michael Boitz", pieces: [
-        { by: "Óscar Navarro (b. 1981)", work: "Paconchita" },
-        { by: "Tony Glausi (b. 1994)", work: "Lost Lullaby", sub: "World Premiere · Tony Glausi, trumpet" },
-        { by: "Carlos Simon (b. 1986)", work: "AMEN!" },
-      ] },
-      { ensemble: "Combined Finale", pieces: [
-        { by: "John Philip Sousa (1854–1932)", work: "The Stars and Stripes Forever" },
-        { by: "Hirotaka Izumi (b. 1958), Arr. Seiji Miyagawa", work: "Takarajima" },
-      ] },
-    ],
-  },
-  jun17: {
-    venue: "Akashi Civic Hall w/ Takigawa Daini HS · June 17",
-    sets: [
-      { ensemble: "Saratoga Symphony Orchestra", conductors: "Michael Boitz & Jason Shiuan", pieces: [
-        { by: "Aaron Copland (1900–1990)", work: "Hoe-down from “Rodeo”" },
-        { by: "Aaron Copland (1900–1990)", work: "Appalachian Spring Suite" },
-        { by: "Johannes Brahms (1833–1897), Ed. Richard Dunser", work: "Concerto for Piano (Four Hands) and String Orchestra", sub: "I. Allegro non troppo" },
-        { by: "Omar Thomas (b. 1984), Orchd. Nicholas Urie", work: "Come Sunday", sub: "I. Testimony · II. Shout!" },
-      ] },
-      { ensemble: "Symphonic Wind Ensemble", conductors: "Jason Shiuan & Michael Boitz", pieces: [
-        { by: "Óscar Navarro (b. 1981)", work: "Paconchita" },
-        { by: "Yo Goto (b. 1958)", work: "A Wild Rose Above" },
-        { by: "Mark Ford (b. 1958)", work: "Head Talk", sub: "Saratoga Percussion Studio" },
-        { by: "Tony Glausi (b. 1994)", work: "Lost Lullaby", sub: "World Premiere · Tony Glausi, trumpet" },
-        { by: "Carlos Simon (b. 1986)", work: "AMEN!" },
-      ] },
-      { ensemble: "Combined Finale", pieces: [
-        { by: "Yukihide Takekawa (b. 1952), Arr. Seiji Miyagawa", work: "The Galaxy Express 999" },
-        { by: "Hirotaka Izumi (b. 1958), Arr. Seiji Miyagawa", work: "Takarajima" },
-      ] },
-    ],
-  },
-  jun18: {
-    venue: "Takigawa Daini High School — school visit · June 18",
-    sets: [REP_PERC([P.headTalk, P.jose, P.helix, P.shared])],
-    note: "Percussion selections depend on available equipment and performance time.",
-  },
-  jun20: {
-    venue: "Phoenix Concert Hall w/ Hijiyama HS · June 20",
-    sets: [
-      { ensemble: "Saratoga Percussion Studio", conductors: "Sean Clark & Chavadith Tantavirojn", note: "Pre-concert", pieces: [P.jose, P.shared] },
-      { ensemble: "Saratoga Symphony Orchestra", conductors: "Michael Boitz & Jason Shiuan", pieces: [
-        { by: "Aaron Copland (1900–1990)", work: "Hoe-down from “Rodeo”" },
-        { by: "Aaron Copland (1900–1990)", work: "Appalachian Spring Suite" },
-        { by: "Johannes Brahms (1833–1897), Ed. Richard Dunser", work: "Concerto for Piano (Four Hands) and String Orchestra", sub: "I. Allegro non troppo" },
-        { by: "Omar Thomas (b. 1984), Orchd. Nicholas Urie", work: "Come Sunday", sub: "I. Testimony · II. Shout!" },
-      ] },
-      { ensemble: "Symphonic Wind Ensemble", conductors: "Jason Shiuan & Michael Boitz", pieces: [
-        { by: "Óscar Navarro (b. 1981)", work: "Paconchita" },
-        { by: "Yo Goto (b. 1958)", work: "A Wild Rose Above" },
-        { by: "Mark Ford (b. 1958)", work: "Head Talk", sub: "Saratoga Percussion Studio" },
-        { by: "Tony Glausi (b. 1994)", work: "Lost Lullaby", sub: "World Premiere · Tony Glausi, trumpet" },
-        { by: "Carlos Simon (b. 1986)", work: "AMEN!" },
-      ] },
-      { ensemble: "Combined Finale", pieces: [
-        { by: "Yukihide Takekawa (b. 1952), Arr. Seiji Miyagawa", work: "The Galaxy Express 999" },
-        { by: "Hirotaka Izumi (b. 1958), Arr. Seiji Miyagawa", work: "Takarajima" },
-        { by: "Naoshi Miyazaki (1934–2003), Arr. Hiroaki Kataoka", work: "Let’s Go, Hiroshima Carp!" },
-      ] },
-    ],
-  },
-  jun21: {
-    venue: "Hijiyama High School — school visit · June 21",
-    sets: [REP_PERC([P.headTalk, P.jose, P.helix, P.shared])],
-    note: "Percussion selections depend on available equipment and performance time.",
-  },
-};
-
 /* ---- exports for the React app ---- */
 export {
   TRIP, EMERGENCY, GROUPS, ALL, PERF, BO, CH,
   ATTIRE, DAYS, SHG, SBO, SCH, SHADOW_DAYS, SHADOW_ATTIRE,
-  CITIES, FLIGHTS, BUSES, REPERTOIRE
+  CITIES, FLIGHTS, BUSES
 };
