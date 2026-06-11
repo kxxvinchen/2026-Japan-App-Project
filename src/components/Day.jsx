@@ -5,7 +5,6 @@ import { daySet, attireSet, egroups, inGroup, itemGroups, myGroupsEff, groupLabe
 import { TYPE_LABEL, timeBlocks } from "../lib/schedule.js";
 import { deleteReminder } from "../lib/firebase.js";
 import { timesToAmPm } from "../lib/activity.js";
-import { REPERTOIRE } from "../data.js";
 
 function PlaceRow({ name, kind, cls, q }) {
   const ic = cls === "hotel" ? "H" : cls === "venue" ? "V" : "S";
@@ -24,12 +23,8 @@ function ItemCard({ di, it, g, dir }) {
   const ex = !!state.excluded[nk];
   const noteVal = state.notes[nk] || "";
   const [noteOpen, setNoteOpen] = useState(!!noteVal);
-  const [repOpen, setRepOpen] = useState(false);
   const tlabel = TYPE_LABEL[it.type] || "Item";
   const chips = (dir || g.length > 1) && !it._custom ? itemGroups(it, g, dir) : [];
-  // Repertoire is Band/Orch (+ percussion) only — hide it from choir-only viewers.
-  const rep = it.rep ? REPERTOIRE[it.rep] : null;
-  const showRep = rep && (dir || (g || []).some((x) => ["band", "orch", "sband", "perc"].indexOf(x) > -1));
   return (
     <div className={"item t-" + it.type + (ex ? " excluded" : "") + (it._custom ? " custom" : "")}>
       <div className="item-in">
@@ -43,32 +38,6 @@ function ItemCard({ di, it, g, dir }) {
         {it.remind ? <div className="item-gnote">⏰ Reminder {it.remind} min before</div> : null}
         {chips.length ? (
           <div className="item-for"><span className="flabel">For</span>{chips.map((c, i) => <span className="fchip" key={i}>{c.short}</span>)}</div>
-        ) : null}
-        {showRep ? (
-          <div className="rep-block">
-            <button className="rep-toggle" onClick={() => setRepOpen((o) => !o)} aria-expanded={repOpen}>
-              <span className="rep-tx">Repertoire</span>
-              <span className="rep-caret">{repOpen ? "▾" : "▸"}</span>
-            </button>
-            {repOpen ? (
-              <div className="rep-body">
-                {rep.venue ? <div className="rep-venue">{rep.venue}</div> : null}
-                {rep.sets.map((s, si) => (
-                  <div className="rep-set" key={si}>
-                    <div className="rep-ens">{s.ensemble}{s.note ? <span className="rep-ens-note"> · {s.note}</span> : null}</div>
-                    {s.conductors ? <div className="rep-cond">{s.conductors}</div> : null}
-                    {s.pieces.map((p, pi) => (
-                      <div className="rep-piece" key={pi}>
-                        <div className="rep-work">{p.work}{p.sub ? <span className="rep-sub"> — {p.sub}</span> : null}</div>
-                        <div className="rep-by">{p.by}</div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-                {rep.note ? <div className="rep-foot">{rep.note}</div> : null}
-              </div>
-            ) : null}
-          </div>
         ) : null}
         <div className="item-actions">
           {it.loc ? <a className="mini-btn map" target="_blank" rel="noopener" href={mapsUrl(it.loc.q)}>📍 {it.loc.n}</a> : null}
