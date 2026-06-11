@@ -2,6 +2,7 @@ import React from "react";
 import { useStore } from "../store.jsx";
 import { TRIP, BUSES } from "../data.js";
 import { daySet, dayPerfCount, inGroup } from "../lib/groups.js";
+import { isDayArchived } from "../lib/archive.js";
 
 function FlightBanner() {
   const { state, dispatch } = useStore();
@@ -41,6 +42,7 @@ export default function Overview() {
   const days = daySet(g);
   const totalPerf = days.reduce((s, d) => s + dayPerfCount(d, g, dir), 0);
   const multi = dir || g.length > 1;
+  const archivedCount = days.reduce((n, d) => n + (isDayArchived(d, state.unarchived) ? 1 : 0), 0);
 
   return (
     <div className="screen">
@@ -59,6 +61,7 @@ export default function Overview() {
       <div className="wrap">
         <div className="sec-title">Day-by-day itinerary</div>
         {days.map((d, i) => {
+          if (isDayArchived(d, state.unarchived)) return null;   // completed days live in the Archive
           const pc = dayPerfCount(d, g, dir);
           const sights = (d.items || []).some((it) => it.type === "sightseeing" && inGroup(it, g, dir));
           const moves = (d.items || []).some((it) => it.type === "travel" && inGroup(it, g, dir));
@@ -83,6 +86,20 @@ export default function Overview() {
           );
         })}
         <div className="intro-note">Tap any day for the full hour-by-hour schedule, hotels, venues and map links.</div>
+        {archivedCount > 0 ? (
+          <button className="archive-tile" onClick={() => dispatch({ type: "nav", screen: "archive" })}>
+            <span className="arch-ic" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="4" rx="1" /><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" /><path d="M10 12h4" />
+              </svg>
+            </span>
+            <span className="arch-tx">
+              <span className="t">Archive</span>
+              <span className="s">{archivedCount} completed day{archivedCount > 1 ? "s" : ""}</span>
+            </span>
+            <span className="arch-chev">›</span>
+          </button>
+        ) : null}
       </div>
     </div>
   );

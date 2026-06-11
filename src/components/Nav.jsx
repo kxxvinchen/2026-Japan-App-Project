@@ -5,7 +5,7 @@ import { FB, totalUnread } from "../lib/firebase.js";
 
 // which bottom-tab is highlighted for each screen
 const NAV_FOR = {
-  overview: "trip", day: "trip", addact: "trip", emergency: "trip",
+  overview: "trip", archive: "trip", day: "trip", addact: "trip", emergency: "trip",
   cities: "cities", city: "cities",
   utilities: "utilities", phrases: "utilities", handbooks: "utilities", orchestra: "utilities",
   flight: "group", bus: "group", settings: "group",
