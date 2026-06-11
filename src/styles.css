@@ -230,6 +230,38 @@
   .b-move{background:#e8f1f8;color:var(--travel);}
   .chev{align-self:center;color:#c4ccd6;font-size:20px;flex:0 0 auto;}
 
+  /* Archive entry tile — sits below the day list, clearly separated */
+  .archive-tile{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    margin:18px 0 4px;background:var(--card);border:1.5px solid var(--line);border-radius:15px;padding:13px 14px;
+    box-shadow:0 4px 14px rgba(10,18,38,.07);transition:transform .12s ease,box-shadow .12s ease;}
+  .archive-tile:active{transform:scale(.985);}
+  .arch-ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;color:#fff;
+    display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--free),#5a6573);
+    box-shadow:0 3px 8px rgba(91,101,115,.32);}
+  .arch-tx{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .arch-tx .t{font-size:15px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .arch-tx .s{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .archive-tile .arch-chev{flex:0 0 auto;color:var(--muted);font-size:22px;font-weight:700;line-height:1;}
+  body.dark .archive-tile{background:var(--card2);border-color:var(--line);}
+
+  /* Swipe-to-unarchive rows (Archive screen) */
+  .swipe-wrap{position:relative;border-radius:14px;overflow:hidden;margin-bottom:12px;}
+  .swipe-action{position:absolute;top:0;right:0;height:100%;border:0;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    background:linear-gradient(135deg,var(--travel),#1f6390);color:#fff;
+    font-size:11.5px;font-weight:700;letter-spacing:.2px;}
+  .swipe-card{position:relative;touch-action:pan-y;will-change:transform;cursor:pointer;}
+  .swipe-card .card{margin-bottom:0;}
+
+  /* In-day archive toggle */
+  .day-arch-btn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+    margin:0 0 12px;padding:9px 14px;border-radius:11px;font-size:13px;font-weight:700;
+    border:0;color:#fff;background:linear-gradient(135deg,var(--travel),#1f6390);
+    box-shadow:0 3px 9px rgba(36,113,163,.28);}
+  .day-arch-btn:active{transform:scale(.98);}
+  .day-arch-btn.ghost{background:var(--card);color:var(--muted);border:1.5px solid var(--line);box-shadow:none;}
+  body.dark .day-arch-btn.ghost{background:var(--card2);color:var(--ink);}
+
   /* Day detail */
   .meal-row{display:flex;flex-wrap:wrap;gap:6px;}
   .meal{font-size:11px;background:#f4ede4;color:var(--meal);font-weight:600;

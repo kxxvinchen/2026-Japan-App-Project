@@ -3,6 +3,7 @@ import { useStore } from "./store.jsx";
 import Nav from "./components/Nav.jsx";
 import Toast from "./components/Toast.jsx";
 import Overview from "./components/Overview.jsx";
+import Archive from "./components/Archive.jsx";
 import Day from "./components/Day.jsx";
 import Cities from "./components/Cities.jsx";
 import City from "./components/City.jsx";
@@ -22,11 +23,11 @@ import { setGroups, setFlight, setUserBus, FB, markActiveChannelRead } from "./l
 import { useFB } from "./lib/useFB.js";
 
 const SCREENS = {
-  overview: Overview, day: Day, cities: Cities, city: City, phrases: Phrases,
+  overview: Overview, archive: Archive, day: Day, cities: Cities, city: City, phrases: Phrases,
   emergency: Emergency, flight: Flight, bus: Bus, settings: Settings,
   addact: AddActivity, onboard: Onboard, messages: Messages, utilities: Utilities, handbooks: Handbooks, orchestra: OrchestraResources,
 };
-const LABELS = { day: "Day", cities: "Cities", city: "City", phrases: "Translation Guide", messages: "Announcements", settings: "Group & Settings", emergency: "Emergency", flight: "Flights", bus: "Buses", addact: "Add Activity", onboard: "Welcome", utilities: "Utilities", handbooks: "Handbooks", orchestra: "Orchestra Resources" };
+const LABELS = { archive: "Archive", day: "Day", cities: "Cities", city: "City", phrases: "Translation Guide", messages: "Announcements", settings: "Group & Settings", emergency: "Emergency", flight: "Flights", bus: "Buses", addact: "Add Activity", onboard: "Welcome", utilities: "Utilities", handbooks: "Handbooks", orchestra: "Orchestra Resources" };
 
 function Stub({ name }) {
   const { dispatch } = useStore();

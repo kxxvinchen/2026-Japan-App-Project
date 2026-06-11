@@ -3,7 +3,7 @@ import React, { createContext, useContext, useReducer, useEffect } from "react";
 /* Same localStorage keys/format as the original app, so a user's saved
    groups / flight / bus / theme carry over. */
 const LS = { group: "jt_group", flight: "jt_flight", bus: "jt_bus",
-  theme: "jt_theme", excl: "jt_excluded", custom: "jt_custom", notes: "jt_notes" };
+  theme: "jt_theme", excl: "jt_excluded", custom: "jt_custom", notes: "jt_notes", unarch: "jt_unarchived" };
 
 function load(k, def) {
   try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); }
@@ -55,6 +55,7 @@ function initial() {
     excluded,
     custom,
     notes,
+    unarchived: load(LS.unarch, {}),   // { [dayNumber]: true } = kept active despite being completed
     // First install (no saved theme): follow the browser/OS color scheme once.
     // After that the value is persisted, so the user's manual toggle always wins.
     dark: (() => {
@@ -102,6 +103,8 @@ function reducer(s, a) {
       c[a.di] = (c[a.di] || []).concat([item]);
       return { ...s, custom: c };
     }
+    case "unarchive": return { ...s, unarchived: { ...s.unarchived, [a.d]: true } };
+    case "archive": { const u = { ...s.unarchived }; delete u[a.d]; return { ...s, unarchived: u }; }
     case "set": return { ...s, ...a.patch };
     default: return s;
   }
@@ -119,6 +122,7 @@ export function StoreProvider({ children }) {
   useEffect(() => persist(LS.excl, state.excluded), [state.excluded]);
   useEffect(() => persist(LS.custom, state.custom), [state.custom]);
   useEffect(() => persist(LS.notes, state.notes), [state.notes]);
+  useEffect(() => persist(LS.unarch, state.unarchived), [state.unarchived]);
 
   // theme: persist (raw string, like the original) + reflect on <html>/<body>
   useEffect(() => {

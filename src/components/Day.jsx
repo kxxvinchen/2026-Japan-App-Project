@@ -5,6 +5,7 @@ import { daySet, attireSet, egroups, inGroup, itemGroups, myGroupsEff, groupLabe
 import { TYPE_LABEL, timeBlocks } from "../lib/schedule.js";
 import { deleteReminder } from "../lib/firebase.js";
 import { timesToAmPm } from "../lib/activity.js";
+import { isDayCompleted, isDayArchived } from "../lib/archive.js";
 
 function PlaceRow({ name, kind, cls, q }) {
   const ic = cls === "hotel" ? "H" : cls === "venue" ? "V" : "S";
@@ -89,6 +90,23 @@ export default function Day() {
         <div className="sub" style={{ marginTop: 8 }}>{d.headline}</div>
       </div>
       <div className="wrap">
+        {isDayCompleted(d) ? (
+          isDayArchived(d, state.unarchived) ? (
+            <button className="day-arch-btn" onClick={() => dispatch({ type: "unarchive", d: d.d })}>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="4" rx="1" /><path d="M3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7" /><path d="M12 11v6" /><path d="M9 14l3-3 3 3" />
+              </svg>
+              Un-archive this day
+            </button>
+          ) : (
+            <button className="day-arch-btn ghost" onClick={() => dispatch({ type: "archive", d: d.d })}>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="4" rx="1" /><path d="M3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7" /><path d="M9 13h6" />
+              </svg>
+              Move to archive
+            </button>
+          )
+        ) : null}
         <div className="card">
           <div className="sec-title" style={{ margin: "0 0 7px" }}>Meals included</div>
           {d.meals.length ? <div className="meal-row">{d.meals.map((m, i) => <span className="meal" key={i}>{m}</span>)}</div>
