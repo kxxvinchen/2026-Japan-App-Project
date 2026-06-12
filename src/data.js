@@ -427,6 +427,24 @@ const DAYS = [
         desc: "Breakfast served from 6:30am at the hotel restaurant; multiple choices — check your room key packet for details."
       },
       {
+        t: "Morning", hr: "9:30 AM", type: "travel", groups: ["band"],
+        title: "Band — depart hotel for Beethoven Hall",
+        desc: "Board the coach on 1F at 9:15am; depart the hotel at 9:30am for Beethoven Hall. Wear: performance attire.",
+        loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
+      },
+      {
+        t: "Morning", hr: "9:45 AM", type: "travel", groups: ["orch"],
+        title: "Orchestra — depart hotel for Beethoven Hall",
+        desc: "Board the coach on 1F at 9:30am; depart the hotel at 9:45am (arrive Beethoven Hall ~10:15am, Saratoga green room: Brahms Hall). Wear: performance attire.",
+        loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
+      },
+      {
+        t: "Morning", hr: "10:00 AM", type: "travel", groups: ["choir"],
+        title: "Choir — depart hotel for Kawagoe",
+        desc: "Board the coach on 1F at 9:45am (bring your concert clothes); depart the hotel at 10:00am for Kawagoe. Wear: casual attire for sightseeing — bring performance attire for the evening concert.",
+        loc: { n: "Kawagoe ('Little Edo')", q: "Kawagoe Saitama", kind: "sight" }
+      },
+      {
         t: "Afternoon", hr: "11:30 AM", type: "meal", groups: ["band", "orch"],
         title: "Bento box lunch",
         desc: "Bento box lunches provided at Beethoven Hall."
