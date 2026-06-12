@@ -309,7 +309,7 @@ const DAYS = [
       {
         t: "Afternoon", hr: "3:40 PM", type: "rehearsal", groups: ["choir"],
         title: "Rehearsal — Katsushika Symphony Hills",
-        desc: "Choir rehearses 15:40–18:40 at Katsushika Symphony Hills. Return to the hotel around 18:30; dinner on your own in small groups.",
+        desc: "Choir rehearses 15:40–17:40 at Katsushika Symphony Hills. Return to the hotel around 18:30; dinner on your own in small groups.",
         loc: { n: "Katsushika Symphony Hills", q: "Katsushika Symphony Hills Tokyo", kind: "venue" }
       },
       {
@@ -337,7 +337,7 @@ const DAYS = [
       },
       {
         label: "Choir — afternoon / evening", groups: ["choir", "schoir"],
-        lines: ["15:40–18:40 — Rehearsal at Katsushika Symphony Hills", "18:30 — Return to hotel, dinner on own in small groups"]
+        lines: ["15:40–17:40 — Rehearsal at Katsushika Symphony Hills", "18:30 — Return to hotel, dinner on own in small groups"]
       },
       {
         label: "Hotel — Grand Nikko Tokyo Daiba", groups: ALL,
@@ -439,9 +439,9 @@ const DAYS = [
         loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
       },
       {
-        t: "Morning", hr: "10:00 AM", type: "travel", groups: ["choir"],
+        t: "Morning", hr: "11:15 AM", type: "travel", groups: ["choir"],
         title: "Choir — depart hotel for Kawagoe",
-        desc: "Board the coach on 1F at 9:45am (bring your concert clothes); depart the hotel at 10:00am for Kawagoe. Wear: casual attire for sightseeing — bring performance attire for the evening concert.",
+        desc: "Board the coach on 1F at 11:15am (bring anything needed for the concert, including performance attire); depart the hotel by 11:30am for Kawagoe. Wear: casual attire for sightseeing — bring performance attire for the evening concert.",
         loc: { n: "Kawagoe ('Little Edo')", q: "Kawagoe Saitama", kind: "sight" }
       },
       {
@@ -462,15 +462,15 @@ const DAYS = [
         loc: { n: "Beethoven Hall, Musashino Academia Musicae", q: "Musashino Academia Musicae Tokyo", kind: "venue" }
       },
       {
-        t: "Morning", hr: "10:00 AM", type: "sightseeing", groups: ["choir", "schoir"],
+        t: "Afternoon", hr: "1:00 PM", type: "sightseeing", groups: ["choir", "schoir"],
         title: "Kawagoe ('Little Edo')",
-        desc: "Choir spends the late morning in Kawagoe (11:30–13:30) — Edo-era clay-walled streets, the Toki no Kane bell tower and snack shops — with sightseeing, shopping and lunch on your own.",
+        desc: "Choir arrives at Kawagoe around 1:00pm — Edo-era clay-walled streets, the Toki no Kane bell tower and snack shops — for sightseeing, shopping and lunch on your own in small groups. Depart for Ikebukuro at 3:00pm.",
         loc: { n: "Kawagoe ('Little Edo')", q: "Kawagoe Saitama", kind: "sight" }
       },
       {
         t: "Evening", hr: "6:00 PM", type: "performance", groups: ["choir"],
         title: "PERFORMANCE — Ikebukuro Global Ring Theatre",
-        desc: "Choir performs an open-air concert at the Ikebukuro Global Ring Theatre (18:00–18:45, open to the public). Free time and early dinner on your own in Ikebukuro beforehand, then a 17:00–18:00 stage rehearsal.",
+        desc: "Choir performs an open-air concert at the Ikebukuro Global Ring Theatre (6:00pm, open to the public). Arrive Ikebukuro around 4:15pm to change into performance attire, with a soundcheck 5:00–5:45pm. Dinner on your own in small groups nearby after the concert.",
         loc: { n: "Ikebukuro Global Ring Theatre", q: "Global Ring Theatre Ikebukuro Tokyo", kind: "venue" }
       },
       {
@@ -482,7 +482,7 @@ const DAYS = [
       {
         t: "Evening", hr: "7:30 PM", type: "meal", groups: ALL,
         title: "Dinner on own & pack overnight bag",
-        desc: "Return to the hotel; dinner on your own in small groups. Prepare a small overnight bag and concert clothes for tomorrow's one-night stay at Fuji Lake Kawaguchi. Curfew announced by the directors."
+        desc: "Dinner on your own in small groups of 3 or more (Band & Orchestra near the hotel after arriving back ~7:00pm; Choir in Ikebukuro after the concert, returning ~9:15pm). Prepare a small overnight bag and your performance attire for tomorrow's one-night stay at Fuji Lake Kawaguchi. Curfew announced by the directors."
       },
       {
         t: "Evening", hr: "9:00 PM", type: "travel", groups: ["band", "orch", "choir"],
@@ -505,7 +505,7 @@ const DAYS = [
       },
       {
         label: "Choir (Bus 8–9)", groups: ["choir", "schoir"],
-        lines: ["09:45 — Board coach on 1F (bring concert clothes)", "10:00 — Depart hotel", "11:30–13:30 — Kawagoe ('Little Edo'), sightseeing, shopping & lunch on own", "14:00 — Depart for Ikebukuro", "15:00–17:00 — Free time & early dinner on own in Ikebukuro", "17:00–18:00 — Stage rehearsal", "18:00–18:45 — Performance at Ikebukuro Global Ring Theatre (open to public)", "19:30 — Return to hotel"]
+        lines: ["11:15 — Board coach on 1F (bring concert clothes)", "11:30 — Depart hotel for Kawagoe", "13:00 — Arrive Kawagoe ('Little Edo'), sightseeing, shopping & lunch on own", "15:00 — Depart for Ikebukuro", "16:15 — Arrive Ikebukuro, change into performance attire", "17:00–17:45 — Soundcheck", "18:00 — Performance at Ikebukuro Global Ring Theatre (open to public)", "Dinner on own in small groups nearby after the concert", "20:30 — Depart for hotel", "21:15 — Return to hotel; load large luggage onto truck by 10:00pm"]
       },
       {
         label: "Hotel — Grand Nikko Tokyo Daiba", groups: ALL,
@@ -526,7 +526,7 @@ const DAYS = [
       {
         t: "Morning", hr: "5:45 AM", type: "meal", groups: ALL,
         title: "Breakfast at hotel",
-        desc: "Palais Royal banquet room (BF1) for Band & Orchestra (5:45–7:00am). Hotel restaurant for Choir (from 7:00am)."
+        desc: "Palais Royal banquet room (BF1) for Band & Orchestra (5:45–7:00am; begin arriving by 5:30am). Hotel restaurant for Choir (from 6:30am, finish by 8:30am)."
       },
       {
         t: "Morning", hr: "6:15 AM", type: "travel", groups: ALL,
@@ -569,9 +569,9 @@ const DAYS = [
         loc: { n: "Kawaguchiko Music Forest Museum", q: "Kawaguchiko Music Forest Museum", kind: "sight" }
       },
       {
-        t: "Evening", hr: "6:30 PM", type: "meal", groups: ALL,
+        t: "Evening", hr: "6:15 PM", type: "meal", groups: ALL,
         title: "Hotel check-in & group dinner",
-        desc: "Check in and have a group dinner at your hotel. Band 18:30 in Concerto · Choir 18:30 in Garden Café · Orchestra at Fujiyama Terrace (seatings 18:30 / 19:45). Curfew announced by the directors."
+        desc: "Check in and have a group dinner at your hotel. Band & Choir at 18:15 in the Concerto Banquet Room (Hotel Mount Fuji) · Orchestra at the Fujiyama Terrace (Highland Resort; seatings 18:30 / 19:45). Curfew announced by the directors."
       }
     ],
     logistics: [
@@ -585,11 +585,11 @@ const DAYS = [
       },
       {
         label: "Choir (Bus 8–9)", groups: ["choir", "schoir"],
-        lines: ["07:00 — Breakfast at hotel restaurant", "07:45 — Load luggage onto truck", "08:45 — Board coach (bring concert clothes)", "09:00 — Depart hotel (~2.5-hr non-stop drive)", "11:30–13:30 — Oshino Hakkai, sightseeing & early lunch", "14:00 — Arrive Kawaguchiko Music Forest Museum, free time", "15:30–16:00 — Rehearsal", "16:10–16:40 — Performance in Organ Hall (open to public)", "17:30 — Check in at Hotel Mount Fuji"]
+        lines: ["06:30 — Breakfast at hotel restaurant (finish by 8:30am)", "08:45 — Board coach (overnight bag + concert clothes)", "09:00 — Depart hotel for Oshino Hakkai (~2-hr drive)", "11:30 — Oshino Hakkai, lunch on own in small groups", "13:30 — Depart for Kawaguchiko Music Forest Museum (arrive ~2:30, change & free time)", "15:20 — Gather outside Organ Hall", "15:30–16:00 — Soundcheck", "16:10 — Performance in Organ Hall (open to public)", "18:00 — Arrive Hotel Mount Fuji, check in"]
       },
       {
         label: "Hotels & dinner", groups: ALL,
-        lines: ["Band & Choir: Hotel Mount Fuji — 1360-83 Yamanaka, Yamanakako-mura, Yamanashi 401-0501 · +81-555-62-2111 (~20 min from venue)", "Orchestra: Highland Resort Hotel & Spa — 5-6-1 Shin-Nishihara, Fujiyoshida, Yamanashi 403-0017 · +81-555-22-1000 (~10 min from venue)", "Dinner: Band 18:30 Concerto · Choir 18:30 Garden Café · Orchestra Fujiyama Terrace 18:30 / 19:45"]
+        lines: ["Band & Choir: Hotel Mount Fuji — 1360-83 Yamanaka, Yamanakako-mura, Yamanashi 401-0501 · +81-555-62-2111 (~20 min from venue)", "Orchestra: Highland Resort Hotel & Spa — 5-6-1 Shin-Nishihara, Fujiyoshida, Yamanashi 403-0017 · +81-555-22-1000 (~10 min from venue)", "Dinner: Band & Choir 18:15 Concerto Banquet Room (Hotel Mount Fuji) · Orchestra Fujiyama Terrace (Highland Resort) 18:30 / 19:45"]
       }
     ]
   },
@@ -711,12 +711,12 @@ const DAYS = [
       {
         t: "Morning", hr: "10:30 AM", type: "travel", groups: ALL,
         title: "Check out & transfer to Kobe",
-        desc: "Load the truck and check out at 10:30. Transfer toward Kobe with a service-area lunch stop en route (Band: Takarazuka Kita SA · Orchestra: Suita SA · Choir: Tsuchiyama SA)."
+        desc: "Load the truck and check out at 10:30. Band & Orchestra transfer toward Kobe with a service-area lunch stop en route (Band: Takarazuka Kita SA · Orchestra: Suita SA). Choir travels to Kobe Chinatown for lunch on own."
       },
       {
         t: "Evening", hr: "5:00 PM", type: "meal", groups: ALL,
         title: "Dinner",
-        desc: "Choir & Shadow: early dinner on your own at Kobe Chinatown (14:00–16:00). Band, Orchestra & Shadow: bento box dinners provided at Akashi Civic Hall."
+        desc: "Choir & Shadow: lunch on your own at Kobe Chinatown (~12:45–2:30), then early dinner on your own at the AEON Shopping Center (~2:30–4:30). Band, Orchestra & Shadow: bento box dinners provided at Akashi Civic Hall."
       },
       {
         t: "Afternoon", hr: "6:00 PM", type: "performance", groups: ["band", "orch"],
@@ -725,9 +725,9 @@ const DAYS = [
         loc: { n: "Akashi Civic Hall", q: "Akashi Civic Hall Hyogo", kind: "venue" }
       },
       {
-        t: "Afternoon", hr: "2:00 PM", type: "sightseeing", groups: ["choir", "schoir"],
-        title: "Kobe Chinatown (Nankinmachi)",
-        desc: "Choir visits Kobe's Nankinmachi Chinatown (14:00–16:00) for sightseeing and exploring street food in small groups — steamed buns, dumplings, ramen and desserts.",
+        t: "Afternoon", hr: "12:45 PM", type: "sightseeing", groups: ["choir", "schoir"],
+        title: "Kobe Chinatown & AEON Shopping Center",
+        desc: "Choir visits Kobe's Nankinmachi Chinatown (~12:45) for lunch on your own — steamed buns, dumplings, ramen and desserts — then heads to the AEON Shopping Center (~2:30) for early dinner on your own, before departing for Akashi Civic Hall.",
         loc: { n: "Nankinmachi (Kobe Chinatown)", q: "Nankinmachi Kobe", kind: "sight" }
       },
       {
@@ -763,7 +763,7 @@ const DAYS = [
       },
       {
         label: "Choir (Bus 8–9)", groups: ["choir", "schoir"],
-        lines: ["11:30 — Board coach", "11:45 — Depart hotel", "12:00–13:30 — Lunch at Tsuchiyama Service Area", "14:00–16:00 — Kobe Chinatown (Nankinmachi), early dinner on own", "17:00 — Arrive Akashi Civic Hall to observe the concert", "21:00 — Depart venue, check in at Kobe Plaza Hotel (evening snack)"]
+        lines: ["11:15 — Board coach", "11:30 — Depart hotel for Kobe Chinatown", "12:45 — Kobe Chinatown (Nankinmachi), lunch on own", "14:30 — AEON Shopping Center, early dinner on own", "16:30 — Depart for Akashi Civic Hall", "17:00 — Arrive Akashi Civic Hall to observe the concert", "~21:00 — Depart venue, check in at Kobe Plaza Hotel ~9:30pm (evening snack)"]
       },
       {
         label: "Hotels", groups: ALL,
@@ -799,7 +799,7 @@ const DAYS = [
       {
         t: "Afternoon", hr: "4:30 PM", type: "performance", groups: ["choir"],
         title: "PERFORMANCE — Friendship Concert at Kobe High School",
-        desc: "Choir arrives at Kobe High School (13:30) for a campus tour and visit, then performs a Friendship Concert at 16:30 (Student and Shadow only). Depart 19:00.",
+        desc: "Choir arrives at Kobe High School (14:00), splits into small groups for short classes across campus, then performs a Friendship Concert at 16:30 (Student and Shadow only). Depart 19:00.",
         loc: { n: "Kobe High School", q: "Hyogo Prefectural Kobe High School", kind: "venue" }
       },
       {
@@ -821,7 +821,7 @@ const DAYS = [
       },
       {
         label: "Choir (Bus 8–9)", groups: ["choir", "schoir"],
-        lines: ["07:00 — Breakfast at hotel restaurant", "09:15 — Board coach", "09:30 — Depart hotel", "10:00–13:00 — Free time in Harborland / Meriken Park / New Port", "13:30 — Arrive Kobe High School, campus tour & visit", "16:30 — Friendship Concert with Kobe HS (Student & Shadow only)", "19:00 — Depart school", "19:30 — Return to hotel, dinner near hotel on own"]
+        lines: ["07:00 — Breakfast at hotel restaurant", "09:15 — Board coach", "09:30 — Depart hotel for Harborland & Meriken Park", "10:00–13:30 — Free time & lunch on own in Harborland / Meriken Park / New Port", "14:00 — Arrive Kobe High School, short classes across campus", "16:30 — Friendship Concert with Kobe HS (Student & Shadow only)", "19:00 — Depart school", "19:30 — Return to hotel, dinner near hotel on own"]
       },
       {
         label: "Hotels", groups: ALL,
@@ -930,14 +930,14 @@ const DAYS = [
       {
         t: "Afternoon", hr: "3:00 PM", type: "performance", groups: ["choir"],
         title: "PERFORMANCE — Friendship Concert at Jogakuin",
-        desc: "Choir performs a Friendship Concert with Hiroshima Jogakuin High School in the school chapel (15:00–16:30, open to the public).",
-        loc: { n: "Hiroshima Jogakuin High School (Chapel)", q: "Hiroshima Jogakuin Hiroshima", kind: "venue" }
+        desc: "Choir performs a Friendship Concert with Hiroshima Jogakuin High School at Gaine's Hall (3:00pm, open to the public). Provided lunch, change into performance attire, soundcheck in the chapel (2:00–2:15pm) and a combined rehearsal of 'Ruri Iro No Chikyu' beforehand.",
+        loc: { n: "Gaine's Hall, Hiroshima Jogakuin High School", q: "Hiroshima Jogakuin Hiroshima", kind: "venue" }
       },
       {
         t: "Afternoon", hr: "3:00 PM", type: "performance", groups: ["schoir"], gnote: "Attending",
         title: "Attend the Jogakuin concert",
-        desc: "Choir Shadow travelers attend the Choir's Friendship Concert at Hiroshima Jogakuin High School (open to the public).",
-        loc: { n: "Hiroshima Jogakuin High School (Chapel)", q: "Hiroshima Jogakuin Hiroshima", kind: "venue" }
+        desc: "Choir Shadow travelers attend the Choir's Friendship Concert at Gaine's Hall, Hiroshima Jogakuin High School (open to the public).",
+        loc: { n: "Gaine's Hall, Hiroshima Jogakuin High School", q: "Hiroshima Jogakuin Hiroshima", kind: "venue" }
       },
       {
         t: "Evening", hr: "5:30 PM", type: "meal", groups: ALL,
@@ -1378,12 +1378,12 @@ const SHADOW_DAYS = [
       {
         t: "Morning", hr: "6:30 AM", type: "meal", groups: SHG,
         title: "Breakfast at hotel",
-        desc: "Breakfast from 6:30am at Restaurant Cross Dine (1F) before checkout."
+        desc: "Breakfast from 6:25am at Restaurant Cross Dine (1F) before checkout (Choir Shadow: from 6:30am)."
       },
       {
-        t: "Morning", hr: "7:15 AM", type: "travel", groups: SHG,
+        t: "Morning", hr: "6:45 AM", type: "travel", groups: SHG,
         title: "Load luggage & depart for Mt. Fuji",
-        desc: "Bring large check-in luggage to the truck before departure (next access is in Kyoto). Return room keys, then board with your overnight bag. Band/Orch Shadow: Bus 1–2 meet 7:00am / leave 7:15am; Bus 3 meet 7:15am / leave 7:30am. Choir Shadow: meet 8:45am / leave 9:00am (~2-hr drive)."
+        desc: "Load large check-in luggage onto the truck before departure — Band/Orch Shadow by 6:45am, Choir Shadow by 7:15am (next access is in Kyoto). Return room keys to the front desk, then board with your overnight bag. Band/Orch Shadow: Bus 1–2 meet 7:00am / leave 7:15am; Bus 3 meet 7:15am / leave 7:30am. Choir Shadow: meet 8:45am, leave ~9:00am (~2-hr non-stop drive)."
       },
       {
         t: "Morning", hr: "10:30 AM", type: "sightseeing", groups: SBO,
@@ -1423,8 +1423,8 @@ const SHADOW_DAYS = [
     ],
     note: "Today (June 14) at 6pm is the deadline to book + pay for a Day 10 Awaji optional activity.",
     logistics: [
-      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["07:15 — Depart hotel for Mt. Fuji (Bus 1–2 meet 7:00; Bus 3 meet 7:15, depart 7:30)", "Luggage to truck before departure (next access in Kyoto); breakfast from 6:30am"] },
-      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["09:00 — Depart hotel for Mt. Fuji (Bus 4, meet 8:45)", "Luggage to truck before departure (next access in Kyoto); breakfast from 6:30am"] },
+      { label: "Band & Orchestra Shadow (Bus 1–3)", groups: SBO, lines: ["Breakfast from 6:25am at Restaurant Cross Dine (1F)", "06:45 — Load luggage onto truck (next access in Kyoto)", "07:15 — Depart hotel for Mt. Fuji (Bus 1–2 meet 7:00; Bus 3 meet 7:15, depart 7:30)", "10:30 — Mt. Fuji 5th Station, early lunch on own", "12:45 — Mt. Fuji Music Festival at Stellar Theater (SSO 1:30pm, SWE 3:40pm)"] },
+      { label: "Choir Shadow (Bus 4)", groups: SCH, lines: ["Breakfast from 6:30am at Restaurant Cross Dine (1F)", "07:15 — Load luggage onto truck (next access in Kyoto)", "09:00 — Depart hotel for Mt. Fuji (Bus 4, meet & board 8:45)", "12:00 — Mt. Fuji 5th Station, lunch on own", "13:30 — Depart for Kawaguchiko Music Forest Museum (arrive 2:30, free time)", "16:10 — Concert in Organ Hall"] },
       { label: "Overnight at Lake Ashi", groups: SHG, lines: ["The Prince Hakone Lake Ashinoko — 144 Motohakone, Hakone-machi, Kanagawa 250-0592 · +81-460-83-1111", "Pack a small overnight bag; large luggage goes ahead to Kyoto"] }]
   },
   {
