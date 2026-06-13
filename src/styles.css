@@ -631,6 +631,24 @@
   .ann-fmt-btn:hover,.ann-fmt-btn:active{background:#eef1f5;}
   body.dark .ann-fmt-btn{background:var(--card);border-color:rgba(255,255,255,.14);color:var(--ink);}
   body.dark .ann-fmt-btn:hover,body.dark .ann-fmt-btn:active{background:var(--card2);}
+  /* List button + bullet/number chooser */
+  .ann-list-wrap{position:relative;display:inline-flex;align-items:center;}
+  .ann-list-main{border-top-right-radius:0;border-bottom-right-radius:0;border-right:0;}
+  .ann-list-main svg{width:17px;height:17px;}
+  .ann-list-caret{height:31px;min-width:17px;padding:0 3px;display:inline-flex;align-items:center;justify-content:center;
+    background:#f7f8fa;border:1px solid var(--line);border-radius:0 8px 8px 0;color:var(--muted);font-size:10px;line-height:1;cursor:pointer;}
+  .ann-list-caret:hover,.ann-list-caret:active{background:#eef1f5;}
+  .ann-list-menu{position:absolute;bottom:calc(100% + 6px);left:0;z-index:20;background:#fff;border:1px solid var(--line);
+    border-radius:10px;box-shadow:0 8px 22px rgba(10,18,38,.16);padding:5px;display:flex;flex-direction:column;gap:2px;min-width:168px;}
+  .ann-list-menu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:0;
+    border-radius:7px;padding:8px 9px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .ann-list-menu button:hover,.ann-list-menu button:active{background:#eef1f5;}
+  .ann-list-menu svg{width:16px;height:16px;flex:0 0 auto;color:var(--muted);}
+  body.dark .ann-list-caret{background:var(--card);border-color:rgba(255,255,255,.14);color:var(--ink);}
+  body.dark .ann-list-caret:hover,body.dark .ann-list-caret:active{background:var(--card2);}
+  body.dark .ann-list-menu{background:var(--card2);border-color:rgba(255,255,255,.14);}
+  body.dark .ann-list-menu button{color:var(--ink);}
+  body.dark .ann-list-menu button:hover,body.dark .ann-list-menu button:active{background:var(--card);}
   .ann-compose-row{display:flex;gap:9px;align-items:flex-end;}
   .ann-compose-input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;
     font:inherit;font-size:16px;resize:none;max-height:120px;background:#f7f8fa;color:var(--ink);}
