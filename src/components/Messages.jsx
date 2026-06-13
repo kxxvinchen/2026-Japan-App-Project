@@ -12,6 +12,8 @@ import { useStore } from "../store.jsx";
 
 const Bell = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
 const Plane = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>;
+const BulletIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="9" y1="6" x2="20" y2="6" /><line x1="9" y1="12" x2="20" y2="12" /><line x1="9" y1="18" x2="20" y2="18" /><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none" /></svg>;
+const NumberIcon = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="20" y2="6" /><line x1="10" y1="12" x2="20" y2="12" /><line x1="10" y1="18" x2="20" y2="18" /><text x="1.5" y="8.5" fontSize="7" fontWeight="700" fill="currentColor" stroke="none">1</text><text x="1.5" y="14.5" fontSize="7" fontWeight="700" fill="currentColor" stroke="none">2</text><text x="1.5" y="20.5" fontSize="7" fontWeight="700" fill="currentColor" stroke="none">3</text></svg>;
 const Check = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>;
 // backdrop nodes that mirror the textarea, with @-mentions wrapped in colored pills and markdown support
 function renderHighlight(text) {
@@ -144,8 +146,17 @@ function Compose() {
   const chLabel = CH_LABEL[FB.activeChannel] || "channel";
   const [draft, setDraft] = useState(editing ? FB.editing.text : getDraft(FB.activeChannel));
   const taRef = useRef(null), hlRef = useRef(null);   // textarea + highlight backdrop
+  const listRef = useRef(null);                       // list button + chooser wrapper
   const [pop, setPop] = useState({ open: false, q: "", at: -1 });   // @-mention autocomplete
+  const [listType, setListType] = useState("bullet");   // which list the main list button applies
+  const [listMenu, setListMenu] = useState(false);      // bullet/number chooser open?
   useEffect(() => { setDraft(editing ? FB.editing.text : getDraft(FB.activeChannel)); }, [editing ? FB.editing.id : "", FB.activeChannel]);
+  useEffect(() => {
+    if (!listMenu) return;
+    const onDown = (e) => { if (listRef.current && !listRef.current.contains(e.target)) setListMenu(false); };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [listMenu]);
   useEffect(() => {
     const el = taRef.current;
     if (el) {
@@ -223,6 +234,74 @@ function Compose() {
       t.setSelectionRange(s, s + 3);   // select "url" so it's ready to overwrite
     });
   };
+  // Lists are stored as plain-text line prefixes ("• " / "1. ") so they render
+  // identically in the composer backdrop and in the sent message (both pre-wrap).
+  const BULLET = "• ";
+  const isBulletLine = (l) => /^•\s/.test(l);
+  const isNumberLine = (l) => /^\d+\.\s/.test(l);
+  const stripListPrefix = (l) => l.replace(/^(?:•\s|\d+\.\s)/, "");
+  // Toggle a bullet/numbered list across the selected line(s). If every non-blank
+  // line is already that type, remove the list (so clicking again clears it).
+  const toggleList = (type) => {
+    setListMenu(false);
+    const el = taRef.current; if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    const text = draft;
+    const blockStart = text.lastIndexOf("\n", start - 1) + 1;
+    let blockEnd = text.indexOf("\n", end);
+    if (blockEnd === -1) blockEnd = text.length;
+    const lines = text.slice(blockStart, blockEnd).split("\n");
+    const nonBlank = lines.filter((l) => l.trim() !== "");
+    const allThisType = nonBlank.length > 0
+      && nonBlank.every((l) => (type === "bullet" ? isBulletLine(l) : isNumberLine(l)));
+    let n = 1;
+    const out = lines.map((l) => {
+      if (l.trim() === "") return l;                 // leave blank lines untouched
+      const base = stripListPrefix(l);
+      if (allThisType) return base;                  // toggle the list off
+      return type === "bullet" ? BULLET + base : (n++) + ". " + base;
+    });
+    const block = out.join("\n");
+    const next = text.slice(0, blockStart) + block + text.slice(blockEnd);
+    setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
+    requestAnimationFrame(() => {
+      const t = taRef.current; if (!t) return;
+      t.focus();
+      t.setSelectionRange(blockStart, blockStart + block.length);
+    });
+  };
+  const pickList = (type) => { setListType(type); toggleList(type); };
+  // Enter inside a list continues it; Enter on an empty item ends the list.
+  const onKey = (e) => {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    const el = taRef.current; if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    if (start !== end) return;
+    const text = draft;
+    const ls = text.lastIndexOf("\n", start - 1) + 1;
+    let le = text.indexOf("\n", start); if (le === -1) le = text.length;
+    const line = text.slice(ls, le);
+    const bm = line.match(/^•\s/), nm = line.match(/^(\d+)\.\s/);
+    if (!bm && !nm) return;
+    e.preventDefault();
+    const rest = line.slice((bm || nm)[0].length);
+    let next, caret;
+    if (rest.trim() === "") {                        // empty item → drop the prefix, exit list
+      next = text.slice(0, ls) + text.slice(le);
+      caret = ls;
+    } else {                                         // continue the list on a new line
+      const prefix = bm ? BULLET : (parseInt(nm[1], 10) + 1) + ". ";
+      const ins = "\n" + prefix;
+      next = text.slice(0, start) + ins + text.slice(start);
+      caret = start + ins.length;
+    }
+    setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
+    requestAnimationFrame(() => {
+      const t = taRef.current; if (!t) return;
+      t.focus();
+      t.setSelectionRange(caret, caret);
+    });
+  };
 
   // No @everyone option: a message with no group/flight mention already notifies the
   // whole channel by default, so @everyone would be redundant.
@@ -253,6 +332,7 @@ function Compose() {
             placeholder={chap ? "Message " + chLabel + "…" : "Post an announcement to " + chLabel + "…"}
             value={draft}
             onChange={(e) => onDraft(e.target.value, e.target)}
+            onKeyDown={onKey}
             onKeyUp={(e) => onDraft(e.target.value, e.target)}
             onBlur={() => setTimeout(closePop, 150)}
             onScroll={(e) => { if (hlRef.current) { hlRef.current.scrollTop = e.target.scrollTop; hlRef.current.scrollLeft = e.target.scrollLeft; } }} />
@@ -264,6 +344,20 @@ function Compose() {
         <button type="button" className="ann-fmt-btn" title="Italic" aria-label="Italic" onMouseDown={(e) => { e.preventDefault(); toggleFmt("*"); }}><i>I</i></button>
         <button type="button" className="ann-fmt-btn" title="Underline" aria-label="Underline" onMouseDown={(e) => { e.preventDefault(); toggleFmt("__"); }}><u>U</u></button>
         <button type="button" className="ann-fmt-btn" title="Strikethrough" aria-label="Strikethrough" onMouseDown={(e) => { e.preventDefault(); toggleFmt("~~"); }}><s>S</s></button>
+        <span className="ann-list-wrap" ref={listRef}>
+          <button type="button" className="ann-fmt-btn ann-list-main" title={listType === "bullet" ? "Bulleted list" : "Numbered list"} aria-label="Toggle list"
+            onMouseDown={(e) => { e.preventDefault(); toggleList(listType); }}>
+            {listType === "bullet" ? <BulletIcon /> : <NumberIcon />}
+          </button>
+          <button type="button" className="ann-list-caret" title="List type" aria-label="Choose list type"
+            onMouseDown={(e) => { e.preventDefault(); setListMenu((o) => !o); }}>▾</button>
+          {listMenu ? (
+            <div className="ann-list-menu">
+              <button type="button" onMouseDown={(e) => { e.preventDefault(); pickList("bullet"); }}><BulletIcon /><span>Bulleted list</span></button>
+              <button type="button" onMouseDown={(e) => { e.preventDefault(); pickList("number"); }}><NumberIcon /><span>Numbered list</span></button>
+            </div>
+          ) : null}
+        </span>
         <button type="button" className="ann-fmt-btn" title="Link" aria-label="Link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }}>🔗</button>
       </div>
     </div>
