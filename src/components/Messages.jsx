@@ -251,23 +251,23 @@ function Compose() {
     let blockEnd = text.indexOf("\n", end);
     if (blockEnd === -1) blockEnd = text.length;
     const lines = text.slice(blockStart, blockEnd).split("\n");
-    const nonBlank = lines.filter((l) => l.trim() !== "");
-    const allThisType = nonBlank.length > 0
-      && nonBlank.every((l) => (type === "bullet" ? isBulletLine(l) : isNumberLine(l)));
+    // If every row in the block is already this type, the button clears the list;
+    // otherwise apply it to every row — including empty ones.
+    const allThisType = lines.every((l) => (type === "bullet" ? isBulletLine(l) : isNumberLine(l)));
     let n = 1;
     const out = lines.map((l) => {
-      if (l.trim() === "") return l;                 // leave blank lines untouched
       const base = stripListPrefix(l);
       if (allThisType) return base;                  // toggle the list off
       return type === "bullet" ? BULLET + base : (n++) + ". " + base;
     });
     const block = out.join("\n");
     const next = text.slice(0, blockStart) + block + text.slice(blockEnd);
+    const caret = blockStart + block.length;         // collapse to end so typing / Enter continues
     setDraft(next); if (!editing) saveDraft(FB.activeChannel, next);
     requestAnimationFrame(() => {
       const t = taRef.current; if (!t) return;
       t.focus();
-      t.setSelectionRange(blockStart, blockStart + block.length);
+      t.setSelectionRange(caret, caret);
     });
   };
   const pickList = (type) => { setListType(type); toggleList(type); };
